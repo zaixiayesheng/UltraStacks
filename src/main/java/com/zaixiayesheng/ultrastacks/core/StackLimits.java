@@ -1,7 +1,9 @@
 package com.zaixiayesheng.ultrastacks.core;
 
 /**
+ * Pure stack-size math, kept free of Minecraft types.
  *
+ * <p><b>中文</b> 不依赖 Minecraft 类型的堆叠尺寸纯计算。
  */
 public final class StackLimits {
     /** Vanilla limit used as the reference point for proportional scaling. */

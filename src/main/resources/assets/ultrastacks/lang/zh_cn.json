@@ -3,5 +3,12 @@
   "ultrastacks.configuration.scaleSmallItems": "小堆叠等比放大",
   "ultrastacks.configuration.experimentalStackSizes": "实验性堆叠上限",
   "ultrastacks.configuration.section.ultrastacks.common.toml": "超级堆叠",
-  "ultrastacks.configuration.section.ultrastacks.common.toml.title": "超级堆叠"
+  "ultrastacks.configuration.section.ultrastacks.common.toml.title": "超级堆叠",
+  "ultrastacks.configuration.crafting": "合成模块",
+  "ultrastacks.configuration.display": "显示模块",
+  "ultrastacks.configuration.bulkCrafting": "批量合成",
+  "ultrastacks.configuration.countStyle": "数量显示",
+  "ultrastacks.configuration.abbreviateAbove": "缩写阈值",
+  "ultrastacks.configuration.tooltipExact": "提示框准确数量",
+  "ultrastacks.tooltip.count": "数量：%s / %s"
 }

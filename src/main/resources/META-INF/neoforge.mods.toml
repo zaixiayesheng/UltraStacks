@@ -18,6 +18,12 @@ config = "ultrastacks.core.mixins.json"
 [[mixins]]
 config = "ultrastacks.vanilla.mixins.json"
 
+[[mixins]]
+config = "ultrastacks.crafting.mixins.json"
+
+[[mixins]]
+config = "ultrastacks.display.mixins.json"
+
 [[dependencies.ultrastacks]]
 modId = "neoforge"
 type = "required"

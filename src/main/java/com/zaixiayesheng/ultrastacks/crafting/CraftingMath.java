@@ -1,12 +1,15 @@
 package com.zaixiayesheng.ultrastacks.crafting;
 
 /**
+ * Pure arithmetic behind the bulk crafting path: no Minecraft types.
  *
  * <p>The in-game code counts what is available, asks this class how many crafts that pays for, then
  * consumes exactly {@code crafts * occupiedSlots} items and produces {@code crafts * perCraft}
  * items. Everything that could silently create or destroy items (rounding, overflow, per-stack
+ * truncation) lives here.
  *
  * <p><b>中文</b> 批量合成的纯算术：可用数量、按格子占用折算次数、按空间封顶、以及把超大产物拆块。
+ * 可能产生复制或丢失的取整、溢出都在这里。
  */
 public final class CraftingMath {
 

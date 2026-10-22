@@ -10,5 +10,8 @@
   "ultrastacks.configuration.countStyle": "Count Style",
   "ultrastacks.configuration.abbreviateAbove": "Abbreviate Above",
   "ultrastacks.configuration.tooltipExact": "Tooltip Exact Count",
-  "ultrastacks.tooltip.count": "Count: %s / %s"
+  "ultrastacks.tooltip.count": "Count: %s / %s",
+  "ultrastacks.configuration.potionStackLimit": "Potion stack size",
+  "ultrastacks.configuration.enchantedBookStackLimit": "Enchanted book stack size",
+  "ultrastacks.configuration.brewingYield": "Bottles per reagent when brewing"
 }

@@ -10,5 +10,8 @@
   "ultrastacks.configuration.countStyle": "数量显示",
   "ultrastacks.configuration.abbreviateAbove": "缩写阈值",
   "ultrastacks.configuration.tooltipExact": "提示框准确数量",
-  "ultrastacks.tooltip.count": "数量：%s / %s"
+  "ultrastacks.tooltip.count": "数量：%s / %s",
+  "ultrastacks.configuration.potionStackLimit": "药水每堆数量",
+  "ultrastacks.configuration.enchantedBookStackLimit": "附魔书每堆数量",
+  "ultrastacks.configuration.brewingYield": "每个原料可酿出的药水瓶数"
 }

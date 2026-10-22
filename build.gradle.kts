@@ -4,7 +4,7 @@ plugins {
 }
 
 val modId = "ultrastacks"
-val modVersion = "20.1-1.0.0-alpha"
+val modVersion = "20.1-1.0.1-alpha"
 val mcVersion = "1.20.1"
 val forgeVersion = "47.4.0"
 val parchmentMappings = "2023.09.03"
@@ -69,6 +69,8 @@ legacyForge {
 mixin {
     add(sourceSets.main.get(), "$modId.refmap.json")
     config("$modId.mixins.json")
+    config("$modId.crafting.mixins.json")
+    config("$modId.display.mixins.json")
 }
 
 val expandProps = mapOf(
@@ -87,7 +89,7 @@ tasks.processResources {
 
 tasks.jar {
     manifest {
-        attributes("MixinConfigs" to "$modId.mixins.json")
+        attributes("MixinConfigs" to "$modId.mixins.json,$modId.crafting.mixins.json,$modId.display.mixins.json")
     }
 }
 

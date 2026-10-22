@@ -1,5 +1,12 @@
 {
   "ultrastacks.configuration.maxStackSize": "Max Stack Size",
   "ultrastacks.configuration.scaleSmallItems": "Scale Small Stacks",
-  "ultrastacks.configuration.experimentalStackSizes": "Experimental Stack Sizes"
+  "ultrastacks.configuration.experimentalStackSizes": "Experimental Stack Sizes",
+  "ultrastacks.configuration.crafting": "Crafting Module",
+  "ultrastacks.configuration.display": "Display Module",
+  "ultrastacks.configuration.bulkCrafting": "Bulk Crafting",
+  "ultrastacks.configuration.countStyle": "Count Style",
+  "ultrastacks.configuration.abbreviateAbove": "Abbreviate Above",
+  "ultrastacks.configuration.tooltipExact": "Tooltip Exact Count",
+  "ultrastacks.tooltip.count": "Count: %s / %s"
 }

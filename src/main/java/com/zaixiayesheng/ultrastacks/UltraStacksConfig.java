@@ -1,6 +1,9 @@
 package com.zaixiayesheng.ultrastacks;
 
 import com.zaixiayesheng.ultrastacks.core.StackLimits;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.PotionItem;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -35,6 +38,32 @@ public final class UltraStacksConfig {
                     "Experimental: mods that assume small stacks may misbehave or lose items.")
             .translation("ultrastacks.configuration.experimentalStackSizes")
             .define("experimentalStackSizes", false);
+
+    private static final ModConfigSpec.IntValue POTION_STACK_LIMIT = BUILDER
+        .comment("药水每堆最多几个（药水、喷溅、滞留、水瓶）。",
+            "0 = Auto（自动）：堆叠上限的 1/16，默认 65536 时为 4096。",
+            "1 = 原版（不可堆叠）；其它正数按填写的值生效。",
+            "Potions only (potion, splash, lingering, water bottle). 0 = Auto, 1 = vanilla.")
+        .translation("ultrastacks.configuration.potionStackLimit")
+        .defineInRange("potionStackLimit", 0, 0, UltraStacks.ABSOLUTE_MAX_STACK_SIZE);
+    private static final ModConfigSpec.IntValue ENCHANTED_BOOK_STACK_LIMIT = BUILDER
+        .comment("附魔书每堆最多几个。",
+            "0 = Auto（自动）：堆叠上限的 1/16，默认 65536 时为 4096。",
+            "1 = 原版（不可堆叠）；其它正数按填写的值生效。",
+            "Enchanted books only. 0 = Auto, 1 = vanilla.")
+        .translation("ultrastacks.configuration.enchantedBookStackLimit")
+        .defineInRange("enchantedBookStackLimit", 0, 0, UltraStacks.ABSOLUTE_MAX_STACK_SIZE);
+    private static final ModConfigSpec.IntValue BUCKET_STACK_LIMIT = BUILDER
+            .comment("各种桶的堆叠上限；低于空桶上限时自动抬到空桶。",
+                    "Bucket stack limit; values below the empty bucket limit are raised to it.")
+            .translation("ultrastacks.configuration.bucketStackLimit")
+            .defineInRange("bucketStackLimit", 16, 1, UltraStacks.ABSOLUTE_MAX_STACK_SIZE);
+
+    private static final ModConfigSpec.IntValue BREWING_YIELD = BUILDER
+            .comment("每个原料能酿出几瓶（原版为 3）。",
+                    "Bottles one reagent converts into when brewing stacked potions; vanilla is 3.")
+            .translation("ultrastacks.configuration.brewingYield")
+            .defineInRange("brewingYield", 3, 1, 4096);
 
     private static final ModConfigSpec.BooleanValue CRAFTING_MODULE = BUILDER
             .comment("Crafting module: one shift-click finishes a whole batch.",
@@ -72,7 +101,7 @@ public final class UltraStacksConfig {
             .comment("Display module: with COMPACT, counts from this value up are abbreviated.",
                     "中文：显示模块：COMPACT 模式下，达到该数量即缩写。")
             .translation("ultrastacks.configuration.abbreviateAbove")
-            .defineInRange("abbreviateAbove", 10000, 256, 1_000_000_000);
+            .defineInRange("abbreviateAbove", 1000, 256, 1000);
 
     private static final ModConfigSpec.BooleanValue TOOLTIP_EXACT = BUILDER
             .comment("Display module: add the exact count and the stack limit to the item tooltip.",
@@ -83,12 +112,16 @@ public final class UltraStacksConfig {
     public static final ModConfigSpec SPEC = BUILDER.build();
 
     private static volatile int maxStackSize = DEFAULT_MAX_STACK_SIZE;
+    private static volatile int potionStackLimit = 1;
+    private static volatile int enchantedBookStackLimit = 1;
+    private static volatile int bucketStackLimit = 16;
+    private static volatile int brewingYield = 3;
     private static volatile boolean scaleSmallItems = true;
     private static volatile boolean craftingModule = true;
     private static volatile boolean displayModule = true;
     private static volatile boolean bulkCrafting = true;
     private static volatile CountStyle countStyle = CountStyle.COMPACT;
-    private static volatile int abbreviateAbove = 10000;
+    private static volatile int abbreviateAbove = 1000;
     private static volatile boolean tooltipExact = true;
 
     private UltraStacksConfig() {
@@ -150,6 +183,11 @@ public final class UltraStacksConfig {
             UltraStacks.LOGGER.info("maxStackSize: {} -> {}", maxStackSize, requested);
             maxStackSize = requested;
         }
+        potionStackLimit = resolveSpecialStackLimit(POTION_STACK_LIMIT.get(), requested);
+        enchantedBookStackLimit = resolveSpecialStackLimit(ENCHANTED_BOOK_STACK_LIMIT.get(), requested);
+        brewingYield = Math.max(1, BREWING_YIELD.get());
+        int bucketRaw = BUCKET_STACK_LIMIT.get();
+        bucketStackLimit = bucketRaw <= 0 ? scaledMax(16) : Math.min(bucketRaw, UltraStacks.ABSOLUTE_MAX_STACK_SIZE);
     }
 
     /** Vanilla containers default to 99; walk that placeholder up to the configured limit. */
@@ -180,8 +218,72 @@ public final class UltraStacksConfig {
         return bound == 99 ? codecUpperBound() : bound;
     }
 
+
+    /** Stack limit configured for potions. */
+    public static int potionStackLimit() {
+        return potionStackLimit;
+    }
+
+    /** Stack limit configured for other vanillla single-item stacks. */
+    public static int enchantedBookStackLimit() {
+        return enchantedBookStackLimit;
+    }
+
+    /** Stack limit for filled buckets. */
+    public static int bucketStackLimit() {
+        return bucketStackLimit;
+    }
+
+    /** True for potion, splash potion and lingering potion (including modded subclasses). */
+    public static boolean isPotion(ItemStack stack) {
+        return stack.getItem() instanceof PotionItem;
+    }
+
+    /**
+     * Limit reported to {@link ItemStack#getMaxStackSize()} after the default components were applied.
+     *
+     * <p>Items that vanilla can already stack keep their resolved limit. Items whose vanilla limit is
+     * one are raised only when the matching configuration asks for it, and damageable items never
+     * stack at all.
+     */
+    public static int limitFor(ItemStack stack, int current) {
+        if (current > 1 || stack.isDamageableItem()) {
+            return current;
+        }
+                int configured;
+        if (isPotion(stack)) {
+            configured = potionStackLimit;
+        } else if (isEnchantedBook(stack)) {
+            configured = enchantedBookStackLimit;
+        } else if (stack.getItem() instanceof net.minecraft.world.item.BucketItem
+                || stack.getItem() instanceof net.minecraft.world.item.MilkBucketItem) {
+            configured = Math.max(bucketStackLimit, scaledMax(16));
+        } else {
+            return current;
+        }
+        return Math.max(current, configured);
+    }
+
     /** New stack limit for an item whose vanilla limit is {@code vanillaMax}. */
     public static int scaledMax(int vanillaMax) {
         return StackLimits.resolve(vanillaMax, maxStackSize, scaleSmallItems);
+    }
+
+    /** Bottles a single reagent converts into when brewing stacked potions. */
+    public static int brewingYield() {
+        return brewingYield;
+    }
+
+    /** 0 means automatic: one sixteenth of the configured stack limit. */
+    private static int resolveSpecialStackLimit(int configured, int maxStackSize) {
+        if (configured <= 0) {
+            return Math.max(1, maxStackSize / 16);
+        }
+        return Math.max(1, Math.min(configured, UltraStacks.ABSOLUTE_MAX_STACK_SIZE));
+    }
+
+    /** True for enchanted books, the only non-potion single item that is raised on purpose. */
+    public static boolean isEnchantedBook(ItemStack stack) {
+        return stack.is(Items.ENCHANTED_BOOK);
     }
 }

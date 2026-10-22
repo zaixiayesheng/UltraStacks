@@ -1,5 +1,6 @@
 package com.zaixiayesheng.ultrastacks.mixin;
 
+import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -7,26 +8,26 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * A stack must never report a maximum smaller than the number of items it already carries.
+ * Applies the configured stack limit when vanilla asks a stack for its maximum size.
  *
- * <p>Vanilla menu code assumes {@code getMaxStackSize() >= getCount()} and computes headroom as
- * {@code max - count}. When a stack was created while a larger limit was configured (or by a creative
- * action) and the limit is later lowered, that subtraction goes negative: {@code grow(negative)} shrinks the
- * slot while {@code shrink(negative)} grows the carried stack. That is exactly the "split and put both halves
- * back, one half disappears / one extra appears" symptom. Raising the reported max to at least the current
- * count makes every such subtraction non-negative instead of clamping or dropping items.
+ * <p>Two things happen here: items whose vanilla limit is one (potions, buckets, enchanted books)
+ * can be raised when their configuration asks for it, and a stack never reports a maximum smaller
+ * than the number of items it already carries. The second rule keeps every
+ * {@code max - count} subtraction in menu code non-negative after a limit was lowered.
  *
- * <p><b>中文</b> 堆叠报告的上限永远不小于自身数量，避免菜单计算空余空间时出现负数。
+ * <p><b>中文</b> 在 {@link ItemStack#getMaxStackSize()} 返回处套用配置：原版上限为 1 的物品（药水、桶、附魔书等）
+ * 可以在配置里单独抬高；同时保证报告的上限永远不小于自身数量，避免上限调低后菜单运算出现负数。
  */
 @Mixin(ItemStack.class)
 public abstract class ItemStackMaxStackMixin {
 
     @Inject(method = "getMaxStackSize()I", at = @At("RETURN"), cancellable = true)
-    private void ultrastacks$neverBelowCount(CallbackInfoReturnable<Integer> cir) {
-        int count = ((ItemStack) (Object) this).getCount();
-        int max = cir.getReturnValue();
-        if (count > max) {
-            cir.setReturnValue(count);
+    private void ultrastacks$applyLimit(CallbackInfoReturnable<Integer> cir) {
+        ItemStack self = (ItemStack) (Object) this;
+        int original = cir.getReturnValue();
+        int limit = Math.max(UltraStacksConfig.limitFor(self, original), self.getCount());
+        if (limit != original) {
+            cir.setReturnValue(limit);
         }
     }
 }

@@ -2,6 +2,8 @@
   "ultrastacks.configuration.maxStackSize": "Max Stack Size",
   "ultrastacks.configuration.scaleSmallItems": "Scale Small Stacks",
   "ultrastacks.configuration.experimentalStackSizes": "Experimental Stack Sizes",
+  "ultrastacks.configuration.potionStackLimit": "Potion stack size",
+  "ultrastacks.configuration.enchantedBookStackLimit": "Enchanted book stack size",
   "ultrastacks.configuration.crafting": "Crafting Module",
   "ultrastacks.configuration.display": "Display Module",
   "ultrastacks.configuration.bulkCrafting": "Bulk Crafting",
@@ -10,5 +12,6 @@
   "ultrastacks.configuration.tooltipExact": "Tooltip Exact Count",
   "ultrastacks.configuration.section.ultrastacks.common.toml": "UltraStacks",
   "ultrastacks.configuration.section.ultrastacks.common.toml.title": "UltraStacks",
-  "ultrastacks.tooltip.count": "Count: %s / %s"
+  "ultrastacks.tooltip.count": "Count: %s / %s",
+  "ultrastacks.configuration.brewingYield": "Bottles per reagent when brewing"
 }

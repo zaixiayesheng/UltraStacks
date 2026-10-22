@@ -1,0 +1,5 @@
+{
+  "ultrastacks.configuration.maxStackSize": "最大堆叠",
+  "ultrastacks.configuration.scaleSmallItems": "小堆叠等比放大",
+  "ultrastacks.configuration.experimentalStackSizes": "实验性堆叠上限"
+}

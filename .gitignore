@@ -1,0 +1,19 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# 开发运行目录
+run/
+run-server/
+run-data/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.eclipse/
+bin/
+
+# 编译期兼容 jar（只给 Mixin 注解处理器解析目标，不进仓库）
+libs/

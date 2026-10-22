@@ -60,7 +60,7 @@
 
 **模块**：超级堆叠 · 合成模块 · 显示模块
 
-**摘要**：加入两个独立模块（合成模块、显示模块），超级堆叠行为不变。
+**摘要**：加入合成模块与显示模块，超级堆叠行为不变。
 
 ### 新增
 - 合成模块：原版工作台（3x3）与背包合成格（2x2）在 Shift 点击时一次合完整批，不再逐个循环；按材料与背包空间取较小值，余下的材料留在原处。
@@ -74,7 +74,7 @@
 
 **Modules**: UltraStacks · Crafting · Display
 
-**Summary**: two standalone modules (crafting and display); the UltraStacks behaviour is unchanged.
+**Summary**: crafting and display modules; the UltraStacks behaviour is unchanged.
 
 ### Added
 - Crafting module: shift-clicking the result of the 3x3 table or the 2x2 grid finishes the whole batch in one pass instead of the vanilla one-craft-per-round loop, capped by both materials and free space; leftovers stay in place.

@@ -13,6 +13,9 @@ import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
  */
 public final class CountFormat {
 
+    /** Largest count still drawn in full; four digits do not fit a vanilla slot. */
+    private static final long MAX_PLAIN_COUNT = 999L;
+
     private CountFormat() {
     }
 
@@ -21,9 +24,10 @@ public final class CountFormat {
         if (count < 0) {
             return Long.toString(count);
         }
+        long threshold = Math.min(UltraStacksConfig.abbreviateAbove(), MAX_PLAIN_COUNT + 1L);
         if (!UltraStacksConfig.displayModule()
                 || UltraStacksConfig.countStyle() == UltraStacksConfig.CountStyle.EXACT
-                || count < UltraStacksConfig.abbreviateAbove()) {
+                || count < threshold) {
             return Long.toString(count);
         }
         return abbreviate(count);

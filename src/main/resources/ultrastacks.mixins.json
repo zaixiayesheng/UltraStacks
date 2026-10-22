@@ -6,10 +6,14 @@
   "refmap": "ultrastacks.refmap.json",
   "mixins": [
     "AbstractFurnaceBlockEntityMixin",
+    "AnvilMenuMixin",
+    "BrewingStandBlockEntityMixin",
     "BrewingStandSlotMixin",
     "CompoundContainerMixin",
     "ContainersDropStackMixin",
     "CreativeSlotLimitMixin",
+    "EnchantmentMenuAccessor",
+    "EnchantmentMenuMixin",
     "FriendlyByteBufMixin",
     "HopperBlockEntityMixin",
     "ItemEntityMergeGuardMixin",
@@ -17,11 +21,13 @@
     "ItemStackHandlerMixin",
     "ItemStackMaxStackMixin",
     "ItemStackMixin",
+    "ItemCombinerMenuMixin",
     "PlayerInventoryMixin",
     "QuickCraftSplitMixin",
     "RandomizableContainerBlockEntityMixin",
     "SimpleContainerMixin",
-    "SlotMixin"
+    "SlotMixin",
+    "BrewingStandPotionSlotMixin"
   ],
   "injectors": {
     "defaultRequire": 1

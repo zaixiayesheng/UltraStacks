@@ -31,7 +31,7 @@ public abstract class ItemStackMaxStackMixin {
     @Inject(method = "getMaxStackSize()I", at = @At("RETURN"), cancellable = true)
     private void ultrastacks$neverBelowCount(CallbackInfoReturnable<Integer> cir) {
         ItemStack self = (ItemStack) (Object) this;
-        int raised = UltraStacksConfig.scaledMaxForItem(cir.getReturnValue());
+        int raised = UltraStacksConfig.limitFor(self, cir.getReturnValue());
         int count = self.getCount();
         cir.setReturnValue(Math.max(raised, count));
     }

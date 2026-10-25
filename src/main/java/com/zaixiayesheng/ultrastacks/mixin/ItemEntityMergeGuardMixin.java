@@ -11,21 +11,30 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 让地上掉落的物品按配置的堆叠上限合并。
+ * 地上的掉落物按配置上限合并。
  *
- * <p>原版两处都写死了 64：{@code areMergable} 用 int 相加判断「两个堆叠加起来放不放得下」，
- * {@code tryToMerge} 每次只按 64 搬运。堆叠上限提到 32768 甚至 32 位整数上限后：
- * <ul>
- *   <li>两个大堆叠相加会在 int 里溢出成负数，直接判成「放得下」，合并逻辑把数量算错；</li>
- *   <li>即使判对了，也永远只合并到 64，超出部分留在另一个实体里，看起来像「地上掉的东西不合并」。</li>
- * </ul>
- * 这里把 64 换成配置值，并用 long 相加做溢出保护：真正的上限判断仍交给原版。
+ * <p>原版 {@code areMergable} 把两个数量按 int 相加：两个接近十亿的堆叠相加会溢出成负数，
+ * 于是「和 ≤ 上限」成立、被误判为可以合并。这里先用 {@code long} 加一遍再比较。
+ * 另一处 {@code merge} 原版固定每次搬 64 个，这里换成配置上限，一次就能合并到满。
  *
- * <p><b>EN</b> Guards entity merging with long arithmetic so large stacks merge up to the configured limit instead of overflowing.
+ * <p>Merges dropped stacks up to the configured limit. Vanilla {@code areMergable} adds the two
+ * counts as {@code int}, so two stacks near a billion overflow into a negative number, the
+ * sum-below-limit test passes, and the merge is allowed by mistake; the guard adds them as
+ * {@code long} first. Vanilla {@code merge} also moves a fixed 64 items per call, which the second
+ * hook replaces with the configured limit so a merge can fill the stack in one step.
  */
 @Mixin(ItemEntity.class)
 public class ItemEntityMergeGuardMixin {
 
+    /**
+     * 用 {@code long} 求和来判断两个堆叠放不放得下，避免 int 溢出导致的错误合并。
+     *
+     * <p>任一方为空时交还原版：原版对空堆叠的判断没有溢出风险。
+     *
+     * <p>Decides whether two stacks fit together by summing them as {@code long}, avoiding the wrong
+     * answer an {@code int} overflow would give. If either side is empty the hook defers to vanilla,
+     * whose empty-stack check cannot overflow.
+     */
     @Inject(method = "areMergable(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z",
             at = @At("HEAD"), cancellable = true)
     private static void ultrastacks$guardMerge(ItemStack destination, ItemStack origin,
@@ -40,6 +49,15 @@ public class ItemEntityMergeGuardMixin {
         }
     }
 
+    /**
+     * 把 {@code merge} 里写死的 64 换成配置上限。
+     *
+     * <p>{@code require = 0}：目标方法里找不到这个常量就跳过，不让补丁影响启动。
+     *
+     * <p>Replaces the hard-coded 64 in {@code merge} with the configured limit. With
+     * {@code require = 0} the hook is skipped if the constant is missing from the target method,
+     * so it cannot break startup.
+     */
     @ModifyConstant(method = "merge(Lnet/minecraft/world/entity/item/ItemEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)V",
             constant = @Constant(intValue = 64), require = 0)
     private static int ultrastacks$mergeAmount(int original) {

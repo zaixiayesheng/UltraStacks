@@ -8,14 +8,27 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 /**
- * 原版 {@link Container#getMaxStackSize()} 默认返回 99，箱子 / 潜影盒 / 背包里没重写它的容器都吃这个值；
- * {@code getMaxStackSize(ItemStack)} 则是 {@code min(容器上限, 物品上限)}。
+ * 容器上限：把原版默认的 99 换成配置值，并保证返回值不小于槽内那一摞的数量。
  *
- * <p>两件事：一是把 99 换成配置上限；二是让返回值永远不小于传入堆叠的数量。
- * 后者很关键——{@code SimpleContainer#setItem}、{@code BaseContainerBlockEntity} 收物品时会调
- * {@code stack.limitSize(getMaxStackSize(stack))}，上限若小于数量会把堆叠截断（看起来就是「放进去少了一大截」）。
+ * <p>{@link Container#getMaxStackSize()} 在原版里默认返回 99，没重写它的容器（箱子、潜影盒等）
+ * 都吃这个值，于是物品能堆多高都只能放到 99；{@code getMaxStackSize(ItemStack)} 则是
+ * 「容器上限」与「物品上限」取小。第一个钩子只替换 99，返回其他数字的容器是刻意指定了上限（例如
+ * 酿造台燃料槽的 64），保持原样。
  *
- * <p><b>EN</b> Replaces the vanilla 99 container limit with the configured value and never reports less than the stack inside.
+ * <p>第二个钩子不能只做替换：{@code SimpleContainer#setItem} 会用
+ *  {@code stack.limitSize(getMaxStackSize(stack))} 截断传进来的堆叠，上限若小于堆叠数量，整摞会被砍掉一截。
+ * 所以对非空堆叠返回 {@code max(原值, 数量)}。
+ *
+ * <p>Replaces the vanilla default of 99 with the configured limit and never reports less than the
+ * stack already in the slot. {@code Container#getMaxStackSize()} returns 99 by default, so every
+ * container that does not override it, such as a chest or a shulker box, caps any item at 99 no
+ * matter how high it stacks; {@code getMaxStackSize(ItemStack)} takes the smaller of the container
+ * limit and the item limit. The first hook substitutes only 99: a container returning another
+ * number chose that limit deliberately (the brewing stand fuel slot returns 64) and is left alone.
+ * The second hook cannot merely substitute the limit, because {@code SimpleContainer#setItem}
+ * truncates an incoming stack with {@code stack.limitSize(getMaxStackSize(stack))}, so a limit
+ * below the stack size would cut the stack down; for a non-empty stack the result is therefore
+ * {@code max(original, count)}.
  */
 @Mixin(Container.class)
 public interface ContainerMixin {

@@ -7,13 +7,19 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 /**
- * 原版把堆叠数量限制在 1~99（{@code ExtraCodecs.intRange(1, 99)}），整个原版只有两处用它：
- * {@code DataComponents.MAX_STACK_SIZE} 与 {@code ItemStack.CODEC} 的 count 字段。
+ * 放宽 {@code ExtraCodecs.intRange} 的上界：只有上界正好是 99 时才换成
+ * {@code UltraStacks.ABSOLUTE_MAX_STACK_SIZE}（1073741823）。
  *
- * <p>这里把它换成配置里的堆叠上限：{@code UltraStacksConfig.codecUpperBound()} 会优先用已加载的配置，
- * 配置还没读完时直接读一遍配置文件，所以「改配置 + 重启」就生效，不需要额外的手动步骤。</p>
+ * <p>用到这个范围的两处是 {@code DataComponents.MAX_STACK_SIZE} 的持久化 codec 与
+ * {@code ItemStack.CODEC} 的 {@code count} 字段，99 会让大堆叠在反序列化阶段（存档、网络包）被判为非法值。
+ * 新上界用编译期常量而不是配置值，因为 codec 在配置加载之前就已经建好了，那时读不到 config。
  *
- * <p><b>EN</b> Widens the count range used by MAX_STACK_SIZE and ItemStack.CODEC to the configured limit.
+ * <p>Widens the upper bound of {@code ExtraCodecs.intRange}: only a bound that is exactly 99 is
+ * replaced with {@code UltraStacks.ABSOLUTE_MAX_STACK_SIZE} (1073741823). The range is used by the
+ * persistent codec of {@code DataComponents.MAX_STACK_SIZE} and by the {@code count} field of
+ * {@code ItemStack.CODEC}, where 99 would reject large stacks while deserializing saves or network
+ * packets. The new bound is a compile-time constant rather than a configured value because the
+ * codec is built before the config is loaded.
  */
 @Mixin(ExtraCodecs.class)
 public abstract class ExtraCodecsMixin {

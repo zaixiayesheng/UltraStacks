@@ -11,13 +11,16 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 /**
- * Display module, part two: the item tooltip.
+ * 显示模块的另一半：物品提示框。
  *
- * <p>Large stacks are shortened in the slot itself, so the tooltip carries the exact number and the
- * current stack limit. It only appears for counts above 99 to keep normal items untouched.
+ * <p>槽位里的数量会被缩写成 k / m / b，提示框补上准确数量与当前堆叠上限，信息不会丢。只在显示模块
+ * 与提示框开关都打开、且数量超过 99 时添加，普通物品的提示框保持原样。只注册在客户端。
  *
- * <p><b>中文</b> 显示模块之二：物品提示框。槽位里显示缩写数字，提示框补上准确数量与当前上限；
- * 只有数量超过 99 时才添加，普通物品的提示框保持原样。
+ * <p>The other half of the display module: the item tooltip. Slot counts are abbreviated to
+ * k / m / b, so the tooltip supplies the exact count together with the current stack limit and
+ * no information is lost. The line is only added when both the display module and the tooltip
+ * switch are on and the count is above 99, which leaves ordinary item tooltips untouched. It is
+ * registered on the client only.
  */
 @EventBusSubscriber(modid = UltraStacks.MOD_ID, value = Dist.CLIENT)
 public final class DisplayEvents {

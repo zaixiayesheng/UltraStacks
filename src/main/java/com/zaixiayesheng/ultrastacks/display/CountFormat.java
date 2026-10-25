@@ -3,23 +3,38 @@ package com.zaixiayesheng.ultrastacks.display;
 import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
 
 /**
- * Turns a raw count into the text the display module draws.
+ * 把数量转成显示模块要画的文本。
  *
- * <p>COMPACT abbreviates large numbers with k / m / b suffixes; EXACT keeps every digit. Counts
- * below {@code abbreviateAbove} are always printed in full, so normal gameplay is unchanged.
+ * <p>{@code COMPACT} 用 k / m / b 缩写，{@code EXACT} 保留每一位数字；小于阈值（{@code abbreviateAbove}，
+ * 最多 1000）的数量一律显示完整值，所以正常游玩时看到的就是原版数字。
  *
- * <p><b>中文</b> 显示模块的数字格式：COMPACT 用 k / m / b 缩写，EXACT 显示完整数字；
- * 低于 {@code abbreviateAbove} 的数量一律显示完整值，正常游玩时看到的就是原版数字。
+ * <p>Turns a raw count into the text the display module draws. {@code COMPACT} abbreviates with
+ * k / m / b suffixes, {@code EXACT} keeps every digit, and any count below the threshold
+ * ({@code abbreviateAbove}, at most 1000) is printed in full, so ordinary gameplay shows the
+ * vanilla number.
  */
 public final class CountFormat {
 
-    /** Largest count still drawn in full; four digits do not fit a vanilla slot. */
+    /**
+     * 仍然完整显示的最大数量，也是缩写阈值的上限。原版一摞最多 99 个，三位数字放得下，四位就会挤出槽位。
+     *
+     * <p>Largest count still printed in full, and the cap on the abbreviation threshold. A vanilla
+     * stack holds at most 99 items, so three digits fit a slot while four spill out of it.
+     */
     private static final long MAX_PLAIN_COUNT = 999L;
 
     private CountFormat() {
     }
 
-    /** Formats {@code count} according to the current display config. */
+    /**
+     * 按配置决定用完整数字还是缩写。
+     *
+     * <p>负数原样输出；显示模块关闭、样式为 {@code EXACT}，或数量小于阈值时返回完整数字。
+     *
+     * <p>Chooses between full digits and an abbreviation according to the config. Negative counts
+     * are printed as they are; full digits are returned when the display module is off, the style
+     * is {@code EXACT}, or the count is below the threshold.
+     */
     public static String format(long count) {
         if (count < 0) {
             return Long.toString(count);
@@ -33,7 +48,12 @@ public final class CountFormat {
         return abbreviate(count);
     }
 
-    /** Abbreviates with k / m / b; one decimal is kept while the scaled value is below ten. */
+    /**
+     * 按千进制缩写：k、m、b；缩放后小于十时保留一位小数，例如 {@code 1500 → 1.5k}。
+     *
+     * <p>Abbreviates by thousands with k, m and b, keeping one decimal while the scaled value stays
+     * below ten, for example {@code 1500 → 1.5k}.
+     */
     public static String abbreviate(long count) {
         if (count < 1_000L) {
             return Long.toString(count);

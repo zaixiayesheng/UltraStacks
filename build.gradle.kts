@@ -4,7 +4,7 @@ plugins {
 }
 
 val modId = "ultrastacks"
-val modVersion = "21.1-1.0.2-alpha"
+val modVersion = "21.1-1.0.0-beta"
 val mcVersion = "1.21.1"
 val neoVersion = "21.1.251"
 val parchmentMappings = "2024.11.17"
@@ -20,6 +20,12 @@ java {
 }
 
 repositories {
+    // 本地没有 libs/ 时，兼容所需的编译期目标 jar 从这里按固定版本拉取。
+    maven {
+        name = "Modrinth"
+        url = uri("https://api.modrinth.com/maven")
+        content { includeGroup("maven.modrinth") }
+    }
     mavenCentral()
 }
 
@@ -69,6 +75,14 @@ tasks.processResources {
 }
 
 dependencies {
+    // 兼容目标（compileOnly：只用于让编译器认识沉浸工程的库存接口，不会打进产物）。
+    // 本地有 libs/ 时优先用本地 jar（离线、快）；没有时（例如刚 clone）从 Modrinth Maven 拉固定版本。
+    val libsDir = file("libs")
+    if (libsDir.exists()) {
+        compileOnly(fileTree(libsDir) { include("*.jar") })
+    } else {
+        compileOnly("maven.modrinth:immersiveengineering:uNRARSH2")
+    }
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

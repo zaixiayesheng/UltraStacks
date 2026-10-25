@@ -11,6 +11,7 @@
     "EnchantmentMenuAccessor",
     "EnchantmentMenuMixin",
     "ExtraCodecsMixin",
+    "ItemDefaultMaxStackMixin",
     "ItemStackHandlerMixin",
     "ItemStackMaxStackMixin",
     "ItemCombinerMenuMixin",

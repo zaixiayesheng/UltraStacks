@@ -8,15 +8,15 @@ import net.neoforged.fml.config.ModConfig;
 import org.slf4j.Logger;
 
 /**
- * UltraStacks / 超级堆叠
+ * 模组入口：把物品的堆叠上限抬到配置值（默认 65536），并让容器、槽位、存档与网络包接受这个数量。
  *
- * <p>Raises the item stack limit to a configurable value and makes containers, slots and saved
- * data actually accept it.
+ * <p>构造器只做三件事：注册 COMMON 配置、挂上配置加载回调、挂上改写物品默认组件的监听器。
  *
- * <p>This is the 1.0.0 core only: stacking itself plus the vanilla-side correctness fixes that
- * large stacks require.
+ * <p>Mod entry point: it raises item stack limits to the configured value (65536 by default) and
+ * makes containers, slots, saved data and network payloads accept that number.
  *
- * <p><b>EN</b> Mod entry point: registers the config and applies the configured stack limit to item defaults at load.
+ * <p>The constructor does exactly three things: register the COMMON config, subscribe the
+ * config-load callback and subscribe the listener that rewrites item default components.
  */
 @Mod(UltraStacks.MOD_ID)
 public final class UltraStacks {
@@ -24,12 +24,20 @@ public final class UltraStacks {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     /**
-     * Upper bound the save format and the network can carry, independent of the config.
+     * 存档与网络能承载的硬上限，与配置无关。
      *
-     * <p>{@code ItemStack.CODEC} is built during class initialisation, before the config file is
-     * read, so the codec bound has to be a compile-time constant. Half of {@link Integer#MAX_VALUE}
-     * keeps {@code a + b} style int arithmetic from overflowing; StackSizeTweaks and BiggerStacks
-     * use the same value.
+     * <p>取 {@link Integer#MAX_VALUE} 的一半（1073741823）：两个上限相加仍在 int 范围内，
+     * 菜单与合并逻辑里常见的 {@code a + b} 不会溢出。
+     *
+     * <p>{@code ItemStack} 的编解码器在类初始化时就已建好，早于配置文件加载，所以这里只能是编译期常量。
+     *
+     * <p>Hard ceiling that saved data and network payloads can carry, independent of the config.
+     *
+     * <p>It is half of {@link Integer#MAX_VALUE} (1073741823), so adding two limits still fits an
+     * int and the {@code a + b} arithmetic common in menu and merge code cannot overflow.
+     *
+     * <p>{@code ItemStack}'s codecs are built during class initialisation, before the config file is
+     * read, so this has to be a compile-time constant.
      */
     public static final int ABSOLUTE_MAX_STACK_SIZE = Integer.MAX_VALUE / 2;
 

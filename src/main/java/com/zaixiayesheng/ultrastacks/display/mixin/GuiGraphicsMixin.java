@@ -11,18 +11,21 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * Display module: the number drawn on a slot (Minecraft 1.21.1 / NeoForge).
+ * 接管物品栏与容器里那串计数文本的绘制。
  *
- * <p>Vanilla draws the full count. COMPACT mode substitutes a shorter string ("65k", "1.5m") at the
- * exact place vanilla was about to draw, shifting the anchor by the width difference so the text
- * keeps vanilla's right alignment. EXACT mode passes the vanilla string straight through.
+ * <p>计数不超过 99、显示模块关掉、调用方自己给了 {@code customText}，或者原版传进来的是 {@code null}，都照原样画。超过 99 时把数字换成 {@link CountFormat#format(long)} 的结果——默认 1000 以下仍是完整数字，之上缩写成 k / m / b，阈值由 {@code abbreviateAbove} 控制。
  *
- * <p>Nothing else is touched: the durability bar, the cooldown overlay and third-party item
- * decorators keep running in the vanilla body, which is why this module cannot move or hide them.
+ * <p>缩写后字宽变窄，所以按两边字宽之差把起点右移，保持原版的右对齐。
  *
- * <p><b>中文</b> 显示模块：槽位上的数字。COMPACT 模式在原版即将绘制的位置换成缩写（"65k"、"1.5m"），
- * 并按字宽差修正落点以保持原版的右对齐；EXACT 模式直接把原版字符串传回去。除此之外不动任何东西：
- * 耐久条、冷却遮罩与第三方装饰器仍由原版方法继续绘制。
+ * <p>Takes over the drawing of the count text in inventories and containers.
+ *
+ * <p>A count of at most 99, a disabled display module, a caller-supplied {@code customText} or a
+ * {@code null} text from vanilla all fall through to the original drawing. Above 99 the digits are
+ * replaced by {@link CountFormat#format(long)}: full digits below 1000 by default and k / m / b
+ * abbreviations above that, with the threshold controlled by {@code abbreviateAbove}.
+ *
+ * <p>An abbreviation is narrower than the text it replaces, so the starting point is shifted right
+ * by the difference in string width to keep vanilla's right alignment.
  */
 @Mixin(GuiGraphics.class)
 public abstract class GuiGraphicsMixin {

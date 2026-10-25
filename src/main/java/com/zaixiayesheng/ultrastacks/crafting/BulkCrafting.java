@@ -17,31 +17,59 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.event.EventHooks;
 
 /**
- * Crafting module: finishes a whole batch with a single shift-click.
+ * 合成模块：一次 Shift 点击把整批材料合完。
  *
- * <p>Vanilla repeatedly calls {@code quickMoveStack}: every round re-resolves the recipe, consumes
- * materials and inserts output. With a 32k stack in the grid that is 32k rounds inside one tick,
- * which freezes the client and can time out the server. This module instead computes how many
- * crafts the inputs and the free space allow, consumes once, and inserts the produced items once.
+ * <p>原版每合一次就走一遍 {@code quickMoveStack}：重新匹配配方、扣一次料、塞一次产物。一格 65536 个
+ * 材料就要在一 tick 内跑 65536 轮，客户端会卡死，服务端也可能超时。这里先算「材料够合几次」与
+ * 「背包放得下几次」的较小值，一次扣料，再把产物按单堆上限分块塞回背包。
  *
- * <p><b>中文</b> 合成模块：一次 Shift 点击把能合的整批合完。先算「材料够合几次」与「背包还能放几次」
- * 的较小值，然后一次扣材料、一次按堆叠上限分块塞产物；全过程只扫一遍槽位。
+ * <p>Finishes a whole batch in one shift-click. Vanilla runs a full {@code quickMoveStack} pass per
+ * craft: match the recipe again, consume once, push the output once. A slot of 65536 materials
+ * would mean 65536 passes inside one tick, which freezes the client and can time the server out.
+ * Instead the affordable craft count is computed up front as the smaller of "the materials allow"
+ * and "the inventory has room for", materials are consumed once, and the output is inserted in
+ * max-stack-sized chunks.
  */
 public final class BulkCrafting {
 
     private BulkCrafting() {
     }
 
-    /** True when the crafting module is enabled in the config. */
+    /**
+     * 两个开关都打开时才接管合成：模块总开关，以及模块内部的批量子开关。
+     *
+     * <p>Bulk crafting runs only when both switches are on: the module switch and the bulk sub-switch
+     * inside it.
+     */
     public static boolean enabled() {
         return UltraStacksConfig.craftingModule() && UltraStacksConfig.bulkCrafting();
     }
 
     /**
-     * Tries to finish the whole batch behind the result slot.
+     * 尝试把产物槽后面的整批材料一次合完。
      *
-     * @return true when the batch was handled (caller returns an empty stack and the vanilla loop
-     *     stops), false when vanilla should handle this click
+     * <p>先从产物槽取本次产物并重算配方余料（桶、瓶子这类），再取各非空格的最小数量作为材料上限，
+     * 用背包空位换算成次数上限，实际次数取两者较小值。扣料后把余料按单堆上限分块放回原格或背包，
+     * 放不下就掉在地上；产物同样分块插入，多出来的部分进背包或掉落。最后补上原版一次合成会做的记账：
+     * 物品统计、已用配方、合成事件与槽位刷新。
+     *
+     * <p>Tries to finish the batch behind the result slot in one go.
+     *
+     * <p>The result is read from the result slot and the recipe remainders (buckets, bottles and the
+     * like) are recomputed. The minimum count over the non-empty crafting slots bounds the craft count
+     * from the input side, the free space in the inventory bounds it from the output side, and the
+     * smaller value wins. Materials are consumed once; remainders go back into their own slot or the
+     * inventory in max-stack-sized chunks and are dropped when nothing has room. The output is
+     * inserted the same way. Finally the bookkeeping a vanilla craft would do is performed: item
+     * statistics, used recipes, the crafting event and a slot refresh.
+     *
+     * @param menu 当前菜单，背包槽位按索引从中取出。The menu whose inventory slots are indexed.
+     * @param craftSlots 合成格。The crafting grid.
+     * @param resultSlots 产物槽；已用配方也在这里读。The result slots, where the used recipe is read from.
+     * @param player 参与合成的玩家，负责背包插入与掉落。The player who receives the output.
+     * @param inventoryStart 背包槽位的起始索引。First inventory slot index.
+     * @param inventoryEnd 背包槽位的结束索引，不含。End index of the inventory slots, exclusive.
+     * @return 成功接管本次点击返回 {@code true}，调用方应返回空栈让原版循环停下；返回 {@code false} 时交还原版。{@code true} when the click was handled, so the caller returns an empty stack and the vanilla loop stops; {@code false} lets vanilla handle it.
      */
     public static boolean tryCraftAll(AbstractContainerMenu menu, CraftingContainer craftSlots,
                                       ResultContainer resultSlots, Player player, int inventoryStart, int inventoryEnd) {
@@ -54,7 +82,7 @@ public final class BulkCrafting {
             return false;
         }
 
-        // Recipe remainders (buckets, bottles) are recomputed and paid back per craft.
+        // 配方余料（桶、瓶子之类）在这里重算，扣料之后按份数还回去。
         NonNullList<ItemStack> remainingItems = NonNullList.withSize(9, ItemStack.EMPTY);
         if (resultSlots instanceof RecipeCraftingHolder holder) {
             RecipeHolder<?> usedRecipe = holder.getRecipeUsed();
@@ -147,7 +175,6 @@ public final class BulkCrafting {
         return true;
     }
 
-    /** Free room for {@code result} in the player inventory, accumulated in long. */
     private static long countFreeSpace(AbstractContainerMenu menu, ItemStack result, int start, int end) {
         long space = 0L;
         for (int i = start; i < end; i++) {
@@ -163,7 +190,6 @@ public final class BulkCrafting {
         return space;
     }
 
-    /** Inserts up to {@code count} items into the inventory range; returns the leftovers. */
     private static long insert(AbstractContainerMenu menu, ItemStack result, int count, int start, int end) {
         int remaining = count;
         for (int i = start; i < end && remaining > 0; i++) {

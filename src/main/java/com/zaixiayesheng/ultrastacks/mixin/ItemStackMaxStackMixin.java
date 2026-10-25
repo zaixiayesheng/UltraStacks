@@ -8,15 +8,17 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Applies the configured stack limit when vanilla asks a stack for its maximum size.
+ * 在 {@link ItemStack#getMaxStackSize()} 返回处套用配置。
  *
- * <p>Two things happen here: items whose vanilla limit is one (potions, buckets, enchanted books)
- * can be raised when their configuration asks for it, and a stack never reports a maximum smaller
- * than the number of items it already carries. The second rule keeps every
- * {@code max - count} subtraction in menu code non-negative after a limit was lowered.
+ * <p>两件事：一是让原版上限为 1 的物品（药水、附魔书、桶）能按各自配置单独抬到高值；二是返回值永远
+ * 不小于自身数量——上限被调低之后，菜单代码里的 {@code 上限 - 数量} 会变成负数，{@code split} /
+ * {@code shrink} 就会反向操作。
  *
- * <p><b>中文</b> 在 {@link ItemStack#getMaxStackSize()} 返回处套用配置：原版上限为 1 的物品（药水、桶、附魔书等）
- * 可以在配置里单独抬高；同时保证报告的上限永远不小于自身数量，避免上限调低后菜单运算出现负数。
+ * <p>Applies the configuration where {@link ItemStack#getMaxStackSize()} returns. Two things happen:
+ * items whose vanilla limit is one (potions, enchanted books, buckets) can be raised individually
+ * through their own settings, and the result is never smaller than the stack's own count, because a
+ * lowered limit would make {@code limit - count} negative in menu code and drive {@code split} or
+ * {@code shrink} with a negative amount.
  */
 @Mixin(ItemStack.class)
 public abstract class ItemStackMaxStackMixin {

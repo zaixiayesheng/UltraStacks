@@ -14,9 +14,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Replaces the vanilla one-craft-per-round loop for the player's 2x2 grid.
+ * 接管玩家背包 2x2 合成格的整批合成。
  *
- * <p><b>中文</b> 背包 2x2：玩家 Shift 点击产物槽时一次合完整批，返回空堆叠即可让原版循环停止。
+ * <p>Shift 点击产物槽（slotId 0）时一次合完整批并返回空堆叠，原版循环随之停止；其余槽位交还原版。
+ *
+ * <p>Takes over bulk crafting for the player's 2x2 grid. A shift-click on the result slot (slotId
+ * 0) finishes the whole batch and returns an empty stack, which stops the vanilla loop; every
+ * other slot is left to vanilla.
  */
 @Mixin(InventoryMenu.class)
 public abstract class InventoryMenuMixin {

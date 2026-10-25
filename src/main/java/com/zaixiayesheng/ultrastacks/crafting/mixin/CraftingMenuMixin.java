@@ -14,13 +14,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Replaces the vanilla one-craft-per-round loop for the 3x3 crafting table.
+ * 接管工作台（3x3）的整批合成。
  *
- * <p>When the player shift-clicks the result slot we finish the whole batch ourselves and return an
- * empty stack, which is what the vanilla loop treats as "nothing left to move".
+ * <p>玩家 Shift 点击产物槽时整批合完并返回空堆叠：{@code quickMoveStack} 的 slotId 0 就是产物槽，
+ * 原版「每轮只合成一次」的循环把空堆叠当成「没有东西可搬」，随即结束。其它槽位的点击交还原版。
  *
- * <p><b>中文</b> 工作台（3x3）：玩家 Shift 点击产物槽时，本模组一次把整批合完并返回空堆叠，
- * 原版的「每轮只合成一次」循环遂立即结束。
+ * <p>Takes over bulk crafting for the 3x3 crafting table. When the player shift-clicks the result
+ * slot (slot 0 of {@code quickMoveStack}) the whole batch is finished and an empty stack is
+ * returned; the vanilla one-craft-per-round loop reads that as "nothing left to move" and stops.
+ * Clicks on any other slot go to vanilla untouched.
  */
 @Mixin(CraftingMenu.class)
 public abstract class CraftingMenuMixin {

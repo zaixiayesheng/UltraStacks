@@ -6,9 +6,18 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 
 /**
- * Applies the configured stack limit to item defaults at registration time.
+ * 在注册阶段把配置的堆叠上限写进物品的默认组件。
  *
- * <p><b>中文</b> 在注册阶段把配置上限写进物品默认值，跳过带耐久的物品。
+ * <p>{@code ModifyDefaultComponentsEvent} 是注册期内唯一能改默认组件的地方：{@code max_stack_size}
+ * 一旦定下，之后新建的每个 {@code ItemStack} 都从组件取值。带耐久或可损坏的物品（工具、盔甲）跳过，
+ * 它们本来就不堆叠。
+ *
+ * <p>Writes the configured stack limit into the item default components during registration.
+ *
+ * <p>{@code ModifyDefaultComponentsEvent} is the only hook that can still change default
+ * components at that point: once {@code max_stack_size} is fixed, every {@code ItemStack} created
+ * afterwards takes its value from the components. Items with a damage value or a durability
+ * component (tools, armour) are skipped because they never stack anyway.
  */
 public final class ModBusEvents {
     private ModBusEvents() {
@@ -18,13 +27,15 @@ public final class ModBusEvents {
     public static void onModifyDefaultComponents(ModifyDefaultComponentsEvent event) {
         int[] changed = {0};
         event.getAllItems().forEach(item -> {
-            // Damaged or damaged-capable items (tools, armour) and single-stack items stay vanilla.
+            // 带耐久或可损坏的物品（工具、盔甲）保持原版；上限为 1 的物品由下面的相等判断跳过。
             if (item.components().has(DataComponents.DAMAGE)
                     || item.components().has(DataComponents.MAX_DAMAGE)) {
                 return;
             }
 
-            int vanillaMax = item.getDefaultMaxStackSize();
+            // 必须读组件里的原始值：Item#getDefaultMaxStackSize() 已被 ItemDefaultMaxStackMixin 抬高，
+            // 从那里读得到的就是新上限，scaledMax() 与原值相等，组件反而永远不会被改写。
+            int vanillaMax = item.components().getOrDefault(DataComponents.MAX_STACK_SIZE, 1);
             int newMax = UltraStacksConfig.scaledMax(vanillaMax);
             if (newMax == vanillaMax) {
                 return;

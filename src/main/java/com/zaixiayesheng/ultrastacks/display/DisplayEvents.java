@@ -11,13 +11,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 /**
- * Display module, part two: the item tooltip (Minecraft 1.20.1 / Forge).
+ * 显示模块之二：物品提示框。
  *
- * <p>Large stacks are shortened in the slot itself, so the tooltip carries the exact number and the
- * current stack limit. It only appears for counts above 99 to keep normal items untouched.
+ * <p>槽位里画的是缩写数字，提示框负责补上准确数量与当前上限；数量不超过 99 时不加任何东西，
+ * 普通物品的提示框保持原样。display 与 tooltipExact 两个开关任一关闭，这里就整体失效。
  *
- * <p><b>中文</b> 显示模块之二：物品提示框。槽位里显示缩写数字，提示框补上准确数量与当前上限；
- * 只有数量超过 99 时才添加，普通物品的提示框保持原样。
+ * <p>Display module, part two: the item tooltip. The slot itself shows an abbreviated number, so the
+ * tooltip carries the exact count and the current stack limit. Nothing is added for counts of 99 or
+ * less, which keeps ordinary items untouched, and either switch (display or tooltipExact) turns the
+ * whole thing off.
  */
 @Mod.EventBusSubscriber(modid = UltraStacks.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class DisplayEvents {

@@ -14,13 +14,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Replaces the vanilla one-craft-per-round loop for the 3x3 crafting table.
+ * 工作台（3x3）的批量合成入口。
  *
- * <p>When the player shift-clicks the result slot we finish the whole batch ourselves and return an
- * empty stack, which is what the vanilla loop treats as "nothing left to move".
+ * <p>玩家 Shift 点击产物槽（{@code slotId == 0}）时先交给 {@link BulkCrafting}：整批合完就返回空堆叠，
+ * 原版「每轮只合成一次」的循环拿到空堆叠后立即结束。背包区间是 10..46。
  *
- * <p><b>中文</b> 工作台（3x3）：玩家 Shift 点击产物槽时，本模组一次把整批合完并返回空堆叠，
- * 原版的「每轮只合成一次」循环遂立即结束。
+ * <p>Bulk-crafting entry point for the 3x3 crafting table. On a shift-click of the result slot
+ * ({@code slotId == 0}) it hands the click to {@link BulkCrafting} first; when the whole batch is
+ * done it returns an empty stack, which is what the vanilla one-craft-per-round loop reads as
+ * "nothing left to move". The inventory range is 10..46.
  */
 @Mixin(CraftingMenu.class)
 public abstract class CraftingMenuMixin {

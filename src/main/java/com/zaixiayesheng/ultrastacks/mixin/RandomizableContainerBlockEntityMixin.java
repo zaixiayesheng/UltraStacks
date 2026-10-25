@@ -7,13 +7,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * Chest / barrel / shulker box limit.
+ * 箱子、木桶、潜影盒这类战利品容器的槽位上限。
  *
- * <p>{@code RandomizableContainerBlockEntity.setItem} clamps the incoming stack to
- * {@code this.getMaxStackSize()} (the {@code Container} default, 64 on 1.20.1), so anything above 64
- * is cut down as soon as it is placed into the block. The clamp is redirected to the configured limit.
+ * <p>{@code setItem} 会把进来的物品夹到 {@code getMaxStackSize()}（{@code Container} 的默认实现，64），
+ * 超过 64 的部分在放进方块的那一刻就被砍掉，所以这里把这次调用换成配置的堆叠上限。
  *
- * <p><b>中文</b> 战利品容器走容器层夹取，这里抬到配置值。
+ * <p>Slot limit of chests, barrels, shulker boxes and other loot containers. {@code setItem} clamps
+ * incoming items to {@code getMaxStackSize()}, the {@code Container} default of 64, so anything above 64
+ * is cut the moment it is placed into the block; the call is redirected to the configured stack size.
  */
 @Mixin(RandomizableContainerBlockEntity.class)
 public abstract class RandomizableContainerBlockEntityMixin {

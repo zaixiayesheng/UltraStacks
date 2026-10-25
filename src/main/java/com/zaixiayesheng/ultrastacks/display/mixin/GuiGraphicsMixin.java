@@ -11,18 +11,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * Display module: the number drawn on a slot (Minecraft 1.20.1 / Forge).
+ * 把槽位里的数量数字换成可读的形式。
  *
- * <p>Vanilla draws the full count. COMPACT mode substitutes a shorter string ("65k", "1.5m") at the
- * exact place vanilla was about to draw, shifting the anchor by the width difference so the text
- * keeps vanilla's right alignment. EXACT mode passes the vanilla string straight through.
+ * <p>计数超过 99 且没有自定义文本时接管这一处数字绘制：交给 {@link CountFormat} 决定是原样还是缩写
+ * （阈值由 {@code abbreviateAbove} 控制，最大 1000，所以默认配置下 999 及以下仍画完整数字）。
+ * 缩写的文本更窄，落点按两者字宽之差右移，右对齐位置保持和原版一致。
  *
- * <p>Nothing else is touched: the durability bar and the cooldown overlay keep running in the
- * vanilla body, which is why this module cannot move or hide them.
- *
- * <p><b>中文</b> 显示模块：槽位上的数字。COMPACT 模式在原版即将绘制的位置换成缩写（"65k"、"1.5m"），
- * 并按字宽差修正落点以保持原版的右对齐；EXACT 模式直接把原版字符串传回去。除此之外不动任何东西：
- * 耐久条与冷却遮罩仍由原版方法继续绘制。
+ * <p>Replaces the count drawn in a slot with something readable. Above 99 and without custom text this
+ * redirect takes over: {@link CountFormat} decides whether the number stays as-is or is abbreviated
+ * ({@code abbreviateAbove} caps the threshold at 1000, so by default 999 and below are still drawn in
+ * full). The abbreviation is narrower, so it is shifted right by the difference in text width to keep
+ * vanilla's right alignment.
  */
 @Mixin(GuiGraphics.class)
 public abstract class GuiGraphicsMixin {

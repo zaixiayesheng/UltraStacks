@@ -1,10 +1,56 @@
 # Changelog / 更新日志
 
+## 20.1-1.0.0-beta — Minecraft 1.20.1 / Forge 47.4
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：兼容更多模组。
+
+### 新增
+**兼容**：
+- 精妙核心
+- 通用机械
+- 通用动力
+- 应用能源 2
+- 精致存储
+- 更多熔炉
+- 神秘农业（含神秘农业扩展）
+- 沉浸工程（含沉浸原油等附属）
+
+**兼容补丁**：按模组是否安装自动启用，没装的模组不会加载。
+
+### 已知限制
+- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: compatibility with more mods.
+
+### Added
+**Compatibility**:
+- Sophisticated Core
+- Mekanism
+- Mekanical Create
+- Applied Energistics 2
+- Refined Storage
+- Iron Furnaces
+- Mystical Agriculture (with Mystical Agradditions)
+- Immersive Engineering (with addons)
+
+**Compat patches**: enabled only when the matching mod is installed.
+
+### Known limitations
+- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
+
 ## 20.1-1.0.2-alpha — Minecraft 1.20.1 / Forge 47.4
 
 **中文**
 
-**模块**：超级堆叠 · 合成模块 · 显示模块
+**模块**：超级堆叠 · 可选模块（合成、显示）
 
 **摘要**：修复铁砧与附魔台在提高堆叠上限后「一次换一整堆」的问题，并改成按个结算的批量操作。
 
@@ -18,7 +64,7 @@
 - 1.20.1 专属：药水成摞后酿造台不启动——Forge 的酿造注册表只认单瓶配方，现在整摞判定改由本模组接管，原料够就会正常开酿。
 
 ### 新增
-- 批量酿造：一个 400 tick 周期按原料结算，每个原料折算 `brewingYield` 瓶（默认 3，与原版 1 个原料出 3 瓶一致）；原料不够时只酿付得起的那部分，余下的瓶子留在槽里；周期与烈焰粉结算不变。
+- 批量酿造：一个 400 tick 周期按原料结算，每个原料折算 `brewingYield` 瓶（默认 3，与原版 1 个原料出 3 瓶一致）；一个瓶位必须一次付清整摞所需的原料才会开酿，凑不够就整个周期不开始，原料和瓶子都不会被动过；周期与烈焰粉结算不变。
 - 铁砧批量：Shift 点击产物时一次结算全部可合成数量，上限取「左槽数量、右槽可用量、经验可结算的次数、产物堆叠上限」的最小值；剩余材料保留。改名不参与批量，走原版一次性结算。
 - 附魔批量：一次点击结算所有付得起的个数，按个数扣经验与青金石；不足时只附付得起的那部分。
 - 药水与附魔书可堆叠：`potionStackLimit` 与 `enchantedBookStackLimit` 默认 0＝自动，即堆叠上限的 1/16（默认 65536 时为 4096），两个键都能改成固定值或 1（保持原版）；其余单件物品、工具与护甲保持 1。
@@ -30,7 +76,7 @@
 
 **English**
 
-**Modules**: UltraStacks · Crafting · Display
+**Modules**: UltraStacks · optional modules (crafting, display)
 
 **Summary**: anvil and enchanting now charge per item and settle the whole affordable batch at once.
 
@@ -44,7 +90,7 @@
 - 1.20.1 only: a stacked potion slot stopped the stand from starting because the Forge registry only matched single bottles; the whole-stack check now decides, so brewing starts as soon as one slot can be converted.
 
 ### Added
-- Brewing batches: one 400 tick cycle settles by reagent supply, with each reagent converting `brewingYield` bottles (three by default, the vanilla rate); short supplies only brew the affordable part and the rest stays in the slot.
+- Brewing batches: one 400 tick cycle settles by reagent supply, with each reagent converting `brewingYield` bottles (three by default, the vanilla rate); a bottle slot only brews when the whole stack's reagents are paid up front at once; if the reagent runs short the cycle does not start and both the reagent and the bottles stay untouched.
 - Anvil batching on shift-click, capped by the left slot count, the additive supply, the affordable experience and the output stack limit; leftover materials stay in place. Renaming is excluded and keeps the vanilla single charge.
 - Enchantment batching: one click settles every affordable item, priced per item; short experience or lapis only enchants the affordable part.
 - Potions and enchanted books can stack: `potionStackLimit` and `enchantedBookStackLimit` default to 0 = automatic, one sixteenth of the stack limit (4096 at the default 65536); both accept a fixed value or 1 for vanilla behaviour, while other single items, tools and armour stay at 1.
@@ -58,28 +104,28 @@
 
 **中文**
 
-**模块**：超级堆叠 · 合成模块 · 显示模块
+**模块**：超级堆叠 · 可选模块（合成、显示）
 
-**摘要**：加入合成模块与显示模块，超级堆叠行为不变。
+**摘要**：加入合成与显示两个可选模块，超级堆叠行为不变。
 
 ### 新增
-- 合成模块：原版工作台（3x3）与背包合成格（2x2）在 Shift 点击时一次合完整批，不再逐个循环；按材料与背包空间取较小值，余下的材料留在原处。
-- 显示模块：大数量可缩写（`12k`、`3.4m`）或显示完整数字；物品提示框可显示准确数量与堆叠上限。
-- 模块开关与参数：`crafting`、`display` 两个总开关，`bulkCrafting`、`countStyle`、`abbreviateAbove`、`tooltipExact` 四项参数。
+- 合成（可选模块，`crafting`）：原版工作台（3×3）与背包合成格（2×2）在 Shift 点击时一次合完整批，不再逐个循环；批量上限取材料与背包空间的较小值，余下的材料留在原处；`bulkCrafting` 关闭后恢复原版一次一件。
+- 显示（可选模块，`display`）：大数量可缩写（`12k`、`3.4m`）或显示完整数字（`countStyle`、`abbreviateAbove`）；物品提示框可显示准确数量与堆叠上限（`tooltipExact`）；`display` 关闭后按原版绘制。
+- 可选模块的开关与参数：`crafting`、`display` 两个总开关，`bulkCrafting`、`countStyle`、`abbreviateAbove`、`tooltipExact` 四项参数。
 
 ### 已知限制
 - 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
 
 **English**
 
-**Modules**: UltraStacks · Crafting · Display
+**Modules**: UltraStacks · optional modules (crafting, display)
 
-**Summary**: crafting and display modules; the UltraStacks behaviour is unchanged.
+**Summary**: adds the crafting and display optional modules; the UltraStacks behaviour is unchanged.
 
 ### Added
-- Crafting module: shift-clicking the result of the 3x3 table or the 2x2 grid finishes the whole batch in one pass instead of the vanilla one-craft-per-round loop, capped by both materials and free space; leftovers stay in place.
-- Display module: large counts render abbreviated (`12k`, `3.4m`) or as the exact number; the item tooltip can show the exact count and the stack limit.
-- Module switches and parameters: `crafting`, `display`, `bulkCrafting`, `countStyle`, `abbreviateAbove`, `tooltipExact`.
+- Crafting (optional module, `crafting`): shift-clicking the result of the 3x3 table or the 2x2 grid finishes the whole batch in one pass instead of the vanilla one-craft-per-round loop, capped by both materials and free space; leftovers stay in place. `bulkCrafting` off restores one craft per click.
+- Display (optional module, `display`): large counts render abbreviated (`12k`, `3.4m`) or as the exact number (`countStyle`, `abbreviateAbove`); the item tooltip can show the exact count and the stack limit (`tooltipExact`). `display` off draws counts the vanilla way.
+- Optional module switches and parameters: `crafting`, `display` master switches; `bulkCrafting`, `countStyle`, `abbreviateAbove`, `tooltipExact` parameters.
 
 ### Known limitations
 - Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.

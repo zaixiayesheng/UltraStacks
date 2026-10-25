@@ -11,17 +11,15 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 让地上掉落的物品按配置的堆叠上限合并。
+ * 地上掉落物按配置上限合并。
  *
- * <p>原版两处都写死了 64：{@code areMergable} 用 int 相加判断「两个堆叠加起来放不放得下」，
- * {@code merge} 每次只按 64 搬运。堆叠上限提到 32768 甚至 32 位整数上限后：
- * <ul>
- *   <li>两个大堆叠相加会在 int 里溢出成负数，直接判成「放得下」，合并逻辑把数量算错；</li>
- *   <li>即使判对了，也永远只合并到 64，超出部分留在另一个实体里，看起来像「地上掉的东西不合并」。</li>
- * </ul>
- * 这里把 64 换成配置值，并用 long 相加做溢出保护：真正的上限判断仍交给原版。
+ * <p>原版 {@code areMergable} 把两个数量当 int 相加，上限抬高后两个大堆叠相加会溢出成负数、被判成
+ * 「放得下」；{@code merge} 又每次只搬 64 个。这里先用 long 相加再判断，合并量换成配置的堆叠上限。
  *
- * <p><b>EN</b> Guards entity merging with long arithmetic so large stacks merge up to the configured limit instead of overflowing.
+ * <p>Merging dropped items up to the configured limit. Vanilla {@code areMergable} adds the two counts
+ * as int, which overflows to a negative number on large stacks and reports "fits"; {@code merge} then
+ * moves 64 at a time. The guard adds the counts as a long first, and the merge amount becomes the
+ * configured stack size.
  */
 @Mixin(ItemEntity.class)
 public class ItemEntityMergeGuardMixin {

@@ -3,23 +3,27 @@ package com.zaixiayesheng.ultrastacks.display;
 import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
 
 /**
- * Turns a raw count into the text the display module draws.
+ * 把原始数量变成显示模块要画的文本。
  *
- * <p>COMPACT abbreviates large numbers with k / m / b suffixes; EXACT keeps every digit. Counts
- * below {@code abbreviateAbove} are always printed in full, so normal gameplay is unchanged.
+ * <p>COMPACT 用 k / m / b 后缀缩写，EXACT 保留全部数字；低于 {@code abbreviateAbove} 的数量一律
+ * 完整显示（该项最大 1000），所以正常游玩时看到的就是原版数字。
  *
- * <p><b>中文</b> 显示模块的数字格式：COMPACT 用 k / m / b 缩写，EXACT 显示完整数字；
- * 低于 {@code abbreviateAbove} 的数量一律显示完整值，正常游玩时看到的就是原版数字。
+ * <p>Turns a raw count into the text the display module draws. COMPACT abbreviates large numbers
+ * with k / m / b suffixes, EXACT keeps every digit, and counts below {@code abbreviateAbove} (at most
+ * 1000) are always printed in full, so normal gameplay shows the vanilla number.
  */
 public final class CountFormat {
 
-    /** Largest count still drawn in full; four digits do not fit a vanilla slot. */
+    /**
+     * 仍然完整显示的计数上界：四位数字在槽位里放不下。
+     *
+     * <p>Largest count still drawn in full, since four digits do not fit in a slot.
+     */
     private static final long MAX_PLAIN_COUNT = 999L;
 
     private CountFormat() {
     }
 
-    /** Formats {@code count} according to the current display config. */
     public static String format(long count) {
         if (count < 0) {
             return Long.toString(count);
@@ -33,7 +37,12 @@ public final class CountFormat {
         return abbreviate(count);
     }
 
-    /** Abbreviates with k / m / b; one decimal is kept while the scaled value is below ten. */
+    /**
+     * 用 {@code k} / {@code m} / {@code b} 后缀缩写；缩放后的数值不到十时保留一位小数。
+     *
+     * <p>Abbreviates with {@code k} / {@code m} / {@code b} suffixes, keeping one decimal while the scaled
+     * value stays below ten.
+     */
     public static String abbreviate(long count) {
         if (count < 1_000L) {
             return Long.toString(count);

@@ -10,14 +10,16 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Container drop size.
+ * 容器被破坏时，大堆叠整堆掉出来。
  *
- * <p>Vanilla scatters broken container contents in random chunks of 10 to 30 items
- * ({@code stack.split(random.nextInt(21) + 10)} in a loop). A 32768 stack therefore turns into about
- * 1600 item entities, which stalls the server and floods the client. Stacks above the split
- * threshold are dropped as a single entity instead; ordinary stacks keep the vanilla scatter.
+ * <p>原版 {@code dropItemStack} 用 {@code stack.split(random.nextInt(21) + 10)} 循环把内容物拆成
+ * 10 到 30 个一份，一整堆 65536 会散成三千多个物品实体，服务端卡顿、客户端也会被刷屏。
+ * 数量超过 128 的堆叠因此只生成一个实体，普通堆叠仍旧按原版散落。
  *
- * <p><b>中文</b> 容器被破坏时，大堆叠整堆掉落为一个实体，而不是散成几十份 10-30 个的小堆。
+ * <p>Large stacks drop in one piece when a container breaks. Vanilla {@code dropItemStack} loops over
+ * {@code stack.split(random.nextInt(21) + 10)}, splitting the contents into pieces of 10 to 30, so a
+ * single stack of 65536 becomes over three thousand item entities and stalls the server while flooding
+ * clients. Stacks above 128 therefore spawn one entity, while ordinary stacks keep the vanilla scatter.
  */
 @Mixin(Containers.class)
 public abstract class ContainersDropStackMixin {

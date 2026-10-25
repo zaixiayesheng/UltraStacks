@@ -11,15 +11,18 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Keeps the anvil from duplicating or eating a whole stack when an input stack has more than one item.
+ * 铁砧不能把一整堆当成「一次附魔」或「一次修复」的代价。
  *
- * <p>Vanilla copies the entire left stack into the result slot; taking the result then clears that
- * slot. For enchanting and repair this turns one payment into a whole stack, so UltraStacks clamps
- * those results to a single item and consumes exactly one input per operation. Renaming keeps the
- * vanilla behaviour: the whole stack is renamed, taken in one go and charged experience once.
+ * <p>原版会把左槽整堆复制进产物槽，取走产物时再清空整槽。堆叠上限抬起来之后，一次附魔或一次修复
+ * 就变成拿一整堆去换一件东西，所以这类产物在这里压回 1 件，输入也按件扣除。
  *
- * <p><b>中文</b> 原版铁砧会把左槽整堆复制成产物、取走时再清空整槽。附魔与修复会因此变成「一次经验换一整堆」，
- * 所以本补丁把这两类结果压到 1 件、并按件扣输入；改名维持原版行为：整堆改名、一次取走、只扣一次经验。
+ * <p>改名保持原版手感：整堆一起改名、一次取走、只扣一次经验——那正是玩家想要的批量操作。
+ *
+ * <p>Keeps the anvil from treating a whole stack as the price of one enchantment or one repair.
+ * Vanilla copies the entire left stack into the result slot and clears that slot when the result is
+ * taken; with a raised limit one operation would consume a stack for a single item, so those results
+ * are clamped back to one and the input is charged per item. Renaming still works on the whole stack
+ * at once and charges its experience once, which is the bulk operation players expect.
  */
 @Mixin(AnvilMenu.class)
 public abstract class AnvilMenuMixin {
@@ -50,7 +53,7 @@ public abstract class AnvilMenuMixin {
         }
         AnvilMenu self = (AnvilMenu) (Object) this;
         if (index == 0 && !self.getSlot(1).hasItem()) {
-            // Pure rename: vanilla clears the whole stack and charges once.
+            // 纯改名：原版把整堆清空并只扣一次经验，保持这种批量行为。
             slots.setItem(index, ItemStack.EMPTY);
             return;
         }

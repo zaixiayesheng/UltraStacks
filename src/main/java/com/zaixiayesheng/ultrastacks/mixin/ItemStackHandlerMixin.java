@@ -8,15 +8,17 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Forge 的 ItemStackHandler。
+ * 来自模组物品处理器的槽位上限。
  *
- * <p>机器槽位常用它，默认槽位上限是 64，
- * 而且只有配置里打开 raiseModdedSlotLimits 才替换；只把「正好 64 / 99」的老默认值换掉，
- * 别的模组显式设的 1、16、1024 保持原样。
+ * <p>很多机器的槽位上限是处理器给的，不走容器那一层；不拦这里，配置调大后这些槽位照样只吃 64 个。
+ * 只升不降：处理器给的值比配置大时保持原值。{@code ItemStackHandler} 与 {@code getSlotLimit} 都是 Forge
+ * 的类和方法，所以 {@code remap = false}。
  *
- * <p>ItemStackHandler 是 Forge 的类，不在 Minecraft 映射里，所以 remap = false。
- *
- * <p><b>EN</b> Raises ItemStackHandler slot limits to the configured value and never lowers them.
+ * <p>Slot limits that come from a mod's item handler. Many machines take their slot limit from the
+ * handler rather than the container, and without this injection those slots still hold 64 after the
+ * limit is raised. Only the hardcoded 64 and 99 are lifted: a larger handler limit wins.
+ * {@code ItemStackHandler} and {@code getSlotLimit} are Forge members, so the mixin uses
+ * {@code remap = false}.
  */
 @Mixin(value = ItemStackHandler.class, remap = false)
 public abstract class ItemStackHandlerMixin {

@@ -7,9 +7,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Double chest / compound container: report the configured limit instead of the wrapped container default.
+/**
+ * 大箱子与其它复合容器。
  *
- * <p><b>中文</b> 大箱子通过 CompoundContainer 报上限，这里抬到配置值。
+ * <p>这类容器把上限查询转给内部包着的那几个容器，本方法直接返回配置的堆叠上限。
+ *
+ * <p>Double chests and other compound containers delegate the limit query to the containers they wrap;
+ * this returns the configured stack size instead.
  */
 @Mixin(CompoundContainer.class)
 public abstract class CompoundContainerMixin {

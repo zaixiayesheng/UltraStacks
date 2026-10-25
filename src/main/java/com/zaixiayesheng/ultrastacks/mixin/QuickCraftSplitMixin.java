@@ -11,16 +11,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Set;
 
 /**
- * 拖动分摊（按住左键把一堆拖到几个格子里）的分摊数量。
+ * 拖动分摊时每格分到多少。
  *
- * <p>原版用 {@code Mth.floor((float) count / (float) slots.size())}：float 只有 24 位尾数，超过
- * 16,777,216 的数量会被舍入到 2 的幂的倍数。1,073,741,823（2^30 - 1）拖两格时每格会被舍成
- * 536,870,912，两份加起来 1,073,741,824 —— 每次拖拽凭空多出 1 个。改成整数除法后两份之和恰好等于原数量。
+ * <p>原版用 {@code Mth.floor((float) count / (float) slots.size())}，而 float 只有 24 位尾数，超过
+ * 2^24 的数量会被舍入。1,073,741,823（2^30 - 1）拖过两格时每格被舍成 536,870,912，两份加起来
+ * 1,073,741,824 —— 一次拖拽凭空多出 1 个。换成整数除法后两份之和不大于原数量，余数留在光标上。
  *
- * <p>1.20.1 与 1.21.1 的这个方法签名一致（1.20.1 字节码里同样是 {@code fdiv} + {@code Mth.floor(F)}），
- * 所以两个分支共用同一份实现。
- *
- * <p><b>EN</b> Drag-splitting uses integer division; vanilla's float maths rounds up and creates an extra item above 2^24.
+ * <p>How much of a dragged stack each slot receives. Vanilla uses
+ * {@code Mth.floor((float) count / (float) slots.size())}, but a float carries only 24 bits of mantissa
+ * and rounds anything above 2^24. Dragging 1,073,741,823 (2^30 - 1) over two slots yields 536,870,912
+ * each, 1,073,741,824 in total, one item more than before the drag. Integer division keeps the sum at
+ * or below the original count and leaves the remainder on the cursor.
  */
 @Mixin(AbstractContainerMenu.class)
 public abstract class QuickCraftSplitMixin {

@@ -7,13 +7,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * Vanilla furnace limit.
+ * 熔炉槽位只肯收 64 个的问题。
  *
- * <p>{@code setItem} clamps to the container default (64) and the tick path uses that value as the
- * per-smelt output cap, so a 32768 stack could never sit in a furnace slot. Both call sites are
- * redirected to the configured limit.
+ * <p>{@code setItem} 用容器默认上限（64）夹取入炉物品，{@code serverTick} 又拿同一个值当成一次烧炼
+ * 允许的产出去向上限，于是大堆叠连放进熔炉格都做不到。两处调用一起重定向到配置的堆叠上限。
  *
- * <p><b>中文</b> 1.20.1 熔炉走容器层夹取，这里改到配置上限。
+ * <p>Furnace slots stop at 64 because {@code setItem} clamps incoming items to the container default
+ * and {@code serverTick} reuses that value as the per-smelt output cap, so a large stack could not even
+ * enter the slot. Both call sites are redirected to the configured stack size.
  */
 @Mixin(AbstractFurnaceBlockEntity.class)
 public abstract class AbstractFurnaceBlockEntityMixin {

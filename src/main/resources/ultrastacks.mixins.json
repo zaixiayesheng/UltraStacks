@@ -16,6 +16,7 @@
     "EnchantmentMenuMixin",
     "FriendlyByteBufMixin",
     "HopperBlockEntityMixin",
+    "InvWrapperMixin",
     "ItemEntityMergeGuardMixin",
     "ItemMixin",
     "ItemStackHandlerMixin",

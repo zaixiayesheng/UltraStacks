@@ -8,6 +8,7 @@ modId = "ultrastacks"
 version = "${version}"
 displayName = "UltraStacks"
 authors = "zaixiayesheng"
+logoFile = "logo.png"
 description = '''
 Raises the item stack limit to a configurable value and makes containers, slots and saved data accept it.
 '''

@@ -8,9 +8,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 /**
- * Accessor for the private enchantment roll helper.
+ * 附魔台私有随机方法的访问器。
  *
- * <p><b>中文</b> 取出附魔台私有的附魔随机结果方法，供批量附魔使用。
+ * <p>{@code EnchantmentMenu.getEnchantmentList} 是私有的，批量附魔要用同一份随机结果给整批物品上附魔，
+ * 所以通过 {@code @Invoker} 把它取出来。
+ *
+ * <p>Accessor for the private enchantment roll helper of the enchanting table.
+ * {@code EnchantmentMenu.getEnchantmentList} is private, and bulk enchanting has to apply the same roll to
+ * a whole batch, so it is exposed through {@code @Invoker}.
  */
 @Mixin(EnchantmentMenu.class)
 public interface EnchantmentMenuAccessor {

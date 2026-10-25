@@ -14,9 +14,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Replaces the vanilla one-craft-per-round loop for the player's 2x2 grid.
+ * 背包 2x2 格的批量合成入口。
  *
- * <p><b>中文</b> 背包 2x2：玩家 Shift 点击产物槽时一次合完整批，返回空堆叠即可让原版循环停止。
+ * <p>与工作台是同一套逻辑，只有背包区间不同：9..45（槽 0 是产物、1..4 是合成格、5..8 是盔甲、
+ * 其余为背包）。
+ *
+ * <p>Bulk-crafting entry point for the player's 2x2 grid. Same logic as the crafting table, only the
+ * inventory range differs: 9..45 (slot 0 is the result, 1..4 the grid, 5..8 armour, the rest the
+ * inventory).
  */
 @Mixin(InventoryMenu.class)
 public abstract class InventoryMenuMixin {

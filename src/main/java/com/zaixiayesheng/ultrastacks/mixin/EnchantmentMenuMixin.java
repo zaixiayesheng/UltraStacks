@@ -17,15 +17,23 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Enchants a whole affordable batch for the displayed experience cost instead of enchanting the full stack
- * for the experience of a single item.
+ * 附魔台一次给整批付得起的物品上附魔。
  *
- * <p>Vanilla applies the roll to the entire input stack, so a stack of 64 books turned into 64
- * enchanted books for 1-3 levels. UltraStacks enchants as many items as the player can pay for and
- * leaves the rest in the slot; the batch is settled once, so the cost does not grow with clicks.
+ * <p>原版把随机结果应用到整堆物品上，却只按展示的等级扣一次经验、扣掉与选项序号对应的青金石，
+ * 于是一整堆 64 本书一次附魔全变附魔书。这里改成按件结算：件数取左槽数量、可用经验除以单件花费、
+ * 青金石够付的件数三者的最小值，剩下的物品留在槽里；经验与青金石都按「单件花费 × 件数」扣。
  *
- * <p><b>中文</b> 原版会给整堆物品上附魔却只扣一次经验（64 本书一次附魔全变附魔书）。本补丁改成
- * 「经验与青金石付得起几件就附几件」，剩余物品留在槽里，一次结算，不影响性能。
+ * <p>单件花费是选项序号加一，也就是经验 per 级、青金石 per 个，展示的花费只用来判断这一档能不能买。
+ * 背包放不下整批时直接返回 false，不会悄悄只放进去一部分。
+ *
+ * <p>Enchants a whole affordable batch in one go. Vanilla applies the roll to the entire stack but
+ * charges the displayed levels once and spends only the lapis of the chosen option, so a stack of 64
+ * books turns into 64 enchanted books for the price of one. Here the batch is the smallest of the slot
+ * count, the levels divided by the per-item cost and the lapis divided by the same, the remainder stays
+ * in the slot, and both levels and lapis are charged as the per-item cost times the batch size. The
+ * per-item cost is the option index plus one, matching the lapis spent by that option, while the
+ * displayed cost only gates whether the option is affordable at all. If the inventory cannot hold the
+ * batch, the call returns false instead of silently delivering part of it.
  */
 @Mixin(EnchantmentMenu.class)
 public abstract class EnchantmentMenuMixin {

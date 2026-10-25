@@ -8,18 +8,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * Player inventory limit.
+ * 玩家背包的空间判断。
  *
- * <p>On 1.20.1 {@code Container.getMaxStackSize()} defaults to 64 and {@code Inventory} does not
- * override it. {@code Inventory.hasRemainingSpaceForItem} and {@code Inventory.addResource} compare
- * against it directly, so a 32768 stack gets split into 64s (and the leftovers are dropped one 64
- * per entity when the inventory is full).
+ * <p>{@code Inventory} 不重写 {@code getMaxStackSize()}，所以 {@code hasRemainingSpaceForItem} 与
+ * {@code addResource} 拿到的还是 64，大堆叠会被拆成 64 一组。这两处调用改成配置值。
  *
- * <p>The calls are redirected instead of adding an override method: a method added by a mixin keeps
- * its literal name in a production (SRG) environment, so it would not override the interface default
- * at all. Redirect targets go through the refmap, so these are remapped correctly.
+ * <p>没有采用「加一个覆盖方法」的写法：mixin 加进去的方法在生产环境保留字面名，覆盖不了接口的默认实现。
  *
- * <p><b>中文</b> 玩家背包的空间判断走容器上限，这里为大堆叠抬高。
+ * <p>Space checks of the player inventory. {@code Inventory} does not override
+ * {@code getMaxStackSize()}, so {@code hasRemainingSpaceForItem} and {@code addResource} still see 64
+ * and split a large stack into groups of 64. Both calls are redirected to the configured stack size.
+ * Adding an overriding method is not an option here: a method injected by a mixin keeps its literal
+ * name in production and would not override the interface default.
  */
 @Mixin(Inventory.class)
 public abstract class PlayerInventoryMixin {

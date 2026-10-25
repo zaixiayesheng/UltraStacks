@@ -12,14 +12,22 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Finishes a whole anvil batch on shift-click when the player can afford the experience.
+ * Shift 点击铁砧产物时，一次结算付得起的一整批。
  *
- * <p>The batch is capped by the left slot count, the additive supply, the affordable experience and
- * the output stack limit, then applied in one go so a large stack does not run the vanilla loop
- * thousands of times. Renaming is left to vanilla, which charges experience once for the whole stack.
+ * <p>原版每 Shift 一次只搬一件，搬完还要重算一遍结果；大堆叠上这让玩家点到手软。这里在
+ * {@code quickMoveStack} 入口处一次性处理：件数取左槽数量、附加材料够付的件数、经验够付的件数与产物
+ * 堆叠上限的最小值，写进背包后统一扣材料、清产物、扣经验。背包放不下就交回原版逐件处理，不吞物品。
  *
- * <p><b>中文</b> 玩家 Shift 点击铁砧产物时，一次结算「付得起的个数」：上限取左槽数量、右槽可用量、
- * 经验可结算的次数与产物堆叠上限，避免大堆叠把原版循环跑几千次。改名交给原版处理——整堆只扣一次经验。
+ * <p>改名（没有附加材料、也不消耗修复耐久）仍交给原版：整堆改名只扣一次经验，本来就要这个效果。
+ *
+ * <p>Shift-clicking an anvil result settles a whole affordable batch at once. Vanilla moves a single item
+ * per shift-click and recomputes the result afterwards, which is painful on a large stack. Here
+ * {@code quickMoveStack} handles it up front: the batch is the smallest of the left slot count, what the
+ * additive supply can pay for, what the experience can pay for and the output stack limit; the items are
+ * added to the inventory and then the inputs, the result slot and the levels are settled together. When
+ * the inventory cannot hold the batch, vanilla takes over item by item rather than losing anything.
+ * Renaming, meaning no additive and no repair cost, is still left to vanilla, which charges its
+ * experience once for the whole stack as intended.
  */
 @Mixin(ItemCombinerMenu.class)
 public abstract class ItemCombinerMenuMixin {
@@ -47,7 +55,7 @@ public abstract class ItemCombinerMenuMixin {
         }
         ItemStack additive = anvil.getSlot(1).getItem();
         if (additive.isEmpty() && anvil.repairItemCountCost == 0) {
-            // Pure rename: vanilla charges once for the whole stack, so let vanilla handle it.
+            // 纯改名：整堆只扣一次经验，原版处理得正好，交回给它。
             return;
         }
         int additivePerCraft = anvil.repairItemCountCost > 0 ? anvil.repairItemCountCost : (additive.isEmpty() ? 0 : 1);

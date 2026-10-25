@@ -17,31 +17,44 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.event.ForgeEventFactory;
 
 /**
- * Crafting module: finishes a whole batch with a single shift-click (Minecraft 1.20.1 / Forge).
+ * 合成模块：一次 Shift 点击把整批材料合完。
  *
- * <p>Vanilla repeatedly calls {@code quickMoveStack}: every round re-resolves the recipe, consumes
- * materials and inserts output. With a 32k stack in the grid that is 32k rounds inside one tick,
- * which freezes the client and can time out the server. This module instead computes how many
- * crafts the inputs and the free space allow, consumes once, and inserts the produced items once.
+ * <p>原版每合一次就走一轮 {@code quickMoveStack}：重新匹配配方、扣一次料、塞一次产物。材料堆到
+ * 32k 时等于一 tick 跑 32k 轮。这里先算「材料够合几次」与「背包放得下几次」的较小值，一次扣料，
+ * 再把产物按堆叠上限分块塞回背包，塞不下的部分直接丢给玩家。
  *
- * <p><b>中文</b> 合成模块（1.20.1 / Forge）：一次 Shift 点击把能合的整批合完。先算「材料够合几次」与
- * 「背包还能放几次」的较小值，然后一次扣材料、一次按堆叠上限分块塞产物。
+ * <p>Finishes the whole batch in one shift-click. Vanilla runs one {@code quickMoveStack} round per
+ * craft, re-matching the recipe and then consuming and inserting once each time, which for a 32k
+ * input means 32k rounds in a single tick. This takes the smaller of "how many crafts the input
+ * affords" and "how many the inventory can hold", consumes the materials once, then inserts the
+ * output in chunks of at most one stack and hands whatever does not fit to the player as a drop.
  */
 public final class BulkCrafting {
 
     private BulkCrafting() {
     }
 
-    /** True when the crafting module is enabled in the config. */
     public static boolean enabled() {
         return UltraStacksConfig.craftingModule() && UltraStacksConfig.bulkCrafting();
     }
 
     /**
-     * Tries to finish the whole batch behind the result slot.
+     * 尝试把产物槽背后那一批一次性合完。
      *
-     * @return true when the batch was handled (caller returns an empty stack and the vanilla loop
-     *     stops), false when vanilla should handle this click
+     * <p>调用方是 {@code quickMoveStack} 的 HEAD 注入点（工作台与背包各一个 mixin）。返回 true 时调用方
+     * 应把结果设成空堆叠，原版循环随之结束。
+     *
+     * <p>Tries to finish the whole batch behind the result slot. The callers are the {@code HEAD}
+     * injections into {@code quickMoveStack} (one each for the crafting table and the inventory grid);
+     * on {@code true} they must return an empty stack so the vanilla loop stops.
+     *
+     * @param menu 本次合成所在的菜单。The menu being crafted in.
+     * @param craftSlots 合成格。The crafting grid.
+     * @param resultSlots 产物槽。The result slot container.
+     * @param player 发起这次合成的玩家。The player who started the craft.
+     * @param inventoryStart 背包区间起点（含）。First inventory slot, inclusive.
+     * @param inventoryEnd 背包区间终点（不含）。Last inventory slot, exclusive.
+     * @return 整批已处理为 true；应交回原版处理为 false。True when the batch was handled, false when vanilla should handle this click.
      */
     public static boolean tryCraftAll(AbstractContainerMenu menu, CraftingContainer craftSlots,
                                       ResultContainer resultSlots, Player player, int inventoryStart, int inventoryEnd) {
@@ -140,7 +153,6 @@ public final class BulkCrafting {
         return true;
     }
 
-    /** Free room for {@code result} in the player inventory, accumulated in long. */
     private static long countFreeSpace(AbstractContainerMenu menu, ItemStack result, int start, int end) {
         long space = 0L;
         for (int i = start; i < end; i++) {
@@ -156,7 +168,6 @@ public final class BulkCrafting {
         return space;
     }
 
-    /** Inserts up to {@code count} items into the inventory range; returns the leftovers. */
     private static long insert(AbstractContainerMenu menu, ItemStack result, int count, int start, int end) {
         int remaining = count;
         for (int i = start; i < end && remaining > 0; i++) {

@@ -13,17 +13,26 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /**
  * 网络同步里的物品数量。
  *
- * <p>1.20.1 把数量写成 byte，读取端也按 byte 读，所以客户端看到的永远只有 -128~127：
- * 32768 个的堆叠过去会变成 0 个。这里把「写数量、读数量」换成 VarInt，
- * 两端都是本模组时数量才能原样传过去。
+ * <p>原版把数量写成 byte、读取端也按 byte 读，客户端能看到的只有 -128~127：32768 与 65536 写进去
+ * 都变成 0，大堆叠在客户端直接显示成空。这里在写与读两端都换成 VarInt，两端都装本模组时数量才能
+ * 原样传过去；只用原版客户端进服会走不到这套读写。
  *
- * <p><b>EN</b> Widens the item-count byte in network packets to a VarInt so large stacks can sync.
+ * <p>The item count used in network packets. Vanilla writes the count as a byte and reads it back the
+ * same way, so a client only ever sees -128 to 127: both 32768 and 65536 become zero and a large stack
+ * shows up empty. Both the write and the read side use a VarInt instead, so counts survive the trip as
+ * long as both ends run UltraStacks.
  */
 @Mixin(FriendlyByteBuf.class)
 public abstract class FriendlyByteBufMixin {
     /**
-     * 这个方法不在 SRG 映射里（Forge 补丁加进来的重载，正式环境保持原名），所以 remap = false。
-     * 原版的 {@code writeItem(ItemStack)} 只是转调它，正式环境改名成 SRG 后仍然走到这里。
+     * 这个重载由 Forge 补丁加进来，不在 SRG 映射里，正式环境保持原名，所以 {@code remap = false}。
+     * 原版的 {@code writeItem(ItemStack)} 只是转调它，正式环境改名成 SRG 后也仍然走到这里。
+     * 写入顺序是「有无物品 → 物品 id → VarInt 数量 → 可选 NBT」，{@code readItem} 按同样顺序读回。
+     *
+     * <p>This overload is added by the Forge patch and is not part of the SRG mappings, so its name is
+     * unchanged in production and the injector needs {@code remap = false}. Vanilla
+     * {@code writeItem(ItemStack)} only delegates here, so it still lands in this method after remapping.
+     * The layout is "presence flag, item id, VarInt count, optional NBT", which {@code readItem} mirrors.
      */
     @Inject(
             method = "writeItemStack(Lnet/minecraft/world/item/ItemStack;Z)Lnet/minecraft/network/FriendlyByteBuf;",

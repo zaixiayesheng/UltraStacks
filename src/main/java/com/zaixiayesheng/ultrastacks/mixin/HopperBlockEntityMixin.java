@@ -6,9 +6,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-/** Hopper block limit: {@code HopperBlockEntity.setItem} clamps to the container default (64).
+/**
+ * 漏斗槽位的上限。
  *
- * <p><b>中文</b> 漏斗通过容器上限搬运物品，这里保持配置值。
+ * <p>{@code HopperBlockEntity.setItem} 用容器默认上限（64）夹取进来的物品，这里换成配置的堆叠上限。
+ *
+ * <p>Hopper slot limit. {@code HopperBlockEntity.setItem} clamps incoming items to the container default
+ * of 64; this redirects that call to the configured stack size.
  */
 @Mixin(HopperBlockEntity.class)
 public abstract class HopperBlockEntityMixin {

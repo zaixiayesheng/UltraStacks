@@ -17,21 +17,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Brews stacked potions at the vanilla reagent rate, converting whole bottle stacks only.
+ * 药水可以叠放之后，按原版原料比例整摞酿造。
  *
- * <p>On 1.20.1 the brewing table goes through Forge's {@code BrewingRecipeRegistry}, which also serves modded
- * recipes; this hook asks the registry for the result of one bottle and converts a slot only when the whole
- * stack fits that result and the reagent slot has enough reagent at {@code brewingYield} bottles per reagent
- * (three by default, the vanilla rate). Slots that cannot be converted as a whole are left untouched and cost
- * no reagent, so a stack is never partially destroyed. The four hundred tick cycle and the fuel accounting
- * stay vanilla.
+ * <p>酿造走的是 Forge 的 {@code BrewingRecipeRegistry}，模组配方也在其中。这里先问注册表「一瓶会变成
+ * 什么」，只有当整摞瓶子都装得进那个产物、并且原料按 {@code brewingYield}（默认 3，与原版一致）折算
+ * 够用时，才把整摞一起转换。装不下或原料不够的瓶位保持原样、不消耗原料，所以不会出现「只酿出几瓶、
+ * 剩下的被覆盖」这种丢物品。400 tick 的周期与烈焰粉结算仍由原版负责。
  *
- * <p>With {@code potionStackLimit} left at one the hook returns before touching anything.
+ * <p>{@code potionStackLimit} 为 1（也就是药水不叠放）时，本注入在动手之前就返回，完全走原版逻辑。
  *
- * <p><b>中文</b> 药水可堆叠后仍按原版原料比例酿造：每个原料折算 {@code brewingYield} 瓶（默认 3）。
- * 只有整摞瓶子都装得进产物、且原料够用时才整摞转换；装不下或原料不够的瓶位保持原样、不消耗原料，
- * 因此不会出现「只酿出几瓶、剩下的被覆盖」的丢物品。400 tick 周期与烈焰粉结算不变；
- * {@code potionStackLimit} 为 1 时直接返回原版逻辑。
+ * <p>With potions stackable, brewing converts whole stacks at the vanilla reagent rate. Brewing goes
+ * through Forge's {@code BrewingRecipeRegistry}, which also carries modded recipes, so the hook asks the
+ * registry what one bottle becomes and converts a slot as a whole only when the entire stack fits that
+ * result and the reagent covers it at {@code brewingYield} bottles per reagent (three by default, the
+ * vanilla rate). Slots that cannot be converted as a whole are left untouched and cost no reagent, so a
+ * stack is never partially destroyed or overwritten. The four hundred tick cycle and the blaze powder
+ * accounting stay vanilla. With {@code potionStackLimit} at one the hook returns before touching
+ * anything and the vanilla path runs unchanged.
  */
 @Mixin(BrewingStandBlockEntity.class)
 public abstract class BrewingStandBlockEntityMixin {
@@ -95,13 +97,14 @@ public abstract class BrewingStandBlockEntityMixin {
     }
 
     /**
-     * Resolves what one bottle becomes with the given reagent.
+     * 一瓶药水加这份原料会变成什么，空表示这组配不出来。
      *
-     * <p>Forge's registry only serves recipes registered through it, while vanilla potions live in
-     * {@code PotionBrewing}; asking the registry first and falling back to the vanilla table covers both.
-     *
-     * <p><b>中文</b> 先问 Forge 的酿造注册表（模组配方都在那里），没有结果再回落到原版药水表，
+     * <p>先问 Forge 的酿造注册表，模组配方都在那里；没有结果再回落到原版的 {@code PotionBrewing} 药水表，
      * 这样原版配方与模组配方都能识别。
+     *
+     * <p>What one bottle becomes with this reagent, empty when the pair does not brew. Forge's registry is
+     * asked first since modded recipes register there; when it yields nothing the vanilla
+     * {@code PotionBrewing} table is consulted, so both kinds of recipe are recognised.
      */
     private static ItemStack brewOnce(ItemStack potion, ItemStack ingredient) {
         ItemStack probeIngredient = ingredient.copyWithCount(1);
@@ -127,9 +130,10 @@ public abstract class BrewingStandBlockEntityMixin {
     }
 
     /**
-     * True when at least one bottle slot can be converted as a whole with the reagents on hand.
+     * 至少有一个瓶位能用现有原料整摞转换时为真，酿造台才会开始计时。
      *
-     * <p><b>中文</b> 至少有一个瓶位能用现有原料整摞转换时为真。
+     * <p>True when at least one bottle slot can be converted as a whole with the reagents on hand, which is
+     * what makes the stand start its cycle.
      */
     private static boolean canBrewAny(NonNullList<ItemStack> items) {
         ItemStack ingredient = items.get(3);

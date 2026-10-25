@@ -20,30 +20,48 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 
 /**
- * Crafting module: finishes a whole batch with a single shift-click (Minecraft 26.1.2).
+ * 合成模块：一次 Shift 点击把整批材料一次合完。
  *
- * <p>Vanilla repeatedly calls {@code quickMoveStack}: every round re-resolves the recipe, consumes
- * materials and inserts output. With a 32k stack in the grid that is 32k rounds inside one tick,
- * which freezes the client and can time out the server. This module instead computes how many
- * crafts the inputs and the free space allow, consumes once, and inserts the produced items once.
+ * <p>原版用 {@code while} 循环反复调用 {@code quickMoveStack}，每一轮重新匹配配方、扣一套料、塞一次
+ * 产物。材料堆到 65536 时就是一个 tick 里跑 65536 轮配方匹配加扣料，tick 时间被拖到肉眼可见。这里先算
+ * 出「材料够合几次」与「背包还放得下几次」的较小值，一次性扣料，再把产物按单堆上限拆块插入，塞不进去
+ * 的部分直接掉给玩家，最后补上合成统计与容器变更通知。
  *
- * <p><b>中文</b> 合成模块（26.1.2）：一次 Shift 点击把能合的整批合完。先算「材料够合几次」与
- * 「背包还能放几次」的较小值，然后一次扣材料、一次按堆叠上限分块塞产物。
+ * <p>The crafting module: finishes an entire batch of crafts from a single shift-click.
+ *
+ * <p>Vanilla keeps calling {@code quickMoveStack} from a {@code while} loop, and every round matches the
+ * recipe again, consumes one set of ingredients and pushes out one result. With ingredients stacked to
+ * 65536 that is 65536 rounds of recipe matching and consumption inside a single tick, which stretches
+ * tick time to something you can see. This implementation first works out the smaller of "how many
+ * crafts the ingredients allow" and "how many crafts the inventory can still hold", consumes the
+ * ingredients once, splits the output into per-stack-sized chunks when inserting it, hands whatever does
+ * not fit straight to the player, and finally reports the crafted stats and notifies the container of the
+ * change.
  */
 public final class BulkCrafting {
 
     private BulkCrafting() {
     }
 
-    /** True when the crafting module is enabled in the config. */
     public static boolean enabled() {
         return UltraStacksConfig.craftingModule() && UltraStacksConfig.bulkCrafting();
     }
 
     /**
-     * Tries to finish the whole batch behind the result slot.
+     * 尝试把结果槽后面的整批材料合成完。
      *
-     * @return true when the batch was handled (caller returns an empty stack and the vanilla loop
+     * <p>只在服务端执行；配方匹配失败、格子为空或算出的次数为 0 时返回 false，让原版逻辑接手这一下点击。
+     * 合成剩余物（例如桶、空瓶）会先按次数补齐后放回原格，放不下的进背包或掉在地上。
+     *
+     * <p>Tries to finish the whole batch behind the result slot.
+     *
+     * <p>This only runs on the server side. It returns false when no recipe matches, when the grid is
+     * empty, or when the computed craft count is zero, so that vanilla handles this click. Crafting
+     * remainders such as buckets and empty bottles are multiplied by the craft count, put back into their
+     * grid slots first, and go to the inventory or the ground when they do not fit.
+     *
+     * @return true 表示这批已处理完（调用方应返回空堆叠，原版循环随之结束），false 表示交给原版处理 /
+     *     true when the batch was handled (the caller returns an empty stack and the vanilla loop
      *     stops), false when vanilla should handle this click
      */
     public static boolean tryCraftAll(AbstractCraftingMenu menu, Player player, int inventoryStart, int inventoryEnd) {
@@ -156,7 +174,6 @@ public final class BulkCrafting {
         return true;
     }
 
-    /** Free room for {@code result} in the player inventory, accumulated in long. */
     private static long countFreeSpace(AbstractContainerMenu menu, ItemStack result, int start, int end) {
         long space = 0L;
         for (int i = start; i < end; i++) {
@@ -172,7 +189,6 @@ public final class BulkCrafting {
         return space;
     }
 
-    /** Inserts up to {@code count} items into the inventory range; returns the leftovers. */
     private static long insert(AbstractContainerMenu menu, ItemStack result, int count, int start, int end) {
         int remaining = count;
         for (int i = start; i < end && remaining > 0; i++) {

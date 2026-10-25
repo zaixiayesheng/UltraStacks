@@ -8,15 +8,20 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Drag-splitting a stack across several slots divides the count by the number of slots.
+ * 拖拽把一堆物品分摊到多个槽位时，用整数除法算每格放几个。
  *
- * <p>Vanilla does that in {@code float}: {@code Mth.floor((float) count / (float) slots)}. A float only has
- * 24 bits of mantissa, so any count above 16,777,216 is rounded to a multiple of the float's step. At
- * 1,073,741,823 (2^30 - 1) the value rounds up to 2^30, the two halves become 536,870,912 each and the
- * player ends up with 1,073,741,824 items: one extra item per drag. Doing the division in {@code int}
- * keeps the sum equal to the original count.
+ * <p>原版在 {@code getQuickCraftPlaceCount} 里用 float 算：{@code Mth.floor((float) count / (float) slots)}。
+ * float 只有 24 位尾数，超过 16777216 的数量会被舍入到浮点的步长上。以 1073741823（2^30 - 1）分到两格
+ * 为例，数量先被舍入成 2^30，每格算出 536870912，两格合计 1073741824，比原来多出一个——每拖一次多一个。
+ * 改成 int 除法后，各格之和不会超过原数量。
  *
- * <p><b>中文</b> 拖拽分摊改用整数除法；原版用 float，超过 2^24 会向上取整多出一个物品。
+ * <p>Splits a dragged stack across slots with integer division.
+ *
+ * <p>Vanilla computes it in {@code getQuickCraftPlaceCount} with floats:
+ * {@code Mth.floor((float) count / (float) slots)}. A float keeps only 24 mantissa bits, so any count above
+ * 16777216 is rounded to the float's step. Splitting 1073741823 (2^30 - 1) over two slots rounds the count
+ * up to 2^30, gives 536870912 per slot and leaves the player holding 1073741824 — one extra item per drag.
+ * With integer division the per-slot amounts never add up to more than the original count.
  */
 @Mixin(AbstractContainerMenu.class)
 public abstract class QuickCraftSplitMixin {

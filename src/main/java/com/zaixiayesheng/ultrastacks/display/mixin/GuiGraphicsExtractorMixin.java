@@ -11,19 +11,21 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * Display module: the number drawn on a slot (Minecraft 26.1.2).
+ * 计数文本的显示改造。
  *
- * <p>Vanilla draws the full count in {@code itemCount}. COMPACT mode substitutes a shorter string
- * ("65k", "1.5m") at the exact place vanilla was about to draw, shifting the anchor by the width
- * difference so the text keeps vanilla's right alignment. EXACT mode passes the vanilla string
- * straight through.
+ * <p>把 {@code itemCount} 里绘制数量数字的那次 {@code text(...)} 调用重定向到本地方法：数量超过 99、
+ * 且原版没有给出替代文本（{@code countText} 为 null）时，改成画
+ * {@link com.zaixiayesheng.ultrastacks.display.CountFormat#format} 的结果。剩下两种情况原样转发：数字
+ * 被缩写后变短了，用两者字宽之差把落点右移，才能保住原版的右对齐；只有真的换了文本才做这一步。
  *
- * <p>Nothing else is touched: the durability bar and the cooldown overlay are drawn elsewhere and
- * keep working untouched.
+ * <p>Override for the stack count text.
  *
- * <p><b>中文</b> 显示模块：槽位上的数字。COMPACT 模式在原版 {@code itemCount} 即将绘制的位置换成缩写
- * （"65k"、"1.5m"），并按字宽差修正落点以保持原版的右对齐；EXACT 模式直接把原版字符串传回去。
- * 耐久条与冷却由别的方法绘制，完全不受影响。
+ * <p>The {@code text(...)} call that draws the count inside {@code itemCount} is redirected to a local
+ * method: when the count is above 99 and vanilla has not supplied its own text ({@code countText} is
+ * null), the string drawn is {@link com.zaixiayesheng.ultrastacks.display.CountFormat#format}'s result.
+ * Two cases are forwarded unchanged — an abbreviated number is shorter than the full one, so the draw
+ * position is shifted right by the difference between the two string widths to keep vanilla's right
+ * alignment, and that shift only happens when the text was actually replaced.
  */
 @Mixin(GuiGraphicsExtractor.class)
 public abstract class GuiGraphicsExtractorMixin {

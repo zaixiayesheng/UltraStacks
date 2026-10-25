@@ -11,8 +11,10 @@
     "EnchantmentMenuAccessor",
     "EnchantmentMenuMixin",
     "ExtraCodecsMixin",
+    "ItemDefaultMaxStackMixin",
     "ItemStackHandlerMixin",
     "ItemStackMaxStackMixin",
+    "ItemStackResourceHandlerMixin",
     "ItemCombinerMenuMixin",
     "SlotMixin",
     "BrewingStandPotionSlotMixin"

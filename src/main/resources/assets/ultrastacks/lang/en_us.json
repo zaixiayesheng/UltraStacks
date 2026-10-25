@@ -13,5 +13,12 @@
   "ultrastacks.tooltip.count": "Count: %s / %s",
   "ultrastacks.configuration.potionStackLimit": "Potion stack size",
   "ultrastacks.configuration.enchantedBookStackLimit": "Enchanted book stack size",
-  "ultrastacks.configuration.brewingYield": "Bottles per reagent when brewing"
+  "ultrastacks.configuration.brewingYield": "Bottles per reagent when brewing",
+  "ultrastacks.configuration.compatSophisticated": "Sophisticated Storage / Backpacks",
+  "ultrastacks.configuration.bucketStackLimit": "Bucket stack size",
+  "ultrastacks.configuration.configVersion": "Config version",
+  "ultrastacks.configuration.compatAe2": "AE2 terminal, interface and handler slots",
+  "ultrastacks.configuration.compatRefinedStorage": "Refined Storage grid and handler slots",
+  "ultrastacks.configuration.compatIronFurnaces": "Iron Furnaces input/output caps",
+  "ultrastacks.configuration.compatMysticalAgriculture": "Mystical Agriculture machine slots"
 }

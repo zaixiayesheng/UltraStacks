@@ -11,15 +11,28 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Keeps the anvil from duplicating or eating a whole stack when an input stack has more than one item.
+ * 防止铁砧在输入槽里有多件物品时复制或吞掉一整堆。
  *
- * <p>Vanilla copies the entire left stack into the result slot; taking the result then clears that
- * slot. For enchanting and repair this turns one payment into a whole stack, so UltraStacks clamps
- * those results to a single item and consumes exactly one input per operation. Renaming keeps the
- * vanilla behaviour: the whole stack is renamed, taken in one go and charged experience once.
+ * <p>原版 {@code createResult} 直接 {@code copy()} 左槽整堆作为产物，{@code onTake} 再把左槽清空，于是
+ * 附魔与修复变成「一次经验换一整堆」。这里在 {@code createResult} 返回后，把左槽、右槽与产物都非空且左槽
+ * 多于一格时的产物压到 1 件；同时重定向 {@code onTake} 里的 {@code Container#setItem}：左槽每次只扣 1
+ * 件，右槽按 {@code repairItemCountCost} 扣，没有该代价时扣 1 件。
  *
- * <p><b>中文</b> 原版铁砧会把左槽整堆复制成产物、取走时再清空整槽。附魔与修复会因此变成「一次经验换一整堆」，
- * 所以本补丁把这两类结果压到 1 件、并按件扣输入；改名维持原版行为：整堆改名、一次取走、只扣一次经验。
+ * <p>改名不走这条路：右槽为空时保持原版行为，整堆改名、一次取走、只扣一次经验。
+ *
+ * <p>Keeps the anvil from duplicating or eating a whole stack when the input slot holds more than one
+ * item.
+ *
+ * <p>Vanilla {@code createResult} simply {@code copy()}s the whole left stack into the result slot and
+ * {@code onTake} then clears that slot, which turns enchanting and repair into "one payment for a whole
+ * stack". After {@code createResult} returns, this clamps the result to a single item whenever the left
+ * slot, the additive slot and the result are all non-empty and the left slot holds more than one item.
+ * It also redirects the {@code Container#setItem} call inside {@code onTake} so that the left slot loses
+ * only one item per operation, while the additive slot loses {@code repairItemCountCost} items, or one
+ * when no such cost applies.
+ *
+ * <p>Renaming does not take that path: with an empty additive slot vanilla behaviour stands — the whole
+ * stack is renamed, taken in one go and charged experience once.
  */
 @Mixin(AnvilMenu.class)
 public abstract class AnvilMenuMixin {

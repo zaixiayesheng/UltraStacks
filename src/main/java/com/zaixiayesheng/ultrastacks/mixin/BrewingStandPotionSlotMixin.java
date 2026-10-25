@@ -8,16 +8,19 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Lets the three potion slots hold a whole stack.
+ * 药水槽跟着药水堆叠上限走。
  *
- * <p>Vanilla overrides {@code getMaxStackSize()} in this slot to return one, which caps the brewing
- * stand no matter what the item itself allows. The slot now follows the configured potion limit and
- * never reports less than what already sits in it.
+ * <p>原版在 {@code BrewingStandMenu$PotionSlot} 里把 {@code getMaxStackSize()} 固定成 1，与物品自己的上限
+ * 无关，于是药水即便能叠 4096 个，酿造台的瓶位也只放得下一瓶。这里取「配置的药水上限」与「槽里已有数量」
+ * 的较大者，并且只在比原版返回值更大时才改：数量不会因为改小上限而被槽位拒收。
  *
- * <p><b>中文</b> 原版在药水槽里重写 {@code getMaxStackSize()}
- * 固定返回 1，导致酿造台无论物品本身能堆多大
- * 都只能放一瓶。这里改为跟随药水堆叠上限，
- * 并保证不小于槽内已有数量。
+ * <p>Potion slots follow the configured potion limit.
+ *
+ * <p>Vanilla {@code BrewingStandMenu$PotionSlot} hardcodes {@code getMaxStackSize()} to 1 regardless of
+ * the item's own limit, so even with potions stacking to 4096 a stand slot holds a single bottle. This
+ * takes the larger of the configured potion limit and the number already sitting in the slot, and only
+ * raises the value returned by vanilla — lowering the limit can therefore never make a slot reject what
+ * it already contains.
  */
 @Mixin(targets = "net.minecraft.world.inventory.BrewingStandMenu$PotionSlot")
 public abstract class BrewingStandPotionSlotMixin {

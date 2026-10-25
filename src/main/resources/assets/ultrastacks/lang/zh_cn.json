@@ -13,5 +13,12 @@
   "ultrastacks.tooltip.count": "数量：%s / %s",
   "ultrastacks.configuration.potionStackLimit": "药水每堆数量",
   "ultrastacks.configuration.enchantedBookStackLimit": "附魔书每堆数量",
-  "ultrastacks.configuration.brewingYield": "每个原料可酿出的药水瓶数"
+  "ultrastacks.configuration.brewingYield": "每个原料可酿出的药水瓶数",
+  "ultrastacks.configuration.compatSophisticated": "精妙存储 / 背包",
+  "ultrastacks.configuration.bucketStackLimit": "桶的堆叠上限",
+  "ultrastacks.configuration.configVersion": "配置格式版本",
+  "ultrastacks.configuration.compatAe2": "应用能源终端、接口与处理器槽位",
+  "ultrastacks.configuration.compatRefinedStorage": "精致存储终端与处理器槽位",
+  "ultrastacks.configuration.compatIronFurnaces": "更多熔炉的输入/输出上限",
+  "ultrastacks.configuration.compatMysticalAgriculture": "神秘农业机器的槽位上限"
 }

@@ -1,27 +1,40 @@
 package com.zaixiayesheng.ultrastacks.crafting;
 
 /**
- * Pure arithmetic behind the bulk crafting path: no Minecraft types.
+ * 批量合成的纯算术，不依赖 Minecraft 类型。
  *
- * <p>The in-game code counts what is available, asks this class how many crafts that pays for, then
- * consumes exactly {@code crafts * occupiedSlots} items and produces {@code crafts * perCraft}
- * items. Everything that could silently create or destroy items (rounding, overflow, per-stack
- * truncation) lives here.
+ * <p>生产路径只用到两件事：按产物空位截断合成次数（{@link #capBySpace}），把超过单堆上限的产物拆成
+ * 多次插入（{@link #nextChunk}）。取整与溢出这类会凭空多出或吃掉物品的换算都集中在这里；其余几个方法
+ * 供自检用，不在合成路径上。
  *
- * <p><b>中文</b> 批量合成的纯算术：可用数量、按格子占用折算次数、按空间封顶、以及把超大产物拆块。
- * 可能产生复制或丢失的取整、溢出都在这里。
+ * <p>Pure arithmetic for bulk crafting, independent of any Minecraft type.
+ *
+ * <p>The production path uses only two things: capping the craft count by the free output space
+ * ({@link #capBySpace}) and splitting an oversized output into several insertions ({@link #nextChunk}).
+ * All the rounding and overflow arithmetic that could invent or swallow items is concentrated here; the
+ * remaining methods are self-check helpers and are not on the crafting path.
  */
 public final class CraftingMath {
 
     private CraftingMath() {
     }
 
-    /** Total items of one ingredient the container can pay with. */
     public static long available(long grid, long storage, long inventory) {
         return Math.max(0, grid) + Math.max(0, storage) + Math.max(0, inventory);
     }
 
-    /** How many crafts an ingredient pays for when it occupies {@code slotsUsing} grid slots. */
+    /**
+     * 用总料量除以参与格数得到平均可合次数。
+     *
+     * <p>这个结果只在各格数量完全相等时才成立，所以不在合成路径上：真正的次数由调用方逐格取最小值得到。
+     * 除以 0 或负数返回 0，结果再夹在 0 与 {@link Integer#MAX_VALUE} 之间。
+     *
+     * <p>Divides the total ingredient count by the number of slots in use to get an average craft count.
+     *
+     * <p>The result only holds while every slot holds exactly the same amount, which is why this is not
+     * on the crafting path: the real count comes from taking the per-slot minimum. A non-positive slot
+     * count yields 0, and the result is clamped between 0 and {@link Integer#MAX_VALUE}.
+     */
     public static int crafts(long available, int slotsUsing) {
         if (slotsUsing <= 0) {
             return 0;
@@ -30,7 +43,6 @@ public final class CraftingMath {
         return (int) Math.min(Integer.MAX_VALUE, Math.max(0, value));
     }
 
-    /** Caps the craft count by the free output space. */
     public static int capBySpace(int crafts, long freeSpace, int perCraft) {
         if (perCraft <= 0 || freeSpace <= 0) {
             return 0;
@@ -38,24 +50,29 @@ public final class CraftingMath {
         return Math.min(crafts, (int) Math.min(Integer.MAX_VALUE, freeSpace / perCraft));
     }
 
-    /** Number of input items a balanced craft run must consume. */
     public static long expectedConsumed(int crafts, int occupiedSlots) {
         return (long) crafts * Math.max(0, occupiedSlots);
     }
 
-    /** Number of output items a balanced craft run must produce (before stack truncation). */
     public static long expectedProduced(int crafts, int perCraft) {
         return (long) crafts * Math.max(0, perCraft);
     }
 
-    /** True when the actually consumed amount matches the crafts that were paid for. */
     public static boolean balanced(long consumed, int crafts, int occupiedSlots) {
         return consumed == expectedConsumed(crafts, occupiedSlots);
     }
 
     /**
-     * Next insertion chunk for a bulk output. A single ItemStack can never hold more than its own
-     * max stack size, so anything larger has to be split or the excess is silently dropped.
+     * 批量产物下一次插入该用多大一块。
+     *
+     * <p>单个 {@code ItemStack} 永远装不下超过它自身上限的数量，所以超出的部分必须拆开插入，否则会被
+     * 静默丢掉。剩余量或上限非正时返回 0，调用方据此结束循环。
+     *
+     * <p>How large the next insertion chunk of a bulk output should be.
+     *
+     * <p>A single {@code ItemStack} can never hold more than its own limit, so anything larger has to be
+     * split across insertions or the excess is silently dropped. A non-positive remaining count or limit
+     * yields 0, which tells the caller to stop looping.
      */
     public static int nextChunk(long remaining, int maxStackSize) {
         if (remaining <= 0 || maxStackSize <= 0) {
@@ -64,7 +81,6 @@ public final class CraftingMath {
         return (int) Math.min(remaining, maxStackSize);
     }
 
-    /** Number of chunks needed to insert {@code total} items with the given stack size. */
     public static int chunkCount(long total, int maxStackSize) {
         if (total <= 0 || maxStackSize <= 0) {
             return 0;

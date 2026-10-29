@@ -1,0 +1,36 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.zaixiayesheng.ultrastacks.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "ultrastacks.refmap.json",
+  "mixins": [
+    "AbstractFurnaceBlockEntityMixin",
+    "AnvilMenuMixin",
+    "BrewingStandBlockEntityMixin",
+    "BrewingStandSlotMixin",
+    "CompoundContainerMixin",
+    "ContainersDropStackMixin",
+    "CreativeSlotLimitMixin",
+    "EnchantmentMenuAccessor",
+    "EnchantmentMenuMixin",
+    "FriendlyByteBufMixin",
+    "HopperBlockEntityMixin",
+    "InvWrapperMixin",
+    "ItemEntityMergeGuardMixin",
+    "ItemMixin",
+    "ItemStackHandlerMixin",
+    "ItemStackMaxStackMixin",
+    "ItemStackMixin",
+    "ItemCombinerMenuMixin",
+    "PlayerInventoryMixin",
+    "QuickCraftSplitMixin",
+    "RandomizableContainerBlockEntityMixin",
+    "SimpleContainerMixin",
+    "SlotMixin",
+    "BrewingStandPotionSlotMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

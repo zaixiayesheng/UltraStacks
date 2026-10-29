@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.zaixiayesheng.ultrastacks.crafting.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "ultrastacks.refmap.json",
+  "mixins": [
+    "CraftingMenuMixin",
+    "InventoryMenuMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

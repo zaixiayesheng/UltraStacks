@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/zaixiayesheng/UltraStacks/releases"><img alt="Release" src="https://img.shields.io/github/v/release/zaixiayesheng/UltraStacks?style=for-the-badge&label=release&color=3C8527"></a>
+  <a href="https://github.com/zaixiayesheng/UltraStacks/releases"><img alt="Release" src="https://img.shields.io/github/v/release/zaixiayesheng/UltraStacks?style=for-the-badge&label=release&color=3C8527&filter=v26.1-*&cacheSeconds=600"></a>
   <img alt="Minecraft 26.1.2" src="https://img.shields.io/badge/minecraft-26.1.2-3C8527?style=for-the-badge&logo=minecraft&logoColor=white">
   <img alt="NeoForge 26.1.2.122+" src="https://img.shields.io/badge/neoforge%2026.1.2.122%2B-F16436?style=for-the-badge">
   <img alt="Java 25" src="https://img.shields.io/badge/java-25-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white">

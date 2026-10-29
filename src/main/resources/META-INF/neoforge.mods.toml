@@ -1,0 +1,43 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "LGPL-3.0-only"
+issueTrackerURL = "https://github.com/zaixiayesheng/UltraStacks/issues"
+
+[[mods]]
+modId = "ultrastacks"
+version = "${version}"
+displayName = "UltraStacks"
+authors = "zaixiayesheng"
+logoFile = "logo.png"
+description = '''
+Raises the item stack limit to a configurable value and makes containers, slots and saved data accept it.
+'''
+
+[[mixins]]
+config = "ultrastacks.core.mixins.json"
+
+[[mixins]]
+config = "ultrastacks.vanilla.mixins.json"
+
+[[mixins]]
+config = "ultrastacks.crafting.mixins.json"
+
+[[mixins]]
+config = "ultrastacks.display.mixins.json"
+
+[[dependencies.ultrastacks]]
+modId = "neoforge"
+type = "required"
+versionRange = "[26.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.ultrastacks]]
+modId = "minecraft"
+type = "required"
+versionRange = "[26.1,26.2)"
+ordering = "NONE"
+side = "BOTH"
+
+[[mixins]]
+config = "ultrastacks.compat.mixins.json"

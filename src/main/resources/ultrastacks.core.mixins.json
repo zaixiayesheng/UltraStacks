@@ -1,0 +1,25 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.zaixiayesheng.ultrastacks.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AnvilMenuMixin",
+    "BrewingStandBlockEntityMixin",
+    "ComponentItemHandlerMixin",
+    "ContainerMixin",
+    "EnchantmentMenuAccessor",
+    "EnchantmentMenuMixin",
+    "ExtraCodecsMixin",
+    "ItemDefaultMaxStackMixin",
+    "ItemStackHandlerMixin",
+    "ItemStackMaxStackMixin",
+    "ItemStackResourceHandlerMixin",
+    "ItemCombinerMenuMixin",
+    "SlotMixin",
+    "BrewingStandPotionSlotMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.zaixiayesheng.ultrastacks.mixin.compat",
+  "plugin": "com.zaixiayesheng.ultrastacks.mixin.compat.CompatMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "SophisticatedInventoryHandlerMixin",
+    "SophisticatedStatefulComponentItemHandlerMixin",
+    "MekanismBasicInventorySlotMixin",
+    "MekanicalCreateFanOutputMixin",
+    "MekanismComponentBackedSlotMixin",
+    "Ae2PlayerInternalInventoryMixin",
+    "Ae2CarriedItemInventoryMixin",
+    "Ae2AppEngInternalInventoryMixin",
+    "Ae2ItemKeyMixin",
+    "Ae2GenericStackInvMixin",
+    "Ae2OversizeInterfaceMixin",
+    "Ae2InternalInventoryItemHandlerMixin",
+    "Ae2SlotMixin",
+    "RefinedStorageSlotLimitMixin",
+    "RefinedStorageCursorHandlerMixin",
+    "IronFurnacesFurnaceMixin",
+    "CucumberSlotLimitMixin",
+    "ImmersiveEngineeringHandlerMixin",
+    "ImmersiveEngineeringContainerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

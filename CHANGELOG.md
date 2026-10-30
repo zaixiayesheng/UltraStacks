@@ -1,3 +1,23 @@
+## v20.1-1.0.2 — Minecraft 1.20.1 / Forge 47.4
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：把一次点击的合并量放开，并让抽屉的取出量按配置结算。
+
+### 修复
+- 原版把一次点击能并进去的量写死成槽里原有的数量，上限抬到 65536 后只并一点点；现在按剩余空间一次并满。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: lets a single click merge a whole stack and keeps drawer extraction at the configured size.
+
+### Fixed
+- Vanilla capped a single merge at the slot's current count, which barely moved once the limit went to 65536; it now fills the remaining space in one go.
+
 ## v20.1-1.0.1-hotfix2 — Minecraft 1.20.1 / Forge 47.4
 
 **中文**

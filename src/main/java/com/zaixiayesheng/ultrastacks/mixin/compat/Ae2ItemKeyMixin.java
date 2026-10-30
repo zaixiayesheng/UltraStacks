@@ -1,31 +1,42 @@
 package com.zaixiayesheng.ultrastacks.mixin.compat;
 
+import com.zaixiayesheng.ultrastacks.DiagLog;
 import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 键里缓存的堆叠上限跟着配置走。
+ * 应用能源的物品键报的堆叠上限。
  *
- * <p>{@code AEItemKey} 会把堆叠上限存进键里，键若在本模组抬高上限之前就已建好，之后从终端取出的堆叠会卡在
- * 旧值上。这里只抬 {@code getMaxStackSize} 的返回值，存储里的实际数量一概不动。
+ * <p>键的上限原本转的是「这一摞的 getMaxStackSize」，而本模组为了让大堆在槽里不显超容，会让它返回
+ * 「至少等于当前数量」。键是从手里那摞建的，于是堆里有多少（比如 8479），上限就报多少 —— 终端一次
+ * 只搬这么点，存取都像被截断。这里改成用物品自己的默认上限（已经在注册期按配置烘成 65536 / 16384），
+ * 与手里有多少无关。只改返回值，键本身和存储里的数量都不动。
  *
- * <p>The stack limit cached inside an item key follows the config.
- *
- * <p>{@code AEItemKey} stores a stack limit in the key itself, and a key built before this mod raised the
- * limit keeps the old value, so stacks taken out of a terminal stay capped. Only the return value of
- * {@code getMaxStackSize} is raised; the amount actually stored is left completely untouched.
+ * <p>The stack limit an AE2 item key reports. The key forwards the limit of the stack it was built from,
+ * and this mod keeps that getter at least as large as the stack's own count so oversized stacks do not
+ * look over-capacity. A key built from a stack of 8479 therefore reports 8479, and a terminal moves that
+ * much per operation. This uses the item's own default limit instead (already baked to 65536 / 16384 by
+ * the config at registration), which has nothing to do with the count. Only the return value changes.
  */
 @Mixin(targets = "appeng.api.stacks.AEItemKey", remap = false)
 public abstract class Ae2ItemKeyMixin {
 
+    @Shadow
+    public abstract ItemStack getReadOnlyStack();
+
     @Inject(method = "getMaxStackSize()I", at = @At("RETURN"), cancellable = true, require = 0)
     private void ultrastacks$raiseMaxStackSize(CallbackInfoReturnable<Integer> cir) {
         int original = cir.getReturnValueI();
-        int raised = UltraStacksConfig.ae2SlotLimit(original);
+        int itemDefault = getReadOnlyStack().getItem().getDefaultMaxStackSize();
+        int raised = Math.max(UltraStacksConfig.ae2SlotLimit(original), itemDefault);
         if (raised != original) {
+            DiagLog.lineThrottled("ae2 key " + original + "->" + raised,
+                    "[diag] ae2 key max: " + original + " -> " + raised + " (item default " + itemDefault + ")");
             cir.setReturnValue(raised);
         }
     }

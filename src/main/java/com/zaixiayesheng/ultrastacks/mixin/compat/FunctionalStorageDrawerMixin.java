@@ -21,6 +21,18 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(targets = "com.buuz135.functionalstorage.inventory.BigInventoryHandler", remap = false)
 public abstract class FunctionalStorageDrawerMixin {
 
+    @ModifyReturnValue(method = "getSlotLimit(I)I", at = @At("RETURN"), require = 0)
+    private int ultrastacks$raiseDrawerLimit(int original) {
+        int cap = UltraStacksConfig.maxStackSize();
+        return original < cap ? cap : original;
+    }
+
+    @ModifyVariable(method = "insertItem(ILnet/minecraft/world/item/ItemStack;Z)Lnet/minecraft/world/item/ItemStack;",
+            at = @At("HEAD"), argsOnly = true, index = 2, require = 0)
+    private ItemStack ultrastacks$cleanIncoming(ItemStack stack) {
+        return UltraStacksConfig.stripDefaultStackSize(stack.copy());
+    }
+
     @ModifyReturnValue(method = "getStackInSlot(I)Lnet/minecraft/world/item/ItemStack;", at = @At("RETURN"), require = 0)
     private ItemStack ultrastacks$cleanStored(ItemStack original) {
         return UltraStacksConfig.stripDefaultStackSize(original);

@@ -614,6 +614,9 @@ public final class UltraStacksConfig {
             return current;
         }
         if (current > 1) {
+            if (isVanillaDefault(current) && stack.getCount() > current) {
+                return Math.max(current, scaledMax(current));
+            }
             return current;
         }
         int configured;
@@ -659,6 +662,10 @@ public final class UltraStacksConfig {
             stack.remove(DataComponents.MAX_STACK_SIZE);
         }
         return stack;
+    }
+
+    private static boolean isVanillaDefault(int value) {
+        return value == 2 || value == 4 || value == 8 || value == 16 || value == 32 || value == 64;
     }
 
     public static int scaledMax(int vanillaMax) {

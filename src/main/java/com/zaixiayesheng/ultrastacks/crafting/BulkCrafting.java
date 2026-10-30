@@ -1,5 +1,6 @@
 package com.zaixiayesheng.ultrastacks.crafting;
 
+import com.zaixiayesheng.ultrastacks.DiagLog;
 import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
 import java.util.List;
 import net.minecraft.core.NonNullList;
@@ -77,6 +78,11 @@ public final class BulkCrafting {
             return false;
         }
 
+        // 客户端那份菜单只是同步过来的副本，真扣料必须只发生在服务端，不然两边各算一次。
+        if (player.level().isClientSide()) {
+            return false;
+        }
+
         ItemStack result = resultSlots.getItem(0);
         if (result.isEmpty() || result.getCount() <= 0) {
             return false;
@@ -109,6 +115,9 @@ public final class BulkCrafting {
         int perCraft = Math.max(1, result.getCount());
         long freeSpace = countFreeSpace(menu, result, inventoryStart, inventoryEnd);
         int crafts = CraftingMath.capBySpace(limitedByInput, freeSpace, perCraft);
+        DiagLog.line("[diag] bulk craft: " + result.getDescriptionId() + " input=" + limitedByInput
+                + " freeSpace=" + freeSpace + " perCraft=" + perCraft + " crafts=" + crafts
+                + " grid=" + gridCounts(craftSlots));
         if (crafts <= 0) {
             return false;
         }
@@ -173,6 +182,17 @@ public final class BulkCrafting {
 
         menu.slotsChanged(craftSlots);
         return true;
+    }
+
+    private static String gridCounts(CraftingContainer craftSlots) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < craftSlots.getContainerSize(); i++) {
+            ItemStack stack = craftSlots.getItem(i);
+            if (!stack.isEmpty()) {
+                sb.append(i).append('=').append(stack.getCount()).append(' ');
+            }
+        }
+        return sb.toString().trim();
     }
 
     private static long countFreeSpace(AbstractContainerMenu menu, ItemStack result, int start, int end) {

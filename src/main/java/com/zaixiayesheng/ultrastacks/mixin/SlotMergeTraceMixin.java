@@ -1,6 +1,7 @@
 package com.zaixiayesheng.ultrastacks.mixin;
 
 import com.zaixiayesheng.ultrastacks.UltraStacks;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -76,7 +77,12 @@ public abstract class SlotMergeTraceMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/inventory/Slot;safeInsert(Lnet/minecraft/world/item/ItemStack;I)Lnet/minecraft/world/item/ItemStack;"),
             require = 0)
-    private ItemStack ultrastacks$mergeWholeStack(Slot slot, ItemStack stack, int amount) {
+    private ItemStack ultrastacks$mergeWholeStack(Slot slot, ItemStack stack, int amount,
+                                                  @Local(argsOnly = true, index = 1) int button) {
+        // 右键（button 1）一律交还原版：那里 amount 就是 1，把「放一个」变成「放一整摞」。
+        if (button != 0 || !slot.hasItem()) {
+            return slot.safeInsert(stack, amount);
+        }
         if (amount != Integer.MAX_VALUE && (stack.getCount() > 1 || slot.getItem().getCount() > 1)) {
             String line = "[diag] merge raise: " + stack.getDescriptionId() + " carried x"
                     + stack.getCount() + " into slot x" + slot.getItem().getCount()

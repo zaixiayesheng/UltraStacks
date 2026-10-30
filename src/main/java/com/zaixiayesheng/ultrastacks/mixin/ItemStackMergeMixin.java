@@ -73,9 +73,7 @@ public abstract class ItemStackMergeMixin {
             // makes vanilla treat them as different. Trust the patch instead.
             boolean sameMap = a.getComponents().equals(b.getComponents());
             if (!sameMap) {
-                trace("patch-equal-map-diff (merged)", a, b, pa, pb);
             } else {
-                trace("identical", a, b, pa, pb);
             }
             cir.setReturnValue(true);
             return;
@@ -85,7 +83,6 @@ public abstract class ItemStackMergeMixin {
         if (strippedA.equals(strippedB)) {
             // 唯一差别就是 max_stack_size 组件：视为相同物品。
             // The only difference is the max_stack_size component: treat them as the same item.
-            trace("max-only-diff (merged)", a, b, pa, pb);
             cir.setReturnValue(true);
         } else {
             trace("blocked", a, b, pa, pb);

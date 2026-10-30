@@ -1,3 +1,23 @@
+## v21.1-1.0.1-hotfix2 — Minecraft 1.21.1 / NeoForge 21.1
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：修复上一版热修复在打开背包时仍会崩溃的问题。
+
+### 修复
+- 回调参数类型与 FastWorkbench 的目标方法不一致，打开背包仍会崩溃；现在按目标签名声明。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: fixes the remaining crash with FastWorkbench when opening the inventory.
+
+### Fixed
+- The callback signature did not match FastWorkbench's target method; it now matches exactly.
+
 ## v21.1-1.0.1-hotfix1 — Minecraft 1.21.1 / NeoForge 21.1
 
 **中文**

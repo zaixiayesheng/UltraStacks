@@ -36,6 +36,8 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
     private static final String REFINED_STORAGE = "refinedstorage";
     private static final String IRON_FURNACES = "ironfurnaces";
     private static final String CUCUMBER = "cucumber";
+    private static final String FAST_WORKBENCH = "fastbench";
+    private static final String FUNCTIONAL_STORAGE = "functionalstorage";
 
     @Override
     public void onLoad(String mixinPackage) {
@@ -101,6 +103,12 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
         }
         if (simpleName.startsWith("Cucumber")) {
             return new String[] { CUCUMBER };
+        }
+        if (simpleName.startsWith("FastWorkbench")) {
+            return new String[] { FAST_WORKBENCH };
+        }
+        if (simpleName.startsWith("FunctionalStorage")) {
+            return new String[] { FUNCTIONAL_STORAGE };
         }
         if (simpleName.startsWith("RefinedStorage")) {
             return new String[] { REFINED_STORAGE };

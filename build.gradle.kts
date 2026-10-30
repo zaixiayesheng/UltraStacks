@@ -4,7 +4,7 @@ plugins {
 }
 
 val modId = "ultrastacks"
-val modVersion = "26.1-1.0.2-beta"
+val modVersion = "26.1-1.0.2"
 val mcVersion = "26.1.2"
 val neoVersion = "26.1.2.122"
 

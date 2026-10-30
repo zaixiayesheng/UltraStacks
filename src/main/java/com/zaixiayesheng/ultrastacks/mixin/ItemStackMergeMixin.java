@@ -9,26 +9,30 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 让「脏物品」能和干净物品合并，并让「补丁相同但默认组件表对象不同」的两堆也能合并。
+ * 让两堆看着一样的东西真能合到一起。
  *
- * <p>原版 {@code ItemStack.isSameItemSameComponents} 先比物品、再比 {@code PatchedDataComponentMap}。
- * 那个 {@code equals} 除了比补丁，还会比 prototype——也就是物品默认组件表。存档读回来、复制、其他模组
- * 重设默认表，都会让两堆「内容完全一样」的东西拿着不同的 prototype 实例，于是被判成不同物品：点一下
- * 只交换不合并，重进世界所有栈从存档重建、prototype 统一又恢复正常。
- * 这里在入口处接管：补丁相同即判同；补丁只差 {@code max_stack_size} 也判同；其余情况（附魔、名字、
- * 自定义数据不同）仍交给原版。
+ * <p>麻烦出在 {@code PatchedDataComponentMap.equals}：它除了比补丁，还比 prototype——物品那张默认组件表。
+ * 存档读回来、复制、别的模组重设默认表，都会让内容一模一样的两堆拿着不同的 prototype 实例，于是被判成
+ * 不同东西，点一下只交换不合。重进世界全部重建、prototype 统一，就又好了。这里在入口接管：补丁一样就判同，
+ * 只差 {@code max_stack_size} 也判同，剩下的（附魔、名字、自定义数据）照旧交给原版。</p>
  *
- * <p>Lets "dirty" stacks merge with clean ones, and lets two stacks with equal patches merge even when
- * their prototypes (item default component maps) are different instances. Vanilla
- * {@code PatchedDataComponentMap.equals} compares the prototype too, so two stacks with identical
- * contents can be treated as different items — a click swaps them instead of merging, and only a world
- * reload (which rebuilds every stack from the save and unifies the prototype) fixes it. This entry point
- * accepts equal patches and patches differing only in {@code max_stack_size}; everything else still goes
- * through vanilla.
+ * <p>{@code PatchedDataComponentMap.equals} compares the prototype — the item's default component map —
+ * on top of the patch, so two identical stacks can be judged different just because one came back from
+ * a save or was copied. Equal patches are accepted here, and so are patches differing only in
+ * {@code max_stack_size}; everything else falls through to vanilla.</p>
  */
 @Mixin(ItemStack.class)
 public abstract class ItemStackMergeMixin {
 
+    /**
+     * 判「这两堆算不算同一种东西」的时候先自己拍板，拍不了才交回原版。
+     * 三种情况：补丁一模一样 → 同；只差 {@code max_stack_size} 那个组件 → 同（旧的脏栈就走这条）；
+     * 其余（附魔、改名、自定义数据不一样）→ 原版说了算。
+     *
+     * <p>Decides "are these the same thing" first and only falls back to vanilla when it cannot.
+     * Equal patches → same; patches differing only in {@code max_stack_size} → same (that is the
+     * legacy dirty stack); anything else (enchantments, names, custom data) → vanilla decides.</p>
+     */
     @Inject(method = "isSameItemSameComponents", at = @At("HEAD"), cancellable = true)
     private static void ultrastacks$mergeDirty(ItemStack a, ItemStack b, CallbackInfoReturnable<Boolean> cir) {
         if (a == b || a.isEmpty() || b.isEmpty() || !ItemStack.isSameItem(a, b)) {

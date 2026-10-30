@@ -1,28 +1,42 @@
-## 26.1-1.0.2-beta
-
-**模块**：超级堆叠
-
-**摘要**：修复点击合并只并进一小部分、抽屉取出的堆叠不干净、精妙整理把大堆拆小的问题。
-
-### 修复
-- 点击把手里的一堆并进槽里时，原版只请求并入「槽里现有的数量」，上限抬到 65536 后一次点击只能并进一点点、看起来像堆不起来；现在按槽内剩余空间一次并满。
-- 同类物品两堆内容完全一样却合并不了：原版比较时还会看物品默认组件表的对象，运行时那份表可能有两份实例；现在以补丁为准判同。
-- 抽屉槽位上限跟着模板栈走，旧存档里上限固定成 64 的模板会让抽屉只能存下极少数量；现在按配置的堆叠上限计算容量。
-- 抽屉放入时洗掉旧模板留下的异常标记，取出的堆叠与正常堆叠可正常合并。
-- 精妙交互整理与背包排序按物品自身的上限切堆，大堆不再被拆成 64 一组。
-
-## 26.1-1.0.1-hotfix
-
-**模块**：超级堆叠
-
-**摘要**：热修复合成与抽屉取出的问题。
-
-### 修复
-- 装了 FastWorkbench 时，Shift 合成一个大堆叠要一轮一轮地合，现在一次合完整批。
-- 抽屉一次会把整抽屉塞进背包，现在一次只取一组。
-- 抽屉里旧存档的「上限 64」组件会让 JEI 与配方匹配失败，取用时清掉。
-
 # Changelog / 更新日志
+
+## 26.1-1.0.2-beta — Minecraft 26.1.2 / NeoForge 26.1.2
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：修掉点击合并不满一堆、以及内容相同的两堆被判成不同物品的问题。
+
+### 修复
+- 一次点击按槽内剩余空间一次并满，不再只并进槽里原有的数量。
+- 内容完全相同的两堆不再因为默认组件表对象不同被判成两种物品。
+- 抽屉单次取出压到一组，取出的物品会剥掉旧存档留下的堆叠上限标记。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: fixes partial merges on click and identical stacks being treated as different items.
+
+### Fixed
+- A click fills the whole remaining space instead of only the count already in the slot.
+- Two identical stacks are no longer treated as different items because their default component map objects differ.
+- Drawer extraction is capped at one stack and carries no stale stack-limit marker.
+
+## 26.1-1.0.1-beta — Minecraft 26.1.2 / NeoForge 26.1.2
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：加入游戏内配置界面，修掉精妙核心的上限联动。
+
+### 新增
+- 游戏内配置界面：直接复用 NeoForge 自带的设置页，模组列表里点「配置」即可修改，不用手动编辑 TOML。
+
+### 修复
+- 精妙存储与精妙背包的物品上限（`getBaseStackLimit`）没有跟上配置，排序与合并仍按旧值结算。
 
 ## 26.1-1.0.0-beta — Minecraft 26.1.2 / NeoForge 26.1.2
 

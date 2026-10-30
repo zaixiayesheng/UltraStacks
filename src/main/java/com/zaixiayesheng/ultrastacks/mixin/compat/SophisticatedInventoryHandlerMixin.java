@@ -34,9 +34,8 @@ public abstract class SophisticatedInventoryHandlerMixin {
         cir.setReturnValue(UltraStacksConfig.raiseSophisticatedLimit(cir.getReturnValueI()));
     }
 
-    @Inject(method = "getBaseStackLimit(Lnet/minecraft/world/item/ItemStack;)I", at = @At("RETURN"),
-            cancellable = true, require = 0)
-    private void ultrastacks$raiseBaseStackLimit(ItemStack stack, CallbackInfoReturnable<Integer> cir) {
+    @Inject(method = "getBaseSlotLimit()I", at = @At("RETURN"), cancellable = true, require = 0)
+    private void ultrastacks$raiseBaseSlotLimit(CallbackInfoReturnable<Integer> cir) {
         cir.setReturnValue(UltraStacksConfig.raiseSophisticatedLimit(cir.getReturnValueI()));
     }
 }

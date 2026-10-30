@@ -614,7 +614,7 @@ public final class UltraStacksConfig {
             return current;
         }
         if (current > 1) {
-            return isVanillaDefault(current) ? Math.max(current, scaledMax(current)) : current;
+            return current;
         }
         int configured;
         if (isPotion(stack)) {
@@ -641,9 +641,6 @@ public final class UltraStacksConfig {
      * <p>Both the item default component rewrite and the bucket limit calculation go through it, so
      * the whole mod shares one scaling rule.
      */
-    private static boolean isVanillaDefault(int value) {
-        return value == 2 || value == 4 || value == 8 || value == 16 || value == 32 || value == 64;
-    }
 
     /**
      * 去掉「等于原版默认值」的 {@code max_stack_size} 组件。

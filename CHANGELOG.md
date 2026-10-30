@@ -1,3 +1,27 @@
+## v21.1-1.0.1-hotfix3 — Minecraft 1.21.1 / NeoForge 21.1
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：修复整理物品栏无效、整理背包把整组拆成 1 个并丢失物品的问题。
+
+### 修复
+- 玩家物品栏经物品处理器暴露时每格只报 64，整理按钮因此不动；现在跟随配置上限。
+- 整理背包时容量按错误上限计算，会把整组拆散并丢掉多余物品；现在排序与槽位上限一致。
+- 上一版让配方产物按超大数量处理，JEI 拉配方会闪一下后消失；已回退该改动。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: fixes inventory sorting doing nothing and backpack sorting splitting stacks into singles and losing items.
+
+### Fixed
+- The player inventory reported 64 per slot through its item handler, so the sort button did nothing; it now follows the configured limit.
+- Backpack sorting computed capacity from the wrong limit and scattered a stack into singles while dropping the rest; sorting and slot limits now agree.
+- The previous build treated recipe outputs as oversized stacks, which made JEI recipe transfer flash and lose the result; that change is reverted.
+
 ## v21.1-1.0.1-hotfix2 — Minecraft 1.21.1 / NeoForge 21.1
 
 **中文**

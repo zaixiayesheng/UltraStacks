@@ -12,6 +12,7 @@
     "EnchantmentMenuMixin",
     "ExtraCodecsMixin",
     "ItemDefaultMaxStackMixin",
+    "InvWrapperMixin",
     "ItemStackHandlerMixin",
     "ItemStackMaxStackMixin",
     "ItemCombinerMenuMixin",

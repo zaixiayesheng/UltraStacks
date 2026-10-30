@@ -1,3 +1,23 @@
+## v26.1-1.0.1-hotfix1 — Minecraft 26.1.2 / NeoForge 26.1.2
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：修复与 FastWorkbench 一起使用时打开背包崩溃的问题。
+
+### 修复
+- 上一版 hotfix 在装了 FastWorkbench 的客户端打开背包会直接崩溃，现已修好。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: fixes a crash with FastWorkbench when opening the inventory.
+
+### Fixed
+- The previous hotfix crashed clients with FastWorkbench installed as soon as the inventory was opened.
+
 ## v26.1-1.0.1-hotfix — Minecraft 26.1.2 / NeoForge 26.1.2
 
 **模块**：超级堆叠

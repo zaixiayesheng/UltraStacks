@@ -1,4 +1,4 @@
-## 26.1-1.0.1-hotfix — Minecraft 26.1.2 / NeoForge 26.1.2
+## v26.1-1.0.1-hotfix — Minecraft 26.1.2 / NeoForge 26.1.2
 
 **模块**：超级堆叠
 

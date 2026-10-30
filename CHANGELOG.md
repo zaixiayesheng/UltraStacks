@@ -1,3 +1,35 @@
+## v21.1-1.0.2 — Minecraft 1.21.1 / NeoForge 21.1
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：修掉抽屉容量与取出量对不上、取出的物品合不上、整理把大堆拆小这几件事。
+
+### 修复
+- 抽屉容量与单次取出量改按配置结算，界面显示多少就能真放多少。
+- 从抽屉取出的物品会剥掉旧存档留下的堆叠上限标记，能和普通物品正常合并。
+- 内容完全相同的两堆不再因为默认组件表对象不同被判成两种物品。
+- 一次点击按槽内剩余空间一次并满，不再只并进槽里原有的数量。
+- 整理时物品侧与槽位侧报同一个上限，大堆不再被切成 64。
+- 精妙存储与精妙背包的槽位上限跟随配置，合并与整理按新值结算。
+- 读档时把旧存档里数量为负的抽屉格子归零。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: fixes drawer capacity and extraction amounts, merging of extracted items, and sorting that split large stacks.
+
+### Fixed
+- Drawer capacity and single extraction now follow the configured limit, so what the GUI shows is what the drawer holds.
+- Items taken out of a drawer lose the stale stack-size marker left by older saves and merge normally again.
+- Two stacks with identical contents are no longer treated as different items just because their default component maps are different objects.
+- A single click merges as much as the slot can take, instead of only the amount already in the slot.
+- Sorting now reports the same limit on the item side and the slot side, so large stacks are not cut into 64s.
+- Sophisticated Storage and Backpacks slots follow the configured limit, and merging and sorting settle against it.
+- Drawer slots stored with a negative amount are reset to zero when the world loads.
+
 ## v21.1-1.0.1-hotfix2 — Minecraft 1.21.1 / NeoForge 21.1
 
 **中文**

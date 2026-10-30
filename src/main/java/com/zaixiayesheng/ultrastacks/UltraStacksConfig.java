@@ -1,6 +1,7 @@
 package com.zaixiayesheng.ultrastacks;
 
 import com.zaixiayesheng.ultrastacks.core.StackLimits;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -505,6 +506,25 @@ public final class UltraStacksConfig {
 
     public static int raiseCodecUpperBound(int bound) {
         return bound == 99 ? codecUpperBound() : bound;
+    }
+
+    /**
+     * 去掉「等于原版默认值」的 {@code max_stack_size} 组件。
+     *
+     * <p>旧存档里的抽屉模板会把这个组件固化成 64，带组件的物品和干净物品不是同一个栈，合成表与 JEI 都按组件
+     * 比对，于是配方对不上。这里把它清掉，让物品回到普通形态。
+     *
+     * <p>Drops a vanilla-default {@code max_stack_size} component so the stack matches recipes again.
+     */
+    public static ItemStack stripDefaultStackSize(ItemStack stack) {
+        if (stack.isEmpty() || stack.isDamageableItem()) {
+            return stack;
+        }
+        Integer stored = stack.get(DataComponents.MAX_STACK_SIZE);
+        if (stored != null && stored >= 2 && stored <= 64) {
+            stack.remove(DataComponents.MAX_STACK_SIZE);
+        }
+        return stack;
     }
 
     public static int scaledMax(int vanillaMax) {

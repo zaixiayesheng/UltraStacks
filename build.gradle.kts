@@ -4,7 +4,7 @@ plugins {
 }
 
 val modId = "ultrastacks"
-val modVersion = "26.1-1.0.1-beta"
+val modVersion = "26.1-1.0.2-beta"
 val mcVersion = "26.1.2"
 val neoVersion = "26.1.2.122"
 
@@ -63,6 +63,9 @@ tasks.processResources {
 }
 
 dependencies {
+    if (file("libs").exists()) {
+        compileOnly(fileTree("libs") { include("*.jar") })
+    }
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

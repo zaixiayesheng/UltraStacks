@@ -1,3 +1,27 @@
+## v26.1-1.0.2 — Minecraft 26.1.2 / NeoForge 26.1.2
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：把一次点击的合并量放开，让相同两堆能判同，抽屉取出也压到一组。
+
+### 修复
+- 一次点击按槽内剩余空间一次并满。
+- 内容完全相同的两堆不再因为默认组件表对象不同被判成两种物品。
+- 抽屉单次取出压到一组，并剥掉旧存档留下的堆叠上限标记。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: lets a single click merge a whole stack, treats identical stacks as equal, and caps drawer extraction at one stack.
+
+### Fixed
+- A single click merges as much as the slot can take.
+- Two stacks with identical contents are no longer treated as different items because their default component maps are different objects.
+- A single drawer extraction is capped at one stack and drops the stack-size marker left by older saves.
+
 ## v26.1-1.0.1-hotfix2 — Minecraft 26.1.2 / NeoForge 26.1.2
 
 **中文**

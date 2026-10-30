@@ -22,6 +22,8 @@
     "RefinedStorageCursorHandlerMixin",
     "IronFurnacesFurnaceMixin",
     "CucumberSlotLimitMixin",
+    "FunctionalStorageDrawerMixin",
+    "FastWorkbenchShiftCraftMixin",
     "ImmersiveEngineeringHandlerMixin",
     "ImmersiveEngineeringContainerMixin"
   ],

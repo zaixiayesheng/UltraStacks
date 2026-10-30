@@ -22,8 +22,13 @@
     "RefinedStorageCursorHandlerMixin",
     "IronFurnacesFurnaceMixin",
     "CucumberSlotLimitMixin",
+    "FunctionalStorageDrawerMixin",
+    "FunctionalStorageDrawerClickMixin",
+    "FastWorkbenchShiftCraftMixin",
     "ImmersiveEngineeringHandlerMixin",
-    "ImmersiveEngineeringContainerMixin"
+    "ImmersiveEngineeringContainerMixin",
+    "SophisticatedInventoryInteractionsSortMixin",
+    "SophisticatedStorageMenuMergeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -12,10 +12,14 @@
     "EnchantmentMenuMixin",
     "ExtraCodecsMixin",
     "ItemDefaultMaxStackMixin",
+    "InvWrapperMixin",
     "ItemStackHandlerMixin",
     "ItemStackMaxStackMixin",
+    "ItemStackMergeMixin",
     "ItemCombinerMenuMixin",
     "SlotMixin",
+    "SlotMergeTraceMixin",
+    "SlotClickTraceMixin",
     "BrewingStandPotionSlotMixin"
   ],
   "injectors": {

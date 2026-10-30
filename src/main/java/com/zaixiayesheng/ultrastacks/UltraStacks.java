@@ -1,10 +1,12 @@
 package com.zaixiayesheng.ultrastacks;
 
 import com.mojang.logging.LogUtils;
+import com.zaixiayesheng.ultrastacks.client.ClientSetup;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
 
 /**
@@ -45,5 +47,8 @@ public final class UltraStacks {
         modContainer.registerConfig(ModConfig.Type.COMMON, UltraStacksConfig.SPEC);
         modEventBus.addListener(UltraStacksConfig::onConfigLoad);
         modEventBus.addListener(ModBusEvents::onModifyDefaultComponents);
+        if (FMLEnvironment.dist.isClient()) {
+            ClientSetup.registerConfigScreen(modContainer);
+        }
     }
 }

@@ -609,8 +609,11 @@ public final class UltraStacksConfig {
      * equivalent of the vanilla 16, so a smaller config value cannot shrink them.
      */
     public static int limitFor(ItemStack stack, int current) {
-        if (current > 1 || stack.isDamageableItem()) {
+        if (stack.isDamageableItem()) {
             return current;
+        }
+        if (current > 1) {
+            return isVanillaDefault(current) ? Math.max(current, scaledMax(current)) : current;
         }
         int configured;
         if (isPotion(stack)) {
@@ -637,6 +640,10 @@ public final class UltraStacksConfig {
      * <p>Both the item default component rewrite and the bucket limit calculation go through it, so
      * the whole mod shares one scaling rule.
      */
+    private static boolean isVanillaDefault(int value) {
+        return value == 2 || value == 4 || value == 8 || value == 16 || value == 32 || value == 64;
+    }
+
     public static int scaledMax(int vanillaMax) {
         return StackLimits.resolve(vanillaMax, maxStackSize, scaleSmallItems);
     }

@@ -16,6 +16,8 @@
     "ItemStackMaxStackMixin",
     "ItemStackResourceHandlerMixin",
     "ItemCombinerMenuMixin",
+    "SlotMergeMixin",
+    "ItemStackMergeMixin",
     "SlotMixin",
     "BrewingStandPotionSlotMixin"
   ],

@@ -26,7 +26,7 @@ public abstract class FastWorkbenchShiftCraftMixin {
 
     @Inject(method = "handleShiftCraft(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/inventory/AbstractContainerMenu;Lnet/minecraft/world/inventory/Slot;Ldev/shadowsoffire/fastbench/util/CraftingInventoryExt;Lnet/minecraft/world/inventory/ResultContainer;II)Lnet/minecraft/world/item/ItemStack;",
             at = @At("HEAD"), cancellable = true, require = 0)
-    private void ultrastacks$bulkCraft(Player player, AbstractContainerMenu menu, Slot slot, Object inventory,
+    private static void ultrastacks$bulkCraft(Player player, AbstractContainerMenu menu, Slot slot, Object inventory,
                                        ResultContainer resultSlots, int startSlot, int endSlot,
                                        CallbackInfoReturnable<ItemStack> cir) {
         if (!(inventory instanceof CraftingContainer craftSlots)) {

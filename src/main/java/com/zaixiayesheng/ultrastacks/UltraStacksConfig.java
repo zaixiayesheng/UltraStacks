@@ -614,7 +614,10 @@ public final class UltraStacksConfig {
             return current;
         }
         if (current > 1) {
-            return isVanillaDefault(current) ? Math.max(current, scaledMax(current)) : current;
+            if (isVanillaDefault(current) && stack.getCount() > current) {
+                return Math.max(current, scaledMax(current));
+            }
+            return current;
         }
         int configured;
         if (isPotion(stack)) {
@@ -641,9 +644,6 @@ public final class UltraStacksConfig {
      * <p>Both the item default component rewrite and the bucket limit calculation go through it, so
      * the whole mod shares one scaling rule.
      */
-    private static boolean isVanillaDefault(int value) {
-        return value == 2 || value == 4 || value == 8 || value == 16 || value == 32 || value == 64;
-    }
 
     /**
      * 去掉「等于原版默认值」的 {@code max_stack_size} 组件。
@@ -658,10 +658,63 @@ public final class UltraStacksConfig {
             return stack;
         }
         Integer stored = stack.get(DataComponents.MAX_STACK_SIZE);
-        if (stored != null && stored >= 2 && stored <= 64) {
+        if (stored == null) {
+            return stack;
+        }
+        // get() 读到的是合并视图（patch 叠在烘入默认上），干净栈也会返回 65536；
+        // 只有 patch 里真的带这个组件才算「脏」，否则直接放行，避免刷屏。
+        // 注意：get() 在缺组件时可能返回 null（而非 Optional.empty()），必须先判空。
+        var patched = stack.getComponentsPatch().get(DataComponents.MAX_STACK_SIZE);
+        if (patched == null || patched.isEmpty()) {
+            return stack;
+        }
+        String patch = stack.getComponentsPatch().toString();
+        int storedValue = stored;
+        if (storedValue >= 2 && storedValue <= 64) {
             stack.remove(DataComponents.MAX_STACK_SIZE);
+            com.zaixiayesheng.ultrastacks.UltraStacks.LOGGER.info(
+                    "[diag] stripped max_stack_size={} from {} x{} (item default {}), patch before: {}",
+                    storedValue, stack.getItem(), stack.getCount(), stack.getItem().getDefaultMaxStackSize(), patch);
+        } else if (storedValue == stack.getItem().getDefaultMaxStackSize()) {
+            // patch 值与烘入默认一致（如 65536）：多余但无害，静默剥掉归一化。
+            stack.remove(DataComponents.MAX_STACK_SIZE);
+        } else {
+            com.zaixiayesheng.ultrastacks.UltraStacks.LOGGER.warn(
+                    "[diag] unusual max_stack_size={} on {} x{} (item default {}), patch: {}",
+                    storedValue, stack.getItem(), stack.getCount(), stack.getItem().getDefaultMaxStackSize(), patch);
         }
         return stack;
+    }
+
+    private static boolean isVanillaDefault(int value) {
+        return value == 2 || value == 4 || value == 8 || value == 16 || value == 32 || value == 64;
+    }
+
+    /**
+     * 切堆用的物品侧上限：与 {@link #limitFor} 同一套换算，但不看物品数量——数量为 1 的排序 key 栈
+     * 也必须报出「这摞实际能堆多大」，否则整理会把大堆按原版默认值切碎。
+     *
+     * <p>The item-side split limit used by sorting: the same scaling as {@link #limitFor} but without the
+     * count gate — a count-1 sorting key stack must still report how big a whole stack of this item can be,
+     * otherwise sorting chops big stacks by the vanilla default.
+     */
+    public static int sortCapacity(ItemStack stack) {
+        if (stack.isDamageableItem()) {
+            return stack.getMaxStackSize();
+        }
+        int base = stack.getItem().getDefaultMaxStackSize();
+        Integer component = stack.get(DataComponents.MAX_STACK_SIZE);
+        if (component != null) {
+            base = component;
+        }
+        if (base <= 1) {
+            // 药水 / 附魔书 / 桶走各自配置；其它上限 1 的物品保持 1。
+            return limitFor(stack, base);
+        }
+        if (base == 2 || base == 4 || base == 8 || base == 16 || base == 32 || base == 64) {
+            return Math.max(base, scaledMax(base));
+        }
+        return base;
     }
 
     public static int scaledMax(int vanillaMax) {

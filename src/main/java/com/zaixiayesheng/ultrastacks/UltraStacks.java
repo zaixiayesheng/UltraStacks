@@ -7,6 +7,8 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.slf4j.Logger;
 
 /**
@@ -47,8 +49,14 @@ public final class UltraStacks {
         modContainer.registerConfig(ModConfig.Type.COMMON, UltraStacksConfig.SPEC);
         modEventBus.addListener(UltraStacksConfig::onConfigLoad);
         modEventBus.addListener(ModBusEvents::onModifyDefaultComponents);
+        NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
         if (FMLEnvironment.dist.isClient()) {
             ClientSetup.registerConfigScreen(modContainer);
         }
+    }
+
+    /** 注册 {@code /ultrastacks dump}：现场抓取物品栏完整 NBT 的诊断命令。 */
+    private void onRegisterCommands(RegisterCommandsEvent event) {
+        UltraStacksDumpCommand.register(event.getDispatcher());
     }
 }

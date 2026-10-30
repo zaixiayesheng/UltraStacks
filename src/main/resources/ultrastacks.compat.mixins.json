@@ -18,6 +18,7 @@
     "Ae2OversizeInterfaceMixin",
     "Ae2InternalInventoryItemHandlerMixin",
     "Ae2SlotMixin",
+    "Ae2TerminalDiagMixin",
     "RefinedStorageSlotLimitMixin",
     "RefinedStorageCursorHandlerMixin",
     "IronFurnacesFurnaceMixin",

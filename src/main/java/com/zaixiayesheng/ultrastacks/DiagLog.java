@@ -24,6 +24,7 @@ public final class DiagLog {
 
     private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
     private static final AtomicBoolean INIT = new AtomicBoolean(false);
+    private static final java.util.Set<String> SEEN = java.util.concurrent.ConcurrentHashMap.newKeySet();
     private static FileWriter writer;
 
     private DiagLog() {
@@ -63,5 +64,18 @@ public final class DiagLog {
         } catch (IOException ignored) {
             // 诊断通道损坏时放弃写入，不影响游戏。
         }
+    }
+
+    /**
+     * 同一个 key 只写一次，用来记录那些会反复触发、但只想看一次的现场。
+     *
+     * <p>Writes a line once per key. Handy for values that fire constantly but only need to be
+     * seen the first time.</p>
+     */
+    public static void lineThrottled(String key, String message) {
+        if (!SEEN.add(key)) {
+            return;
+        }
+        line(message);
     }
 }

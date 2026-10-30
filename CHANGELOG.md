@@ -1,4 +1,4 @@
-## 20.1-1.0.1-hotfix — Minecraft 1.20.1 / Forge 47.4
+## v20.1-1.0.1-hotfix — Minecraft 1.20.1 / Forge 47.4
 
 **模块**：超级堆叠
 

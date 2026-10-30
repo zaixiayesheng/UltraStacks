@@ -1,9 +1,11 @@
 package com.zaixiayesheng.ultrastacks.mixin.compat;
 
 import com.zaixiayesheng.ultrastacks.crafting.BulkCrafting;
+import dev.shadowsoffire.fastbench.util.CraftingInventoryExt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.AbstractCraftingMenu;
+import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,9 +27,9 @@ public abstract class FastWorkbenchShiftCraftMixin {
 
     @Inject(method = "handleShiftCraft(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/inventory/AbstractContainerMenu;Lnet/minecraft/world/inventory/Slot;Ldev/shadowsoffire/fastbench/util/CraftingInventoryExt;Lnet/minecraft/world/inventory/ResultContainer;II)Lnet/minecraft/world/item/ItemStack;",
             at = @At("HEAD"), cancellable = true, require = 0)
-    private static void ultrastacks$bulkCraft(Player player, AbstractContainerMenu menu, Slot slot, Object inventory,
-                                       Object resultSlots, int startSlot, int endSlot,
-                                       CallbackInfoReturnable<ItemStack> cir) {
+    private static void ultrastacks$bulkCraft(Player player, AbstractContainerMenu menu, Slot slot,
+                                              CraftingInventoryExt inventory, ResultContainer resultSlots,
+                                              int startSlot, int endSlot, CallbackInfoReturnable<ItemStack> cir) {
         if (!(menu instanceof AbstractCraftingMenu craftingMenu)) {
             return;
         }

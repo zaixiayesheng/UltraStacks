@@ -21,6 +21,8 @@
     "RefinedStoragePortableGridExtractMixin",
     "IronFurnacesFurnaceMixin",
     "CucumberSlotLimitMixin",
+    "FastWorkbenchShiftCraftMixin",
+    "FunctionalStorageDrawerMixin",
     "ImmersiveEngineeringHandlerMixin",
     "ImmersiveEngineeringContainerMixin",
     "IronFurnacesInventoryMixin"

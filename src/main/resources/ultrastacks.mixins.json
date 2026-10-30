@@ -27,6 +27,7 @@
     "QuickCraftSplitMixin",
     "RandomizableContainerBlockEntityMixin",
     "SimpleContainerMixin",
+    "SlotMergeMixin",
     "SlotMixin",
     "BrewingStandPotionSlotMixin"
   ],

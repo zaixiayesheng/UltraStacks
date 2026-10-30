@@ -1,3 +1,27 @@
+## v21.1-1.0.2-hotfix — Minecraft 1.21.1 / NeoForge 21.1
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：修掉 1.0.2 带出来的三处问题——工作台右键不能一次放一个、批量合成两边各算一次、AE2 终端一次只搬一小撮。
+
+### 修复
+- 工作台右键恢复一次放一个；合并量的放大只在左键且槽里已有同类物品时生效。
+- 批量合成只在服务端执行，客户端那份菜单副本不再重复算一遍。
+- AE2 物品键报的堆叠上限改用物品自身的默认值，终端存取不再被手里那一摞的数量卡住。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: fixes three problems 1.0.2 introduced — right-click in the workbench no longer places a single item, bulk crafting ran on both sides, and AE2 terminals moved only a fraction of a stack.
+
+### Fixed
+- Right-click in the workbench places one item again; the merge amount is only widened for a left-click on a slot that already holds the same item.
+- Bulk crafting now runs on the server only, so the client's copy of the menu no longer counts the same batch twice.
+- AE2 item keys report the item's own default limit again, so terminals stop capping transfers at the size of the stack they were built from.
+
 ## v21.1-1.0.2 — Minecraft 1.21.1 / NeoForge 21.1
 
 **中文**

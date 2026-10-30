@@ -62,6 +62,11 @@ public final class BulkCrafting {
             return false;
         }
 
+        // 客户端那份菜单只是同步过来的副本，真扣料必须只发生在服务端，不然两边各算一次。
+        if (player.level().isClientSide()) {
+            return false;
+        }
+
         ItemStack result = resultSlots.getItem(0);
         if (result.isEmpty() || result.getCount() <= 0) {
             return false;

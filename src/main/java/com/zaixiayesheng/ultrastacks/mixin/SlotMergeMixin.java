@@ -1,5 +1,6 @@
 package com.zaixiayesheng.ultrastacks.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -35,7 +36,12 @@ public abstract class SlotMergeMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/inventory/Slot;safeInsert(Lnet/minecraft/world/item/ItemStack;I)Lnet/minecraft/world/item/ItemStack;"),
             require = 0)
-    private ItemStack ultrastacks$mergeWholeStack(Slot slot, ItemStack stack, int amount) {
+    private ItemStack ultrastacks$mergeWholeStack(Slot slot, ItemStack stack, int amount,
+                                                  @Local(argsOnly = true, index = 1) int button) {
+        // 右键（button 1）交还原版：那里 amount 是 1，把它改成 MAX 会让「放一个」变成「放一整摞」。
+        if (button != 0 || !slot.hasItem()) {
+            return slot.safeInsert(stack, amount);
+        }
         return slot.safeInsert(stack, Integer.MAX_VALUE);
     }
 }

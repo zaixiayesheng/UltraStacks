@@ -13,20 +13,25 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 诊断：在 {@code AbstractContainerMenu.slotClicked} 入口记录每次「合并/交换」点击的完整现场。
+ * 诊断用：在 {@code AbstractContainerMenu.clicked} 入口把每次「合并/交换」点击的现场记下来。
  *
- * <p>背景：用户复现「两堆泥土不能合并、点击后交换位置」，但 {@code isSameItemSameComponents}
- * 上的无差别 trace 零记录——说明该次点击从未走到原版合并判定。本 mixin 在 slotClicked 入口
- * 记录槽位 id、点击类型、手拿栈与目标槽栈的数量/组件、mayPlace 与组件判等结果，用以确证：
- * (1) 点击是否真的到达原版 slotClicked；(2) 若到达，判定链上哪一环拒绝合并。
- * 只记双方都有物品的点击（合并/交换场景），去重 + 限量，写 LOGGER 与 DiagLog。</p>
+ * <p>当时是真卡住了。玩家说两堆泥土一点只是换来换去、压根不合，可挂在
+ * {@code isSameItemSameComponents} 上的记录一条都没有——说明那一下点击压根没走到原版判等。
+ * 那就把探针往前挪，挪到点击入口本身：槽位 id、点击类型、手里和槽里各自的数量与组件、
+ * {@code mayPlace} 的结果、还有判等的结果。这两种情况都好办：有记录，顺着往下看是哪一环拒的；
+ * 没记录，那就是点击被别的模组整个接走了。</p>
  *
- * <p>Diagnostic: at the head of {@code AbstractContainerMenu.slotClicked}, snapshot every
- * merge/swap click — slot id, click type, carried and slot stacks with counts and patches, the
- * mayPlace verdict and the component-equality verdict. Used to prove whether the click reaches
- * vanilla slotClicked at all, and if it does, which check refuses the merge. Only clicks where
- * both sides hold items are recorded; deduplicated and capped, written to the LOGGER and
- * DiagLog.</p>
+ * <p>只记双方都有东西的点击（合并、交换才会发生），而且去重加限量——之前被后台扫描的 x1 对 x1
+ * 把额度刷光过一次，长记性了。日志同时写 LOGGER 和 DiagLog，不退游戏也能读。</p>
+ *
+ * <p>Records what actually happened at the click entry point. Back then the trace on
+ * {@code isSameItemSameComponents} stayed completely silent while the player kept failing to merge,
+ * which meant the click never reached vanilla's comparison at all. So the probe moved here: slot id,
+ * click type, both stacks, the {@code mayPlace} verdict and the equality verdict. A record means we
+ * can follow it down to the refusing check; no record means something else swallowed the click.</p>
+ *
+ * <p>Only clicks with items on both sides are recorded, deduplicated and capped — background x1-vs-x1
+ * comparisons ate the whole budget once already. Written to both LOGGER and DiagLog.</p>
  */
 @Mixin(AbstractContainerMenu.class)
 public abstract class SlotClickTraceMixin {

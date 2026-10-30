@@ -6,29 +6,59 @@
 
 **模块**：超级堆叠
 
-**摘要**：修好抽屉、排序与合并这一串连锁问题。
+**摘要**：修掉抽屉容量与取出量对不上、取出的物品合不上、整理把大堆拆小这几件事。
 
 ### 修复
-- 抽屉插槽的上限与插入量算错，实际塞不进也取不出整组；现在按槽位数 × 配置上限结算。
-- 抽屉取出的物品带着旧存档固化的堆叠组件，和普通物品不是同一个栈，背包里点了只交换不合并；取出时清掉多余组件。
-- 同一物品的两堆即使组件完全一致也可能被判成「不同」而拒绝合并；合并判定改为只看实际组件差异。
-- 一次点击的合并量被写死成槽内现有数量，大堆叠永远合不满；现在按剩余空间一次并足。
-- 排序时物品侧上限仍报原版默认值，背包/精妙存储整理会把大堆按 64 切开；现在与槽位上限一致。
-- 精妙存储/背包的合并与整理走自己的槽位上限，之前没跟上配置；已一并修正。
+- 抽屉容量与单次取出量改按配置结算，界面显示多少就能真放多少。
+- 从抽屉取出的物品会剥掉旧存档留下的堆叠上限标记，能和普通物品正常合并。
+- 内容完全相同的两堆不再因为默认组件表对象不同被判成两种物品。
+- 一次点击按槽内剩余空间一次并满，不再只并进槽里原有的数量。
+- 整理时物品侧与槽位侧报同一个上限，大堆不再被切成 64。
+- 精妙存储与精妙背包的槽位上限跟随配置，合并与整理按新值结算。
+- 读档时把旧存档里数量为负的抽屉格子归零。
 
 **English**
 
 **Modules**: UltraStacks
 
-**Summary**: fixes the chain of drawer, sorting and merging issues.
+**Summary**: fixes drawer capacity and extraction amounts, merging of extracted items, and sorting that split large stacks.
 
 ### Fixed
-- Drawer slot limits and insert amounts were computed wrongly, so a full stack could neither go in nor come out; limits now follow slots × configured cap.
-- Drawer output carried a legacy stacking component left over from old saves, making it a different stack than a plain item, so clicking in the inventory only swapped; the component is stripped on extraction.
-- Two stacks of the same item could still be treated as different even with identical components; the merge check now compares the effective components only.
-- A single click merged at most the slot's current amount, so large stacks never filled; the merge now uses the whole remaining space.
-- Sorting reported the vanilla default item limit, chopping large stacks into 64s in the inventory and Sophisticated Storage; it now matches the slot limit.
-- Sophisticated Storage/Backpacks merged and sorted through their own slot limit and ignored the configured cap; corrected as well.
+- Drawer capacity and single-extraction amount now follow the config, so what the GUI shows is what it holds.
+- Items taken out of a drawer have the old stack-limit marker stripped, so they merge normally again.
+- Two identical stacks are no longer treated as different items because their default component map objects differ.
+- A click fills the whole remaining space instead of only the count already in the slot.
+- Sorting reports the same limit on both the item and slot side, so large stacks are no longer cut into 64s.
+- Sophisticated Storage and Backpacks slot limits follow the config for merging and sorting.
+- Drawer slots holding a negative count are reset on load.
+
+## 21.1-1.0.1-beta — Minecraft 1.21.1 / NeoForge 21.1
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：加入游戏内配置界面，修掉上限换算与精妙核心的上限联动。
+
+### 新增
+- 游戏内配置界面：直接复用 NeoForge 自带的设置页，模组列表里点「配置」即可修改，不用手动编辑 TOML。
+
+### 修复
+- 原版默认堆叠（2、4、8、16、32、64）的物品，只在数量超过默认值时才按比例放大；此前一律按比例换算，16 大小的物品在部分场景下会被算成四分之一上限。
+- 精妙存储与精妙背包的物品上限（`getBaseStackLimit`）没有跟上配置，排序与合并仍按旧值结算。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: adds an in-game config screen and fixes limit conversion and Sophisticated core limits.
+
+### Added
+- In-game config screen: reuses NeoForge's built-in settings page, reachable from the mod list's "Config" button, so the TOML no longer has to be edited by hand.
+
+### Fixed
+- Items with a vanilla default stack size (2, 4, 8, 16, 32, 64) are only scaled up once their count exceeds that default; previously everything was scaled, so 16-size items could end up with a quarter of the cap in some paths.
+- Sophisticated Storage and Backpacks item limits (`getBaseStackLimit`) ignored the configured cap, so sorting and merging still used the old value.
 
 ## 21.1-1.0.0-beta — Minecraft 1.21.1 / NeoForge 21.1
 

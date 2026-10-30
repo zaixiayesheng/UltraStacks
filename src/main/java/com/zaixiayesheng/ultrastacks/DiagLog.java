@@ -10,15 +10,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 诊断日志的独立落盘通道。
+ * 诊断用的日志，单独写一个文件。
  *
- * <p>游戏运行期间，Minecraft 自己的 latest.log / debug.log 走 log4j 缓冲，
- * 客户端不退出时文件内容常常不刷新，线上排查根本读不到。这个类把关键诊断行
- * 追加写到 {@code config/ultrastacks-diag.log}，每条写完立即 {@code flush()}，
- * 游戏不退出也能实时读到。
+ * <p>Minecraft 那两个 latest.log / debug.log 是 log4j 兜着的，客户端不退出，文件里基本还是空的。
+ * 真出了问题想当场看一眼，什么都没有——总不能让人先退游戏吧。所以就往
+ * {@code config/ultrastacks-diag.log} 里直接写，写完就 flush，开着游戏也能读。</p>
  *
- * <p>Used by the merge/slot diagnostics so evidence lands on disk immediately
- * even while the game is still running (log4j buffers latest.log until exit).
+ * <p>Minecraft's own logs sit behind log4j buffering and stay empty until the client exits, which
+ * is useless when you need to look right now. This writes to {@code config/ultrastacks-diag.log}
+ * and flushes every line.</p>
  */
 public final class DiagLog {
 
@@ -48,9 +48,9 @@ public final class DiagLog {
     }
 
     /**
-     * 追加一行并立即落盘。写失败时静默（诊断不能干扰游戏逻辑）。
+     * 写一行，立刻落盘。写不进去就算了，诊断不能反过来把游戏搞坏。
      *
-     * <p>Appends one line and flushes immediately; failures are silent.
+     * <p>Writes one line and flushes; failures are swallowed on purpose.
      */
     public static synchronized void line(String message) {
         init();

@@ -13,17 +13,16 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 精妙存储/精妙背包的容器菜单（sophcore 的 StorageContainerMenuBase）重写了
- * 点击/快速转移/整理的全部交互逻辑，合并容量走的是它自己的
- * {@code mergeItemStack(ItemStack, int, int, boolean, boolean, boolean)}，
- * 上限取自 {@code slot.getMaxStackSize(stack)}（即 {@code handler.getStackLimit(slot, stack)}）。
+ * 精妙存储、精妙背包的菜单自己有一套合并逻辑。
  *
- * 这条链与原版 slotClicked 完全分开，原版诊断对它不可见。这里把它的槽位
- * 上限也抬到模组 maxStackSize，避免精妙箱子/背包内的合并被自身上限卡住。
+ * <p>这俩不用原版的点击流程，点击、快速转移、整理全是自己写的，合并时问的是
+ * {@code slot.getMaxStackSize(stack)}，也就是它自家 handler 的上限。原版那边修好了，这条链
+ * 照样卡在 64——两条路根本不挨着，之前的诊断也照不到这里。</p>
  *
- * <b>中文</b>：精妙菜单的合并容量在这里统一抬高到模组上限。
- * <b>EN</b>: Raise the per-slot merge capacity inside Sophisticated Storage/Backpacks
- * menus, which use their own mergeItemStack path invisible to vanilla diagnostics.
+ * <p>Sophisticated Storage / Backpacks run their own interaction chain and settle merges against
+ * {@code slot.getMaxStackSize(stack)}. Fixing vanilla does nothing here; the two paths never meet.</p>
+ *
+ * <p>So this raises that chain's slot limit too.</p>
  */
 @Mixin(targets = "net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase", remap = false)
 public abstract class SophisticatedStorageMenuMergeMixin {
@@ -32,8 +31,10 @@ public abstract class SophisticatedStorageMenuMergeMixin {
     private static final int MERGE_LIMIT_LOG_CAP = 64;
 
     /**
-     * <b>中文</b>：把精妙菜单合并循环里的槽位上限抬高到模组上限。
-     * <b>EN</b>: Raise the slot limit used by the Sophisticated menu merge loop.
+     * 把它问的上限抬到模组上限。真抬上了就记一笔，好确认这条链到底有没有被走到。
+     *
+     * <p>Raises the queried slot limit, and logs when the value actually changes so we can tell
+     * whether this path is reached at all.</p>
      */
     @Redirect(
             method = "mergeItemStack(Lnet/minecraft/world/item/ItemStack;IIZZZ)Lnet/minecraft/world/item/ItemStack;",

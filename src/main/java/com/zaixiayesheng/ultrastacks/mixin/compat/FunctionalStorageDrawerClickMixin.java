@@ -7,22 +7,25 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * 抽屉潜行右键只取一组。
+ * 潜行右键抽屉，就该只拿一组。
  *
- * <p>原版 {@code ItemControllableDrawerTile.onClicked} 用 {@code getStackInSlot(slot).getMaxStackSize()}
- * 作为潜行取出的数量。显示栈的 count 等于槽内总存，而本模组的 {@code ItemStackMaxStackMixin} 会把上限
- * 抬到不低于 count，于是「一组」被算成整槽总量，shift 一次取光。这里把该调用点固定为配置的堆叠上限
- * （一组 = 65536），恢复原版「一次取一组」的手感。</p>
+ * <p>原版拿 {@code getStackInSlot(slot).getMaxStackSize()} 当取出量。问题是显示栈的 count 就是槽里
+ * 的总量，我们的 {@code ItemStackMaxStackMixin} 又把上限抬到不低于 count——问出来直接是整槽，
+ * shift 一下抽屉就空了。所以这儿固定成配置的上限，一组就是 65536。</p>
  *
- * <p>Sneak-click takes one raised stack. Vanilla {@code ItemControllableDrawerTile.onClicked} uses
- * {@code getStackInSlot(slot).getMaxStackSize()} as the sneak-extract amount; the slot's display
- * stack count equals the stored total, and our {@code ItemStackMaxStackMixin} raises the limit to at
- * least that count, so "one stack" becomes the whole slot. This redirect pins the amount to the
- * configured stack limit (one stack = 65536).</p>
+ * <p>Vanilla asks {@code getStackInSlot(slot).getMaxStackSize()} for the sneak amount, but the
+ * display stack's count is the whole slot and our mixin raises the limit to match it — so "one
+ * stack" meant "everything". Pinned to the configured limit instead.</p>
  */
 @Mixin(targets = "com.buuz135.functionalstorage.block.tile.ItemControllableDrawerTile", remap = false)
 public abstract class FunctionalStorageDrawerClickMixin {
 
+    /**
+     * 一组 = 配置上限。不能让它自己去问 getMaxStackSize()，那个值早被抬到「不低于槽内数量」了。
+     *
+     * <p>One stack = the configured limit. Can't let it ask getMaxStackSize(): we already raised
+     * that answer to at least the stored count.</p>
+     */
     @Redirect(
             method = "onClicked(Lnet/minecraft/world/entity/player/Player;I)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getMaxStackSize()I"),

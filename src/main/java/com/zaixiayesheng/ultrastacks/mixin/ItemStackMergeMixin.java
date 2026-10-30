@@ -10,21 +10,27 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 让「脏物品」能和干净物品合并。
+ * 让两堆看着一样的东西真能合到一块儿。
  *
- * <p>修复前，旧抽屉模板会把 {@code max_stack_size=64} 之类的组件写进物品（脏物品）。原版的
- * {@code ItemStack.isSameItemSameComponents} 把脏物品与没有该组件的干净物品判为不同，于是它们
- * 在物品栏、箱子和地面上都合并不了、堆叠不了。这里在该方法入口比较：如果两堆物品相同、且去掉
- * {@code MAX_STACK_SIZE} 组件后其余组件完全一致，就视为相同物品。其余组件（附魔、耐久、NBT）
- * 仍然参与比较，不会误判。</p>
+ * <p>起因是抽屉。老模板把 {@code max_stack_size=64} 焊进了物品里，从抽屉拿出来的栈跟普通栈一碰，
+ * 原版一判等就说不相等——因为人家比组件。结果背包、箱子、地上全合并不了，看着一样的两堆就是不动。
+ * 现在入口先看一眼：物品一样、把 {@code MAX_STACK_SIZE} 摘掉以后补丁完全一致，那就当同一个东西。
+ * 附魔、耐久、自定义数据这些照旧参与比较，不该合的还是合不了。</p>
  *
- * <p>Lets "dirty" stacks merge with clean ones. Before the fix, the old drawer template wrote a
- * component such as {@code max_stack_size=64} onto items (dirty stacks). Vanilla
- * {@code ItemStack.isSameItemSameComponents} treats a dirty stack and a clean stack without that
- * component as different, so they refuse to merge in inventories, containers and on the ground.
- * This entry-point check compares the two stacks after forgetting the {@code MAX_STACK_SIZE}
- * component; if everything else matches they count as the same. All other components (enchants,
- * durability, custom data) still participate in the comparison.</p>
+ * <p>后来又补了一刀。用户说「重启就能合，玩一会儿又不行了」，日志里两堆补丁都是空的、物品也一个样，
+ * 判定还是 false。翻原版才看明白：{@code PatchedDataComponentMap.equals} 不光比补丁内容，还比
+ * {@code prototype}（物品默认组件表）那个对象。运行时两份内容一模一样的默认表，完全可能就是两个实例
+ * （复制、反序列化、别的模组重设默认组件都会换）。那就不认对象了，补丁一致直接判同。</p>
+ *
+ * <p>Two stacks that look identical should merge. Old drawer templates baked a
+ * {@code max_stack_size=64} component into the stack, so vanilla's component-aware comparison said
+ * "different" and nothing ever merged. Now: same item, and identical patches once
+ * {@code MAX_STACK_SIZE} is forgotten — treated as one. Enchants, durability and custom data still
+ * count, so nothing merges by mistake.</p>
+ *
+ * <p>Second round: two stacks with empty patches and the same item still compared unequal, because
+ * {@code PatchedDataComponentMap.equals} also compares the {@code prototype} object. Two
+ * content-identical prototypes can be separate instances at runtime, so we go by the patch alone.</p>
  */
 @Mixin(ItemStack.class)
 public abstract class ItemStackMergeMixin {

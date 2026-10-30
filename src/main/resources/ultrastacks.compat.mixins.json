@@ -16,7 +16,9 @@
     "Ae2SlotMixin",
     "RefinedStorageResourceHandlerMixin",
     "IronFurnacesFurnaceMixin",
-    "CucumberSlotLimitMixin"
+    "CucumberSlotLimitMixin",
+    "FastWorkbenchShiftCraftMixin",
+    "FunctionalStorageDrawerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

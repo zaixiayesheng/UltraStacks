@@ -26,3 +26,10 @@ mandatory = true
 versionRange = "[${minecraft_version},1.21)"
 ordering = "NONE"
 side = "BOTH"
+
+[[dependencies.ultrastacks]]
+modId = "cloth_config"
+mandatory = false
+versionRange = "*"
+ordering = "AFTER"
+side = "CLIENT"

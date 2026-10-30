@@ -21,5 +21,9 @@
   "ultrastacks.configuration.compatRefinedStorage": "Refined Storage grid and handler slots",
   "ultrastacks.configuration.compatIronFurnaces": "Iron Furnaces input/output caps",
   "ultrastacks.configuration.compatMysticalAgriculture": "Mystical Agriculture machine slots",
-  "ultrastacks.configuration.compatImmersiveEngineering": "Immersive Engineering machine slots"
+  "ultrastacks.configuration.compatImmersiveEngineering": "Immersive Engineering machine slots",
+  "ultrastacks.configuration.title": "UltraStacks Configuration",
+  "ultrastacks.configuration.category.core": "Core",
+  "ultrastacks.configuration.category.modules": "Optional modules",
+  "ultrastacks.configuration.category.compat": "Compat patches"
 }

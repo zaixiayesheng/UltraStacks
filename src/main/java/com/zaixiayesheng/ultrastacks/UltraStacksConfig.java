@@ -24,26 +24,26 @@ public final class UltraStacksConfig {
     public static final int DEFAULT_MAX_STACK_SIZE = 65536;
     public static final int SAFE_MAX_STACK_SIZE = 65536;
 
-    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
-    private static final ForgeConfigSpec.IntValue MAX_STACK_SIZE = BUILDER
+    static final ForgeConfigSpec.IntValue MAX_STACK_SIZE = BUILDER
             .comment("Core - stack limit for stackable items (vanilla 64-size items).",
                     "Range: 64 - " + UltraStacks.ABSOLUTE_MAX_STACK_SIZE)
             .translation("ultrastacks.configuration.maxStackSize")
             .defineInRange("maxStackSize", DEFAULT_MAX_STACK_SIZE, 64, UltraStacks.ABSOLUTE_MAX_STACK_SIZE);
 
-    private static final ForgeConfigSpec.BooleanValue SCALE_SMALL_ITEMS = BUILDER
+    static final ForgeConfigSpec.BooleanValue SCALE_SMALL_ITEMS = BUILDER
             .comment("Scale smaller vanilla stacks proportionally (16-size items become a quarter of maxStackSize).")
             .translation("ultrastacks.configuration.scaleSmallItems")
             .define("scaleSmallItems", true);
 
-    private static final ForgeConfigSpec.BooleanValue EXPERIMENTAL = BUILDER
+    static final ForgeConfigSpec.BooleanValue EXPERIMENTAL = BUILDER
             .comment("Allow maxStackSize above " + SAFE_MAX_STACK_SIZE + ".",
                     "Experimental: mods that assume small stacks may misbehave or lose items.")
             .translation("ultrastacks.configuration.experimentalStackSizes")
             .define("experimentalStackSizes", false);
 
-    private static final ForgeConfigSpec.IntValue POTION_STACK_LIMIT = BUILDER
+    static final ForgeConfigSpec.IntValue POTION_STACK_LIMIT = BUILDER
             .comment("药水每堆最多几个（药水、喷溅、滞留、水瓶）。",
             "0 = Auto（自动）：堆叠上限的 1/16，默认 65536 时为 4096。",
             "1 = 原版（不可堆叠）；其它正数按填写的值生效。",
@@ -51,38 +51,38 @@ public final class UltraStacksConfig {
         .translation("ultrastacks.configuration.potionStackLimit")
             .defineInRange("potionStackLimit", 0, 0, UltraStacks.ABSOLUTE_MAX_STACK_SIZE);
 
-    private static final ForgeConfigSpec.IntValue ENCHANTED_BOOK_STACK_LIMIT = BUILDER
+    static final ForgeConfigSpec.IntValue ENCHANTED_BOOK_STACK_LIMIT = BUILDER
             .comment("附魔书每堆最多几个。",
             "0 = Auto（自动）：堆叠上限的 1/16，默认 65536 时为 4096。",
             "1 = 原版（不可堆叠）；其它正数按填写的值生效。",
             "Enchanted books only. 0 = Auto, 1 = vanilla.")
         .translation("ultrastacks.configuration.enchantedBookStackLimit")
             .defineInRange("enchantedBookStackLimit", 0, 0, UltraStacks.ABSOLUTE_MAX_STACK_SIZE);
-    private static final ForgeConfigSpec.IntValue BUCKET_STACK_LIMIT = BUILDER
+    static final ForgeConfigSpec.IntValue BUCKET_STACK_LIMIT = BUILDER
             .comment("各种桶的堆叠上限；低于空桶上限时自动抬到空桶。",
                     "Bucket stack limit; values below the empty bucket limit are raised to it.")
             .translation("ultrastacks.configuration.bucketStackLimit")
             .defineInRange("bucketStackLimit", 16, 1, UltraStacks.ABSOLUTE_MAX_STACK_SIZE);
 
-    private static final ForgeConfigSpec.IntValue BREWING_YIELD = BUILDER
+    static final ForgeConfigSpec.IntValue BREWING_YIELD = BUILDER
             .comment("每个原料能酿出几瓶（原版为 3）。",
                     "Bottles one reagent converts into when brewing stacked potions; vanilla is 3.")
             .translation("ultrastacks.configuration.brewingYield")
             .defineInRange("brewingYield", 3, 1, 4096);
 
-    private static final ForgeConfigSpec.BooleanValue CRAFTING_MODULE = BUILDER
+    static final ForgeConfigSpec.BooleanValue CRAFTING_MODULE = BUILDER
             .comment("Optional module - crafting: one shift-click finishes a whole batch.",
                     "中文：可选模块 · 合成：一次 Shift 点击把整批合完。")
             .translation("ultrastacks.configuration.crafting")
             .define("crafting", true);
 
-    private static final ForgeConfigSpec.BooleanValue DISPLAY_MODULE = BUILDER
+    static final ForgeConfigSpec.BooleanValue DISPLAY_MODULE = BUILDER
             .comment("Optional module - display: stack counts drawn in the GUI.",
                     "中文：可选模块 · 显示：界面上的堆叠数量。")
             .translation("ultrastacks.configuration.display")
             .define("display", true);
 
-    private static final ForgeConfigSpec.BooleanValue BULK_CRAFTING = BUILDER
+    static final ForgeConfigSpec.BooleanValue BULK_CRAFTING = BUILDER
             .comment("Optional module - crafting: bulk crafting. Off = vanilla one craft per click.",
                     "中文：可选模块 · 合成：批量模式；关闭后恢复原版一次一件。")
             .translation("ultrastacks.configuration.bulkCrafting")
@@ -93,67 +93,67 @@ public final class UltraStacksConfig {
         EXACT
     }
 
-    private static final ForgeConfigSpec.EnumValue<CountStyle> COUNT_STYLE = BUILDER
+    static final ForgeConfigSpec.EnumValue<CountStyle> COUNT_STYLE = BUILDER
             .comment("Optional module - display: COMPACT abbreviates large counts (12k), EXACT prints every digit.",
                     "中文：可选模块 · 显示：COMPACT 缩写（12k），EXACT 完整数字。")
             .translation("ultrastacks.configuration.countStyle")
             .defineEnum("countStyle", CountStyle.COMPACT);
 
-    private static final ForgeConfigSpec.IntValue ABBREVIATE_ABOVE = BUILDER
+    static final ForgeConfigSpec.IntValue ABBREVIATE_ABOVE = BUILDER
             .comment("Optional module - display: with COMPACT, counts from this value up are abbreviated.",
                     "中文：可选模块 · 显示：COMPACT 模式下，达到该数量即缩写。")
             .translation("ultrastacks.configuration.abbreviateAbove")
             .defineInRange("abbreviateAbove", 1000, 256, 1000);
 
-    private static final ForgeConfigSpec.BooleanValue TOOLTIP_EXACT = BUILDER
+    static final ForgeConfigSpec.BooleanValue TOOLTIP_EXACT = BUILDER
             .comment("Optional module - display: add the exact count and the stack limit to the item tooltip.",
                     "中文：可选模块 · 显示：在物品提示框里显示准确数量与堆叠上限。")
             .translation("ultrastacks.configuration.tooltipExact")
             .define("tooltipExact", true);
 
-    private static final ForgeConfigSpec.BooleanValue COMPAT_SOPHISTICATED = BUILDER
+    static final ForgeConfigSpec.BooleanValue COMPAT_SOPHISTICATED = BUILDER
             .comment("Compat patch - raise the slot limit of Sophisticated Storage and Backpacks to the configured stack size.",
                     "中文：兼容补丁 - 把精妙储存与背包的槽位上抬到配置值。")
             .translation("ultrastacks.configuration.compatSophisticated")
             .define("compat.sophisticated", true);
 
-    private static final ForgeConfigSpec.BooleanValue COMPAT_MEKANICAL_CREATE = BUILDER
+    static final ForgeConfigSpec.BooleanValue COMPAT_MEKANICAL_CREATE = BUILDER
             .comment("Let Mekanical Create's fan output simulation follow the configured stack size.",
                     "中文：让通用动力的鼓风机产物模拟跟随配置的堆叠上限。")
             .translation("ultrastacks.configuration.compatMekanicalCreate")
             .define("compat.mekanicalcreate", true);
 
-    private static final ForgeConfigSpec.BooleanValue COMPAT_MEKANISM = BUILDER
+    static final ForgeConfigSpec.BooleanValue COMPAT_MEKANISM = BUILDER
             .comment("Raise the input and output slot limit of Mekanism machines to the configured stack size.",
                     "中文：把通用机械机器的输入、输出槽位上限抬到配置值。")
             .translation("ultrastacks.configuration.compatMekanism")
             .define("compat.mekanism", true);
 
-    private static final ForgeConfigSpec.BooleanValue COMPAT_AE2 = BUILDER
+    static final ForgeConfigSpec.BooleanValue COMPAT_AE2 = BUILDER
             .comment("Raise the slot limit of AE2 terminals, interfaces and item handlers; interface throughput follows maxStackSize / 16.",
                     "中文：把应用能源终端、接口与物品处理器的槽位上限抬到配置值；接口每槽容量取配置上限的十六分之一。")
             .translation("ultrastacks.configuration.compatAe2")
             .define("compat.ae2", true);
 
-    private static final ForgeConfigSpec.BooleanValue COMPAT_REFINED_STORAGE = BUILDER
+    static final ForgeConfigSpec.BooleanValue COMPAT_REFINED_STORAGE = BUILDER
             .comment("Raise the slot limit of Refined Storage grids and item handlers to the configured stack size.",
                     "中文：把精致存储终端与物品处理器的槽位上限抬到配置值。")
             .translation("ultrastacks.configuration.compatRefinedStorage")
             .define("compat.refinedstorage", true);
 
-    private static final ForgeConfigSpec.BooleanValue COMPAT_IRON_FURNACES = BUILDER
+    static final ForgeConfigSpec.BooleanValue COMPAT_IRON_FURNACES = BUILDER
             .comment("Raise the input and output caps of Iron Furnaces so the furnaces take and make full stacks.",
                     "中文：把更多熔炉的输入、输出上限抬到配置值，熔炉才能吃下整摞。")
             .translation("ultrastacks.configuration.compatIronFurnaces")
             .define("compat.ironfurnaces", true);
 
-    private static final ForgeConfigSpec.BooleanValue COMPAT_MYSTICAL_AGRICULTURE = BUILDER
+    static final ForgeConfigSpec.BooleanValue COMPAT_MYSTICAL_AGRICULTURE = BUILDER
             .comment("Raise the slot limit of Cucumber-based machines (Mystical Agriculture and its addons) to the configured stack size.",
                     "中文：把神秘农业及其附属机器的槽位上限抬到配置值。")
             .translation("ultrastacks.configuration.compatMysticalAgriculture")
             .define("compat.mysticalagriculture", true);
 
-    private static final ForgeConfigSpec.BooleanValue COMPAT_IMMERSIVE_ENGINEERING = BUILDER
+    static final ForgeConfigSpec.BooleanValue COMPAT_IMMERSIVE_ENGINEERING = BUILDER
             .comment("Raise the slot limit of Immersive Engineering machines to the configured stack size.",
                     "中文：把沉浸工程机器的槽位上限抬到配置值。")
             .translation("ultrastacks.configuration.compatImmersiveEngineering")
@@ -161,7 +161,7 @@ public final class UltraStacksConfig {
 
 
 
-    private static final ForgeConfigSpec.IntValue CONFIG_VERSION = BUILDER
+    static final ForgeConfigSpec.IntValue CONFIG_VERSION = BUILDER
             .comment("Internal: configuration format version. Do not edit.",
                     "中文：内部使用：配置格式版本，请勿修改。")
             .translation("ultrastacks.configuration.configVersion")
@@ -440,6 +440,15 @@ public final class UltraStacksConfig {
             return;
         }
 
+        applyValues();
+    }
+
+    /**
+     * 从规格里读出全部数值；配置加载与界面保存后都会调用。
+     *
+     * <p>Reads every value out of the spec; called on config load and again after the screen saves.
+     */
+    static void applyValues() {
         int requested = Math.min(MAX_STACK_SIZE.get(), UltraStacks.ABSOLUTE_MAX_STACK_SIZE);
         scaleSmallItems = SCALE_SMALL_ITEMS.get();
         craftingModule = CRAFTING_MODULE.get();
@@ -490,7 +499,19 @@ public final class UltraStacksConfig {
             }
         }
 
+    
     }
+
+    /**
+     * 配置界面保存后写回磁盘，并立刻重新应用一遍数值。
+     *
+     * <p>Writes the spec back to disk and re-applies every value right away.
+     */
+    static void saveFromScreen() {
+        SPEC.save();
+        applyValues();
+    }
+
 
     public static int raiseVanillaDefault(int original) {
         return original == 99 ? maxStackSize : original;

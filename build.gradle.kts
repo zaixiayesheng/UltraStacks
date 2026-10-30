@@ -4,7 +4,7 @@ plugins {
 }
 
 val modId = "ultrastacks"
-val modVersion = "20.1-1.0.0-beta"
+val modVersion = "20.1-1.0.1-beta"
 val mcVersion = "1.20.1"
 val forgeVersion = "47.4.0"
 val parchmentMappings = "2023.09.03"
@@ -52,6 +52,7 @@ dependencies {
         compileOnly("maven.modrinth:iron-furnaces:KHAcRQwi")
         compileOnly("maven.modrinth:cucumber:xnLznSfT")
         compileOnly("maven.modrinth:immersiveengineering:WUzj4tgJ")
+        compileOnly("maven.modrinth:cloth-config:nr1znv5v")
     }
 }
 

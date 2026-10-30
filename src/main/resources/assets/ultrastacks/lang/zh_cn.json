@@ -21,5 +21,9 @@
   "ultrastacks.configuration.compatRefinedStorage": "精致存储终端与处理器槽位",
   "ultrastacks.configuration.compatIronFurnaces": "更多熔炉的输入/输出上限",
   "ultrastacks.configuration.compatMysticalAgriculture": "神秘农业机器的槽位上限",
-  "ultrastacks.configuration.compatImmersiveEngineering": "沉浸工程机器的槽位上限"
+  "ultrastacks.configuration.compatImmersiveEngineering": "沉浸工程机器的槽位上限",
+  "ultrastacks.configuration.title": "UltraStacks 配置",
+  "ultrastacks.configuration.category.core": "核心",
+  "ultrastacks.configuration.category.modules": "可选模块",
+  "ultrastacks.configuration.category.compat": "兼容补丁"
 }

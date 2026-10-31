@@ -14,13 +14,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 让更多配方一次落地，避免 FastWorkbench 逐次合成的长循环。
+ * FastWorkbench 的 shift 合成。客户端碰上大堆就直接撤，让服务端一次算完，别在本地空跑几万轮。
  *
- * <p>FastWorkbench 接管 Shift 合成后是一轮一轮地合，产物槽能装下多少就转多少圈；堆叠上限抬到几万之后，
- * 一圈一次的开销积起来就是明显卡顿。这里在它的入口先按整批合成处理，成功就直接返回。
- *
- * <p>FastWorkbench shift-crafts one recipe per iteration; with the raised stack limit that loop runs tens of
- * thousands of times. This runs the whole batch in one go first and returns early when it succeeds.
+ * FastWorkbench's shift-craft. On the client we bail out for huge stacks so the server does the
+ * batch once instead of spinning tens of thousands of rounds locally.
  */
 @Mixin(targets = "dev.shadowsoffire.fastbench.util.FastBenchUtil", remap = false)
 public abstract class FastWorkbenchShiftCraftMixin {
@@ -31,6 +28,15 @@ public abstract class FastWorkbenchShiftCraftMixin {
                                               CraftingInventoryExt inventory, ResultContainer resultSlots,
                                               int startSlot, int endSlot, CallbackInfoReturnable<ItemStack> cir) {
         if (!(menu instanceof AbstractCraftingMenu craftingMenu)) {
+            return;
+        }
+        if (player.level().isClientSide()) {
+            // 客户端只负责发点击包，真正的合成在服务端；逐次循环留在客户端，就是几万次配方扫描。
+            // The client only sends the click and the server does the crafting. Leaving the per-round
+            // loop on the client means tens of thousands of recipe scans.
+            if (BulkCrafting.hasOversizedInputs(craftingMenu.getInputGridSlots())) {
+                cir.setReturnValue(ItemStack.EMPTY);
+            }
             return;
         }
         if (BulkCrafting.tryCraftAll(craftingMenu, player, startSlot, endSlot)) {

@@ -20,5 +20,8 @@
   "ultrastacks.configuration.compatAe2": "应用能源终端、接口与处理器槽位",
   "ultrastacks.configuration.compatRefinedStorage": "精致存储终端与处理器槽位",
   "ultrastacks.configuration.compatIronFurnaces": "更多熔炉的输入/输出上限",
-  "ultrastacks.configuration.compatMysticalAgriculture": "神秘农业机器的槽位上限"
+  "ultrastacks.configuration.compatMysticalAgriculture": "神秘农业机器的槽位上限",
+  "ultrastacks.configuration.bulkCraftLimit": "单次合成上限",
+  "ultrastacks.configuration.bulkCraftUnlockKey": "需要按住解锁键",
+  "key.ultrastacks.unlock": "解锁整批合成"
 }

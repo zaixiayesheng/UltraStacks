@@ -16,6 +16,7 @@
     "Ae2SlotMixin",
     "RefinedStorageResourceHandlerMixin",
     "IronFurnacesFurnaceMixin",
+    "CraftingTweaksBalanceMixin",
     "CucumberSlotLimitMixin",
     "FastWorkbenchShiftCraftMixin",
     "FunctionalStorageDrawerMixin"

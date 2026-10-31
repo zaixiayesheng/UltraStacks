@@ -11,19 +11,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 接管玩家背包 2x2 合成网格产物槽的 Shift 点击，与工作台共用同一套批量合成逻辑。
+ * 背包 2×2 的批量合成入口，跟工作台一个道理。客户端碰上大堆就撤。
  *
- * <p>注入点同样是 {@code quickMoveStack} 的头部，产物槽也是索引 0，只是背包格从 {@code 9} 到
- * {@code 46}：这个菜单里结果槽、网格与护甲槽排在最前面，{@code 9} 之后才是玩家背包，一直到快捷栏末
- * 尾，{@code 45} 的副手槽不在范围内。
- *
- * <p>Takes over shift-clicks on the result slot of the 2x2 grid in the player's own inventory menu,
- * sharing the bulk-crafting logic with the crafting table.
- *
- * <p>The injection point is the head of {@code quickMoveStack} again and the result slot is index 0
- * again; only the player inventory range differs, {@code 9} to {@code 46}. In this menu the result
- * slot, the crafting grid and the armour slots come first, so the player's inventory starts at
- * {@code 9} and runs through the end of the hotbar, while the offhand slot at {@code 45} is left out.
+ * Same idea for the 2×2 grid: the client backs off when the grid holds huge stacks.
  */
 @Mixin(InventoryMenu.class)
 public abstract class InventoryMenuMixin {
@@ -34,6 +24,15 @@ public abstract class InventoryMenuMixin {
             return;
         }
         AbstractCraftingMenu menu = (AbstractCraftingMenu) (Object) this;
+        if (player.level().isClientSide()) {
+            // 客户端别本地跑：整批由服务端做，本地逐次合成只会把合成事件和配方扫描重复上万遍。
+            // Keep the client out of it: the server finishes the batch, while a local pass would repeat
+            // the crafting event and its recipe scan tens of thousands of times.
+            if (BulkCrafting.hasOversizedInputs(menu.getInputGridSlots())) {
+                cir.setReturnValue(ItemStack.EMPTY);
+            }
+            return;
+        }
         if (BulkCrafting.tryCraftAll(menu, player, 9, 45)) {
             cir.setReturnValue(ItemStack.EMPTY);
         }

@@ -20,5 +20,8 @@
   "ultrastacks.configuration.compatAe2": "AE2 terminal, interface and handler slots",
   "ultrastacks.configuration.compatRefinedStorage": "Refined Storage grid and handler slots",
   "ultrastacks.configuration.compatIronFurnaces": "Iron Furnaces input/output caps",
-  "ultrastacks.configuration.compatMysticalAgriculture": "Mystical Agriculture machine slots"
+  "ultrastacks.configuration.compatMysticalAgriculture": "Mystical Agriculture machine slots",
+  "ultrastacks.configuration.bulkCraftLimit": "Bulk craft limit",
+  "ultrastacks.configuration.bulkCraftUnlockKey": "Require unlock key",
+  "key.ultrastacks.unlock": "Unlock whole-batch crafting"
 }

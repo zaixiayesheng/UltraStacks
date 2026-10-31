@@ -12,13 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * 存档里的堆叠数量。
- *
- * <p>原版把数量写成 byte（{@code putByte("Count", (byte) count)}），读的时候也是 {@code getByte}，
- * 所以超过 127 个的堆叠存盘再读回来会变成一个负数或 1 个，存档直接坏掉。
- *
- * <p>这里只在数量超过 {@link Byte#MAX_VALUE} 时额外写一个同名 int 键（NBT 允许同名覆盖，类型不同即可），
- * 读取时发现是 int 就用它覆盖数量。127 及以下的堆叠仍然走原版的 byte，存档格式对它们一字不变。
- *
+     *
  * <p>The stack count stored in item data. Vanilla writes the count as a byte and reads it back with
  * {@code getByte}, so a stack above 127 is saved and then comes back as a negative number or a single
  * item, which corrupts the save. Above {@link Byte#MAX_VALUE} an int is written under the same key

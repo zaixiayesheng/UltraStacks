@@ -9,12 +9,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
  * 玩家背包的空间判断。
- *
- * <p>{@code Inventory} 不重写 {@code getMaxStackSize()}，所以 {@code hasRemainingSpaceForItem} 与
- * {@code addResource} 拿到的还是 64，大堆叠会被拆成 64 一组。这两处调用改成配置值。
- *
- * <p>没有采用「加一个覆盖方法」的写法：mixin 加进去的方法在生产环境保留字面名，覆盖不了接口的默认实现。
- *
+     *
  * <p>Space checks of the player inventory. {@code Inventory} does not override
  * {@code getMaxStackSize()}, so {@code hasRemainingSpaceForItem} and {@code addResource} still see 64
  * and split a large stack into groups of 64. Both calls are redirected to the configured stack size.

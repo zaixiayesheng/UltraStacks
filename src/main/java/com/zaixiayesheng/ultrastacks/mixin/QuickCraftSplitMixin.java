@@ -12,11 +12,7 @@ import java.util.Set;
 
 /**
  * 拖动分摊时每格分到多少。
- *
- * <p>原版用 {@code Mth.floor((float) count / (float) slots.size())}，而 float 只有 24 位尾数，超过
- * 2^24 的数量会被舍入。1,073,741,823（2^30 - 1）拖过两格时每格被舍成 536,870,912，两份加起来
- * 1,073,741,824 —— 一次拖拽凭空多出 1 个。换成整数除法后两份之和不大于原数量，余数留在光标上。
- *
+     *
  * <p>How much of a dragged stack each slot receives. Vanilla uses
  * {@code Mth.floor((float) count / (float) slots.size())}, but a float carries only 24 bits of mantissa
  * and rounds anything above 2^24. Dragging 1,073,741,823 (2^30 - 1) over two slots yields 536,870,912

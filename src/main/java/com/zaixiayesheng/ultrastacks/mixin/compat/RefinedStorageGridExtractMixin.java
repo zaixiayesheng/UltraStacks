@@ -7,10 +7,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 /**
  * 精致存储从终端往外取物品时的默认数量。
- *
- * <p>默认一次取 64 个是写死的，最终数量又取 {@code min(64, 槽位上限)}，所以槽位上限抬到 65536 也看不出
- * 变化。这里只换掉那个 64；右键取一半的分支仍然走原版的上限减半。
- *
+     *
  * <p>The default amount Refined Storage pulls out of a grid. It is a hardcoded 64, and the final amount is
  * {@code min(64, slot limit)}, so a slot limit raised to 65536 never shows up. Only that 64 is replaced
  * here; the right-click half branch still takes half of the vanilla limit.

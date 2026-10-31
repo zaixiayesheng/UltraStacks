@@ -11,16 +11,9 @@ import net.minecraft.network.chat.Component;
 
 /**
  * 1.20.1 的配置界面，用 Cloth Config 搭出来，作为可选联动：没装 Cloth Config 就不会实例化本类。
- *
- * <p>三个分类对应 README 的功能划分：核心、可选模块、兼容补丁。保存时调用
- * {@link UltraStacksConfig#saveFromScreen()}，写盘并立即重新读出数值。
- *
+     *
  * <p>The 1.20.1 config screen, built with Cloth Config as an optional integration; this class is
  * only instantiated when Cloth Config is installed.
- *
- * <p>The three categories mirror the README's split: core, optional modules and compat patches.
- * Saving calls {@link UltraStacksConfig#saveFromScreen()}, which writes the file and re-reads every
- * value immediately.
  */
 public final class UltraStacksConfigScreen {
     private UltraStacksConfigScreen() {

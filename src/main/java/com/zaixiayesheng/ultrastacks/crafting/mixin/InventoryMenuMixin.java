@@ -14,14 +14,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 背包 2x2 格的批量合成入口。
+ * 背包 2×2 的批量合成入口，跟工作台一个道理。客户端碰上大堆就撤。
  *
- * <p>与工作台是同一套逻辑，只有背包区间不同：9..45（槽 0 是产物、1..4 是合成格、5..8 是盔甲、
- * 其余为背包）。
- *
- * <p>Bulk-crafting entry point for the player's 2x2 grid. Same logic as the crafting table, only the
- * inventory range differs: 9..45 (slot 0 is the result, 1..4 the grid, 5..8 armour, the rest the
- * inventory).
+ * Same idea for the 2×2 grid: the client backs off when the grid holds huge stacks.
  */
 @Mixin(InventoryMenu.class)
 public abstract class InventoryMenuMixin {
@@ -38,6 +33,15 @@ public abstract class InventoryMenuMixin {
     private void ultrastacks$bulkCraft(Player player, int slotId, CallbackInfoReturnable<ItemStack> cir) {
         InventoryMenu menu = (InventoryMenu) (Object) this;
         if (slotId != 0) {
+            return;
+        }
+        if (player.level().isClientSide()) {
+            // 客户端别本地跑：整批由服务端做，本地逐次合成只会把合成事件和配方扫描重复上万遍。
+            // Keep the client out of it: the server finishes the batch, while a local pass would repeat
+            // the crafting event and its recipe scan tens of thousands of times.
+            if (BulkCrafting.hasOversizedStacks(craftSlots)) {
+                cir.setReturnValue(ItemStack.EMPTY);
+            }
             return;
         }
         if (BulkCrafting.tryCraftAll(menu, craftSlots, resultSlots, player, 9, 45)) {

@@ -4,10 +4,7 @@ import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
 
 /**
  * 把原始数量变成显示模块要画的文本。
- *
- * <p>COMPACT 用 k / m / b 后缀缩写，EXACT 保留全部数字；低于 {@code abbreviateAbove} 的数量一律
- * 完整显示（该项最大 1000），所以正常游玩时看到的就是原版数字。
- *
+     *
  * <p>Turns a raw count into the text the display module draws. COMPACT abbreviates large numbers
  * with k / m / b suffixes, EXACT keeps every digit, and counts below {@code abbreviateAbove} (at most
  * 1000) are always printed in full, so normal gameplay shows the vanilla number.

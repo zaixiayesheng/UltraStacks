@@ -9,10 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * ME 接口、样板供应器和其它应用能源机器共用的通用库存。
- *
- * <p>它对物品键报的每槽容量是 64，接口一次能搬多少就看这个值，所以这里改成配置上限的十六分之一
- * （与自动的药水上限同一个比例）。
- *
+     *
  * <p>The generic inventory shared by ME interfaces, pattern providers and other AE2 machines. It reports
  * 64 as the per-slot capacity for item keys, which is what limits interface throughput, so the capacity
  * becomes a sixteenth of the configured stack size, the same ratio used for the automatic potion limit.

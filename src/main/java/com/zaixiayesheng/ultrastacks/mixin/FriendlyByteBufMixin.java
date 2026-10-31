@@ -12,11 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * 网络同步里的物品数量。
- *
- * <p>原版把数量写成 byte、读取端也按 byte 读，客户端能看到的只有 -128~127：32768 与 65536 写进去
- * 都变成 0，大堆叠在客户端直接显示成空。这里在写与读两端都换成 VarInt，两端都装本模组时数量才能
- * 原样传过去；只用原版客户端进服会走不到这套读写。
- *
+     *
  * <p>The item count used in network packets. Vanilla writes the count as a byte and reads it back the
  * same way, so a client only ever sees -128 to 127: both 32768 and 65536 become zero and a large stack
  * shows up empty. Both the write and the read side use a VarInt instead, so counts survive the trip as

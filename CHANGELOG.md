@@ -20,6 +20,34 @@
 
 - Balance: on servers without CraftingTweaks the button now sticks, instead of being overwritten by the next sync.
 
+## v26.1-1.0.3-hotfix1 — Minecraft 26.1.2
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：把均分和平铺换成本模组自己算，联机也不用再一格一格地模拟点击。
+
+### 修复
+
+- 均分 / 平铺：合成格里有大堆时，客户端直接算好写回，不再逐个模拟点击，联机手感跟单机一致。
+- 平铺：空格只在你按的是平铺时才算目标格；均分只动原本就有同类物品的格子。
+- 余数：一格一个地发，撞上限就留在第一格，绝不会少物品。
+- 精妙存储 / 背包的合成升级用的是同一套算法，那边点均分也不会再磨。
+- 服务器没装合成辅助时，由本模组在服务端把结果算实，不会被下一次同步冲回去。
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: Balance and spread are now computed by this mod, so online play no longer replays clicks one by one.
+
+### Fixed
+
+- Balance / spread: with big stacks the client writes the finished layout instead of replaying clicks.
+- Spread: empty slots only take part when spreading; balancing leaves them untouched.
+- Remainder: handed out slot by slot and kept in the first slot if nothing fits - nothing is ever lost.
+- The crafting upgrade in Sophisticated Storage uses the same routine, so its button is fast too.
+- On servers without CraftingTweaks the pass runs server-side, so the result survives the next sync.
 ## v26.1-1.0.3 — Minecraft 26.1.2 / NeoForge 26.1.2
 
 **中文**

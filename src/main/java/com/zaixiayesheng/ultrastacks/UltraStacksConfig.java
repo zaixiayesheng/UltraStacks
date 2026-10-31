@@ -362,6 +362,16 @@ public final class UltraStacksConfig {
         return original == 64 || original == 99 ? maxStackSize : original;
     }
 
+    /**
+     * 卓越前线的载具后备箱用自己一个默认 64 的字段当「能不能放进」的门槛，堆大了就被挡住。
+     *
+     * <p>Superb Warfare's vehicle trunk gates placement on its own field that defaults to 64, so
+     * big stacks are rejected. Only 64 / 99 get raised; other values stay as the mod set them.
+     */
+    public static int vehicleSlotLimit(int original) {
+        return original == 64 || original == 99 ? maxStackSize : original;
+    }
+
     public static boolean tooltipExact() {
         return tooltipExact;
     }

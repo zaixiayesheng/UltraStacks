@@ -11,11 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * 沉浸工程机器界面用的容器包装。
- *
- * <p>它把内部库存包成 {@code Container}，每格上限报的同样是 64，这里换成配置的堆叠上限。注入用的方法名
- * 是 {@code m_6893_}，也就是 {@code Container.getMaxStackSize} 的 SRG 名——实现类里的这个重写在正式
- * 环境下带的就是这个名字。
- *
+     *
  * <p>The container wrapper Immersive Engineering uses for its machine screens. It exposes the internal
  * inventory as a {@code Container} with the same hardcoded 64 per slot, which becomes the configured stack
  * size. The injected method is named {@code m_6893_}, the SRG name of {@code Container.getMaxStackSize},

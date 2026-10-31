@@ -2,12 +2,7 @@ package com.zaixiayesheng.ultrastacks.crafting;
 
 /**
  * 批量合成的纯算术，不依赖 Minecraft 类型。
- *
- * <p>生产路径只用到两个：按产物空位截断合成次数（{@link #capBySpace}），把超过单堆上限的产物拆成
- * 多次插入（{@link #nextChunk}）。其余几个（{@link #available}、{@link #crafts}、
- * {@link #expectedConsumed}、{@link #expectedProduced}、{@link #balanced}、{@link #chunkCount}）
- * 是同一套换算的备用件，本树里还没有调用点。取整、溢出这些会凭空多出或少掉物品的换算都集中在这里。
- *
+     *
  * <p>Pure arithmetic for bulk crafting that touches no Minecraft type. The production path uses two
  * of these: {@link #capBySpace} caps the craft count by free output space, and {@link #nextChunk}
  * splits an oversized result into insertion chunks. The rest ({@link #available}, {@link #crafts},
@@ -61,8 +56,6 @@ public final class CraftingMath {
 
     /**
      * 批量产物下一次插入的块大小。
-     *
-     * <p>一个 ItemStack 装不下超过自身上限的数量，一次塞超出的部分会被静默丢掉，所以按上限切块。
      *
      * <p>Size of the next insertion chunk for a bulk output. A single ItemStack can never hold more than
      * its own max stack size, and the excess would be dropped silently, so the total is cut into chunks

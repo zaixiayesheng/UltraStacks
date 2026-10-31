@@ -8,10 +8,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
  * 箱子、木桶、潜影盒这类战利品容器的槽位上限。
- *
- * <p>{@code setItem} 会把进来的物品夹到 {@code getMaxStackSize()}（{@code Container} 的默认实现，64），
- * 超过 64 的部分在放进方块的那一刻就被砍掉，所以这里把这次调用换成配置的堆叠上限。
- *
+     *
  * <p>Slot limit of chests, barrels, shulker boxes and other loot containers. {@code setItem} clamps
  * incoming items to {@code getMaxStackSize()}, the {@code Container} default of 64, so anything above 64
  * is cut the moment it is placed into the block; the call is redirected to the configured stack size.

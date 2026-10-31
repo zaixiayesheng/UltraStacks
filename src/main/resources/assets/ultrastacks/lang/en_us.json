@@ -25,5 +25,9 @@
   "ultrastacks.configuration.title": "UltraStacks Configuration",
   "ultrastacks.configuration.category.core": "Core",
   "ultrastacks.configuration.category.modules": "Optional modules",
-  "ultrastacks.configuration.category.compat": "Compat patches"
+  "ultrastacks.configuration.category.compat": "Compat patches",
+  "ultrastacks.configuration.bulkCraftLimit": "Bulk craft limit",
+  "ultrastacks.configuration.bulkCraftUnlockKey": "Require unlock key",
+  "key.categories.ultrastacks": "UltraStacks",
+  "key.ultrastacks.unlock": "Unlock whole-batch crafting"
 }

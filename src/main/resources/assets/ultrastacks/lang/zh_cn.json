@@ -25,5 +25,9 @@
   "ultrastacks.configuration.title": "UltraStacks 配置",
   "ultrastacks.configuration.category.core": "核心",
   "ultrastacks.configuration.category.modules": "可选模块",
-  "ultrastacks.configuration.category.compat": "兼容补丁"
+  "ultrastacks.configuration.category.compat": "兼容补丁",
+  "ultrastacks.configuration.bulkCraftLimit": "单次合成上限",
+  "ultrastacks.configuration.bulkCraftUnlockKey": "需要按住解锁键",
+  "key.categories.ultrastacks": "超级堆叠",
+  "key.ultrastacks.unlock": "解锁整批合成"
 }

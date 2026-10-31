@@ -9,15 +9,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 
 /**
- * 配置入口：堆叠上限、特殊物品上限、各模块开关与各兼容开关都在这里。
- *
- * <p>下面的 helper 只做纯换算、不碰世界状态，被 mixin 直接调用。数值真正落库在
- * {@link #onConfigLoad}：超上限的请求会被夹回，配置版本低于 2 的旧文件会顺手迁移。
- *
- * <p>Config hub: stack limit, special-item limits, module switches and compatibility switches. The
- * helpers below are pure conversions that touch no world state and are called straight from the
- * mixins. The numbers are committed in {@link #onConfigLoad}, which clamps an oversized request and
- * migrates a config file below version 2.
+ * 配置和换算都在这里：上限、特殊物品、各模块与兼容开关，加上 mixin 直接调的那些纯函数。
+ * Config hub plus the pure helpers the mixins call — change a number here, not in each mixin.
  */
 @Mod.EventBusSubscriber(modid = UltraStacks.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class UltraStacksConfig {
@@ -87,6 +80,18 @@ public final class UltraStacksConfig {
                     "中文：可选模块 · 合成：批量模式；关闭后恢复原版一次一件。")
             .translation("ultrastacks.configuration.bulkCrafting")
             .define("bulkCrafting", true);
+
+    static final ForgeConfigSpec.IntValue BULK_CRAFT_LIMIT = BUILDER
+            .comment("Crafting: how many crafts one shift-click may do before the unlock key is held (default 64).",
+                    "中文：合成：按住解锁键之前，一次 Shift 点击最多合成多少次（默认 64）。")
+            .translation("ultrastacks.configuration.bulkCraftLimit")
+            .defineInRange("bulkCraftLimit", 64, 1, UltraStacks.ABSOLUTE_MAX_STACK_SIZE);
+
+    static final ForgeConfigSpec.BooleanValue BULK_CRAFT_UNLOCK_KEY = BUILDER
+            .comment("Crafting: require holding the unlock key (default mouse button 4) to craft the whole batch.",
+                    "中文：合成：必须按住解锁键（默认鼠标侧键 4）才能一次合完整批。")
+            .translation("ultrastacks.configuration.bulkCraftUnlockKey")
+            .define("bulkCraftUnlockKey", true);
 
     public enum CountStyle {
         COMPACT,
@@ -178,6 +183,8 @@ public final class UltraStacksConfig {
     private static volatile boolean craftingModule = true;
     private static volatile boolean displayModule = true;
     private static volatile boolean bulkCrafting = true;
+    private static volatile int bulkCraftLimit = 64;
+    private static volatile boolean bulkCraftUnlockKey = true;
     private static volatile CountStyle countStyle = CountStyle.COMPACT;
     private static volatile int abbreviateAbove = 1000;
     private static volatile boolean tooltipExact = true;
@@ -211,6 +218,16 @@ public final class UltraStacksConfig {
 
     public static boolean bulkCrafting() {
         return bulkCrafting;
+    }
+
+    /** 一次 Shift 点击最多合成多少次（未按解锁键时）。 */
+    public static int bulkCraftLimit() {
+        return bulkCraftLimit;
+    }
+
+    /** 是否要求按住解锁键才能一次合完整批。 */
+    public static boolean bulkCraftUnlockKey() {
+        return bulkCraftUnlockKey;
     }
 
     public static CountStyle countStyle() {
@@ -418,21 +435,12 @@ public final class UltraStacksConfig {
     /**
      * 配置加载与重载时把 spec 里的值搬进静态字段。
      *
-     * <p>顺序上有个坑：{@code maxStackSize} 要先定下来，药水、附魔书、桶这几个「按上限比例算」的数值
-     * 才能跟着算，所以它们被算了两遍——第一遍在 {@code requested} 可能被夹回安全值之前，第二遍才是
-     * 最终值。请求超过 {@link #SAFE_MAX_STACK_SIZE} 又没开实验开关时降到安全值并打一条警告。
-     *
-     * <p>另外，配置版本低于 2、药水与附魔书都还是 1 的旧文件会被改成 Auto（0），版本号升到 2 并立即存盘。
-     *
      * <p>Copies the spec values into the static fields on load and reload. The ordering matters:
      * {@code maxStackSize} has to settle first because the proportional limits (potions, enchanted
      * books, buckets) are derived from it, which is why they are computed twice - once before
      * {@code requested} may be clamped to the safe value and once with the final number. A request
      * above {@link #SAFE_MAX_STACK_SIZE} without the experimental switch is lowered to the safe value
      * with a warning.
-     *
-     * <p>A file below version 2 whose potion and enchanted-book limits are both still 1 is migrated to
-     * Auto (0), the version is raised to 2 and the spec is saved right away.
      */
     @SubscribeEvent
     public static void onConfigLoad(ModConfigEvent event) {
@@ -454,6 +462,8 @@ public final class UltraStacksConfig {
         craftingModule = CRAFTING_MODULE.get();
         displayModule = DISPLAY_MODULE.get();
         bulkCrafting = BULK_CRAFTING.get();
+        bulkCraftLimit = BULK_CRAFT_LIMIT.get();
+        bulkCraftUnlockKey = BULK_CRAFT_UNLOCK_KEY.get();
         countStyle = COUNT_STYLE.get();
         abbreviateAbove = ABBREVIATE_ABOVE.get();
         tooltipExact = TOOLTIP_EXACT.get();
@@ -560,10 +570,6 @@ public final class UltraStacksConfig {
 
     /**
      * 一个堆叠最终生效的上限，入参是它自己报出的原版上限。
-     *
-     * <p>本来就能堆的物品走 {@link #scaledMaxForItem} 的常规缩放。缩放结果不大于 1 时再看具体种类：
-     * 工具与护甲永远保持原值；药水、附魔书、桶按各自的配置取 {@code max(原值, 配置值)}；
-     * 其余不可堆叠物品原样返回。
      *
      * <p>Final limit for a stack, given the vanilla limit it reported. Items that already stack go
      * through the usual scaling in {@link #scaledMaxForItem}. When that yields at most one, damageable

@@ -7,15 +7,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 /**
  * 抽屉一次能倒出多少。
- *
- * <p>按住 Shift 点抽屉，FS 会先问一句「这格最多能拿多少」，然后照着这个数往背包里塞。它这答案跟容量
- * 挂钩——上限还是 64 的时候，最多一组，正常；抬到 65536 之后，一个存了两万多的抽屉一按就全进背包了，
- * 格子瞬间塞满，剩下的还掉地上。所以这里把单次取出压成一组。管子、漏斗、AE2 走的是物品接口，不经过
- * 这个方法，不受影响。</p>
- *
- * <p>1.20.1 没有数据组件，旧存档也不会留「上限 64」的痕迹，这棵树就只管取出量，不用像 1.21.1 那样
- * 还得洗模板。</p>
- *
+     *
  * <p>Shift-clicking a drawer asks FS "how much can this slot give", and it answers with the slot
  * capacity — fine at 64, catastrophic at 65536 where one click empties twenty thousand dirt into
  * your backpack. Capped to one stack here. Pipes, hoppers and AE2 use the item handler instead, so

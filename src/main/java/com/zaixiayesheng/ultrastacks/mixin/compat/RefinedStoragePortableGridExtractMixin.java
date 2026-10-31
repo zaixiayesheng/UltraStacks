@@ -7,9 +7,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 /**
  * 便携终端的取物数量。
- *
- * <p>便携终端走的是自己那套处理器，里面同样写死了一次取 64 个，处理方式与普通终端一致。
- *
+     *
  * <p>The pull amount of the portable grid. It uses its own handler, which repeats the hardcoded 64-item
  * pull, and is patched the same way as the regular grid.
  */

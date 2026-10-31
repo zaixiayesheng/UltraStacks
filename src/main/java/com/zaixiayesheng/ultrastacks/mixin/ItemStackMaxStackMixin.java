@@ -8,19 +8,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 一组物品自己报告的上限不能小于它已经装着的数量。
+ * 在 getMaxStackSize() 返回处套配置。药水、附魔书、桶这些按各自的配置抬，其余按比例缩。
  *
- * <p>原版菜单用「上限减已有数量」算剩余空间。堆叠是在上限更大的配置下造出来的，之后配置调小或者换了
- * 存档，这个减法就会变成负数：{@code grow(负数)} 让格子里的东西变少，{@code shrink(负数)} 让手上那份变大，
- * 表现就是「拆两半分别放进去，一半消失」或者「凭空多出一个」。把返回值抬到至少等于当前数量，
- * 这类减法就都不会是负数，既不丢也不白送。
- *
- * <p>A stack never reports a maximum below its own count. The vanilla menu computes headroom as
- * "limit minus current count"; when a stack was created under a larger limit and the config is later
- * lowered or the save is loaded elsewhere, that subtraction goes negative, {@code grow(negative)}
- * shrinks the slot and {@code shrink(negative)} grows the held stack, so splitting a stack across two
- * slots loses half of it or duplicates an item. Keeping the result at least at the current count makes
- * every such subtraction non-negative.
+ * Applies the configured limits where getMaxStackSize() returns.
  */
 @Mixin(ItemStack.class)
 public abstract class ItemStackMaxStackMixin {
@@ -38,6 +28,15 @@ public abstract class ItemStackMaxStackMixin {
     @Inject(method = "getMaxStackSize()I", at = @At("RETURN"), cancellable = true)
     private void ultrastacks$neverBelowCount(CallbackInfoReturnable<Integer> cir) {
         ItemStack self = (ItemStack) (Object) this;
+        // 有耐久的物品（工具、武器、护甲）一律按原版 1 走，也不套「不小于自身数量」的兜底。
+        // 那条兜底是给 65536 大堆用的，套在工具上就变成自己给自己作证：一堆 2 把的剑声称上限是 2，
+        // 于是永远拆不开、拿出来是一叠、用起来一起掉耐久。
+        // Damageable items stay at vanilla 1 and skip the "never below own count" floor. That floor
+        // exists for huge stacks; on tools it becomes self-justifying, so a stack of two swords claims
+        // a limit of two, never splits, and wears down together.
+        if (self.isDamageableItem()) {
+            return;
+        }
         int raised = UltraStacksConfig.limitFor(self, cir.getReturnValue());
         int count = self.getCount();
         cir.setReturnValue(Math.max(raised, count));

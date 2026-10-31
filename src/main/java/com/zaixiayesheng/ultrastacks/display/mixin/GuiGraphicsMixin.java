@@ -11,17 +11,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * 把槽位里的数量数字换成可读的形式。
- *
- * <p>计数超过 99 且没有自定义文本时接管这一处数字绘制：交给 {@link CountFormat} 决定是原样还是缩写
- * （阈值由 {@code abbreviateAbove} 控制，最大 1000，所以默认配置下 999 及以下仍画完整数字）。
- * 缩写的文本更窄，落点按两者字宽之差右移，右对齐位置保持和原版一致。
- *
- * <p>Replaces the count drawn in a slot with something readable. Above 99 and without custom text this
- * redirect takes over: {@link CountFormat} decides whether the number stays as-is or is abbreviated
- * ({@code abbreviateAbove} caps the threshold at 1000, so by default 999 and below are still drawn in
- * full). The abbreviation is narrower, so it is shifted right by the difference in text width to keep
- * vanilla's right alignment.
+ * 接管那串计数文本：99 及以下、显示关了、调用方自己带了文本，都照原样画；
+ * 超过就换缩写（1000 以上 k/m/b），左边空出来的字宽补回去，右对齐不变。
+     *
+ * Takes over the count text: fall through at 99 or below, otherwise draw the
+ * abbreviation (k/m/b above 1000) and shift right by the width difference.
  */
 @Mixin(GuiGraphics.class)
 public abstract class GuiGraphicsMixin {

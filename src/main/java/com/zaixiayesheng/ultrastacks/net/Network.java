@@ -12,7 +12,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 /**
  * 1.20.1 的简单网络通道。
      *
- * <p>The simple channel for 1.20.1. It carries a single message — the unlock-key state. The protocol
+ * <p>The simple channel for 1.20.1. Two messages: the unlock-key state and a “balance my grid” request. The protocol
  * version is pinned to "1"; bump it when the layout changes and mismatched clients get turned away.
  */
 @Mod.EventBusSubscriber(modid = UltraStacks.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -35,6 +35,11 @@ public final class Network {
                 .encoder(UnlockMessage::encode)
                 .decoder(UnlockMessage::decode)
                 .consumerMainThread(UnlockMessage::handle)
+                .add());
+        event.enqueueWork(() -> CHANNEL.messageBuilder(BalanceMessage.class, 1, NetworkDirection.PLAY_TO_SERVER)
+                .encoder(BalanceMessage::encode)
+                .decoder(BalanceMessage::decode)
+                .consumerMainThread(BalanceMessage::handle)
                 .add());
     }
 }

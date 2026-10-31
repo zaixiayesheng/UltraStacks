@@ -5,9 +5,9 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 /**
- * 目前就一个包：解锁键状态。版本号先写死 "1"，改结构再动。
+ * 两个包：解锁键状态，和“帮我摊平合成格”。版本号先写死 "1"，改结构再动。
  *
- * One payload for now — the unlock-key state. Version pinned to "1".
+ * Two payloads — the unlock key state and a “balance my grid” request. Version pinned to "1".
  */
 public final class Network {
 
@@ -18,5 +18,6 @@ public final class Network {
     public static void register(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");
         registrar.playToServer(UnlockPayload.TYPE, UnlockPayload.STREAM_CODEC, UnlockPayload::handle);
+        registrar.playToServer(BalancePayload.TYPE, BalancePayload.STREAM_CODEC, BalancePayload::handle);
     }
 }

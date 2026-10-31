@@ -23,6 +23,7 @@
     "RefinedStorageCursorHandlerMixin",
     "IronFurnacesFurnaceMixin",
     "CraftingTweaksBalanceMixin",
+    "SuperbWarfareVehicleMixin",
     "CucumberSlotLimitMixin",
     "FunctionalStorageDrawerMixin",
     "FunctionalStorageDrawerClickMixin",

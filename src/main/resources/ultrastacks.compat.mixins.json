@@ -17,6 +17,8 @@
     "RefinedStorageResourceHandlerMixin",
     "IronFurnacesFurnaceMixin",
     "CraftingTweaksBalanceMixin",
+    "SophisticatedCraftingBalanceMixin",
+    "CraftingTweaksClientBalanceMixin",
     "SuperbWarfareVehicleMixin",
     "CucumberSlotLimitMixin",
     "FastWorkbenchShiftCraftMixin",

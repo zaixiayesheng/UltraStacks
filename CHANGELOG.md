@@ -13,7 +13,7 @@
 
 ### 修复
 
-- 合成格里有超过 64 的堆叠时，客户端不再跟着逐次跑一遍，上游模组每轮扫一次配方的开销随之消失。
+- 合成格里有超过 64 的堆叠时，客户端不再跟着逐次跑一遍，挂在合成事件上的模组每轮扫一遍配方的开销也随之消失。
 - 合成结束后产物槽会被清空，不再残留一个拿不走的产物图标。
 - 剪刀、模具这类用完原样还回来的材料，不再把整批合成卡成 1 次，也不会被复制。
 - 有耐久的物品不再成叠：上限计算和整理都按原版 1 处理。
@@ -32,7 +32,7 @@
 
 ### Fixed
 
-- With stacks larger than 64 in the grid, the client no longer replays the one-craft-per-round loop, so the per-round recipe scans in other mods are gone.
+- With stacks larger than 64 in the grid, the client no longer replays the one-craft-per-round loop, so the recipe scan that other mods run on every crafting event is gone.
 - The result slot is cleared after a bulk craft instead of keeping an item you cannot take.
 - Self-returning ingredients such as shears and moulds no longer cap the batch at one craft, and they are not duplicated.
 - Damageable items no longer stack: both the limit calculation and sorting treat them as unstackable.

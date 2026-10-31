@@ -7,17 +7,8 @@ import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 
 /**
  * 在注册阶段把配置的堆叠上限写进物品的默认组件。
- *
- * <p>{@code ModifyDefaultComponentsEvent} 是注册期内唯一能改默认组件的地方：{@code max_stack_size}
- * 一旦定下，之后新建的每个 {@code ItemStack} 都从组件取值。带耐久或可损坏的物品（工具、盔甲）跳过，
- * 它们本来就不堆叠。
- *
+     *
  * <p>Writes the configured stack limit into the item default components during registration.
- *
- * <p>{@code ModifyDefaultComponentsEvent} is the only hook that can still change default
- * components at that point: once {@code max_stack_size} is fixed, every {@code ItemStack} created
- * afterwards takes its value from the components. Items with a damage value or a durability
- * component (tools, armour) are skipped because they never stack anyway.
  */
 public final class ModBusEvents {
     private ModBusEvents() {

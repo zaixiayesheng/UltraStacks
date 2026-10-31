@@ -12,11 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * 地上的掉落物按配置上限合并。
- *
- * <p>原版 {@code areMergable} 把两个数量按 int 相加：两个接近十亿的堆叠相加会溢出成负数，
- * 于是「和 ≤ 上限」成立、被误判为可以合并。这里先用 {@code long} 加一遍再比较。
- * 另一处 {@code merge} 原版固定每次搬 64 个，这里换成配置上限，一次就能合并到满。
- *
+     *
  * <p>Merges dropped stacks up to the configured limit. Vanilla {@code areMergable} adds the two
  * counts as {@code int}, so two stacks near a billion overflow into a negative number, the
  * sum-below-limit test passes, and the merge is allowed by mistake; the guard adds them as
@@ -28,8 +24,6 @@ public class ItemEntityMergeGuardMixin {
 
     /**
      * 用 {@code long} 求和来判断两个堆叠放不放得下，避免 int 溢出导致的错误合并。
-     *
-     * <p>任一方为空时交还原版：原版对空堆叠的判断没有溢出风险。
      *
      * <p>Decides whether two stacks fit together by summing them as {@code long}, avoiding the wrong
      * answer an {@code int} overflow would give. If either side is empty the hook defers to vanilla,
@@ -51,8 +45,6 @@ public class ItemEntityMergeGuardMixin {
 
     /**
      * 把 {@code merge} 里写死的 64 换成配置上限。
-     *
-     * <p>{@code require = 0}：目标方法里找不到这个常量就跳过，不让补丁影响启动。
      *
      * <p>Replaces the hard-coded 64 in {@code merge} with the configured limit. With
      * {@code require = 0} the hook is skipped if the constant is missing from the target method,

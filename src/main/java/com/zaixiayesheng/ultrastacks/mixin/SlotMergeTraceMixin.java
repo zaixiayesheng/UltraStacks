@@ -10,25 +10,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * 诊断 + 修复：原版 {@code AbstractContainerMenu.doClick} 的点击合并链。
- *
- * <p>两件事：</p>
- * <ol>
- *   <li><b>判定取证</b>：redirect 合并判定 {@code isSameItemSameComponents}，把结果
- *       （通过/拒绝）连同两栈数量与组件写进诊断日志。用户报「点一下两堆交换位置」时，
- *       只要这里打印 {@code verdict=false}，就说明组件判定拒绝合并；打印 {@code true}
- *       却仍然不动，则问题在合并量。</li>
- *   <li><b>合并量修复</b>：原版把「一次能合并多少」写死成 {@code 槽内栈的当前数量}
- *       （{@code amount = slotStack.getCount()}）再交给 {@code Slot.safeInsert}。
- *       64 上限时代两堆各 32 恰好够用；上限抬到 65536 后，手里 10944、槽里 7744 时
- *       一次只会并进 7744，看起来就是「堆不起来」。这里把该调用换成
- *       {@code Integer.MAX_VALUE}，让 {@code safeInsert} 一次合并到真正的槽上限。</li>
- * </ol>
- *
- * <p>Two jobs: (1) redirect the merge verdict {@code isSameItemSameComponents} and record
- * whether the two stacks are considered identical, so a rejected merge is visible in the
- * diagnostic log; (2) redirect {@code Slot.safeInsert} so a single click merges the whole
- * stack up to the real slot limit instead of being capped at the slot's current count.</p>
+ * 点击一次能并进去多少。
+ * 原版拿“槽里现在有多少”当合并上限，64 时代够用，抬到 65536 就只并那么一点点。
+ * 现在左键点在已经有东西的格子上，按整堆并；诊断只在判定拒绝的时候打一行。
+     *
+ * How much a single click merges. Vanilla caps it at the slot's current count — fine at 64, useless
+ * at 65536. Left-clicking a slot that already holds the item now merges the whole stack.
  */
 @Mixin(AbstractContainerMenu.class)
 public abstract class SlotMergeTraceMixin {

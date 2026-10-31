@@ -9,15 +9,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * AE2 的菜单槽位 {@code AppEngSlot} 自己算上限，不经过原版 {@code Slot}，所以原版那层注入管不到它。
- *
- * <p>无参与带物品两个重载都在 {@code RETURN} 处只把 64 与 99 换成 {@link UltraStacksConfig#ae2SlotLimit(int)}；带物品的重载也只看返回值，不按具体物品判断。
- *
+     *
  * <p>AE2's menu slot {@code AppEngSlot} computes its own limit instead of going through vanilla
  * {@code Slot}, so the hook on the vanilla layer never reaches it.
- *
- * <p>Both overloads, with and without an {@code ItemStack}, replace only 64 and 99 at {@code RETURN}
- * with {@link UltraStacksConfig#ae2SlotLimit(int)}; the stack-aware overload also works from the
- * returned value alone and does not inspect the item.
  */
 @Mixin(targets = "appeng.menu.slot.AppEngSlot", remap = false)
 public abstract class Ae2SlotMixin {

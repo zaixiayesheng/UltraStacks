@@ -11,13 +11,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * 沉浸工程的机器界面把内部库存包进这个容器，单格上限由无参的 {@code getMaxStackSize} 决定，不经过原版 {@code Slot}。
- *
- * <p>只把 64 与 99 换成 {@link UltraStacksConfig#ieSlotLimit(int)}，其它值保持。
- *
+     *
  * <p>Immersive Engineering wraps a machine's inventory in this container for its GUI, and the per-slot
  * limit comes from the no-argument {@code getMaxStackSize} instead of vanilla {@code Slot}.
- *
- * <p>Only 64 and 99 become {@link UltraStacksConfig#ieSlotLimit(int)}; every other value is kept.
  */
 
 @Mixin(targets = "blusunrize.immersiveengineering.common.gui.BlockEntityInventory", remap = false)

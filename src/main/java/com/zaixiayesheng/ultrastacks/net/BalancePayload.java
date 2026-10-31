@@ -1,5 +1,6 @@
 package com.zaixiayesheng.ultrastacks.net;
 
+import com.zaixiayesheng.ultrastacks.DiagLog;
 import com.zaixiayesheng.ultrastacks.UltraStacks;
 import com.zaixiayesheng.ultrastacks.crafting.GridBalance;
 import net.minecraft.resources.ResourceLocation;
@@ -38,6 +39,7 @@ public record BalancePayload() implements CustomPacketPayload {
             if (!(context.player() instanceof ServerPlayer player)) {
                 return;
             }
+            DiagLog.line("[diag] balance request: " + player.getName().getString());
             if (ModList.get().isLoaded("craftingtweaks")) {
                 // 它自己的 BalanceMessage 会把活干了，别再算一遍。
                 return;
@@ -45,6 +47,7 @@ public record BalancePayload() implements CustomPacketPayload {
             AbstractContainerMenu menu = player.containerMenu;
             GridBalance.Result result = GridBalance.balanceMenu(menu);
             if (result == null) {
+                DiagLog.line("[diag] balance skipped: no crafting grid in " + menu.getClass().getSimpleName());
                 return;
             }
             menu.broadcastChanges();

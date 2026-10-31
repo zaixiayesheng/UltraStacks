@@ -4,23 +4,21 @@
 
 **模块**：超级堆叠
 
-**摘要**：补掉上一版留下的两处毛病，其中一处只在联机时才露头。
+**摘要**：上一版留下的一个毛病，修好了。
 
 ### 修复
 
-- 均分：服务器没装合成辅助时，改由本模组在服务端把结果算实，不会再被下一次同步冲回去。
-- 卓越前线：载具的弹药格不再死卡 64，一大摞可以一次放进去。
+- 均分：服务器没装合成辅助时，按钮照样管用，结果不会被下一次同步冲掉。
 
 **English**
 
 **Modules**: UltraStacks
 
-**Summary**: Two leftovers from the previous release, one of which only shows up online.
+**Summary**: One leftover from the last release.
 
 ### Fixed
 
-- Balance: on servers without CraftingTweaks the pass now runs server-side, so the result survives the next sync.
-- Superb Warfare: vehicle ammo slots no longer cap at 64, so a full stack goes in at once.
+- Balance: on servers without CraftingTweaks the button now sticks, instead of being overwritten by the next sync.
 
 ## v26.1-1.0.3 — Minecraft 26.1.2 / NeoForge 26.1.2
 

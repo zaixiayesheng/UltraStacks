@@ -20,6 +20,11 @@ public final class TickWatchdog {
 
     private static volatile long clientBeat = System.nanoTime();
 
+    /** 这一侧到底有没有 tick（专用服务端没有渲染线程，联机客户端没有服务端线程）。 */
+    private static volatile boolean serverSeen;
+
+    private static volatile boolean clientSeen;
+
     private static volatile boolean started;
 
     private TickWatchdog() {
@@ -28,11 +33,13 @@ public final class TickWatchdog {
     /** 服务端每 tick 调一次。 */
     public static void serverTick() {
         serverBeat = System.nanoTime();
+        serverSeen = true;
     }
 
     /** 客户端每帧调一次。 */
     public static void clientTick() {
         clientBeat = System.nanoTime();
+        clientSeen = true;
     }
 
     /** 起守护线程，重复调也只起一次。 */
@@ -61,6 +68,10 @@ public final class TickWatchdog {
 
     /** 看一边的心跳，停了就抄栈。 */
     private static void check(String threadName, boolean server) {
+        // 这一侧压根没有 tick（专用服务端没渲染线程、联机客户端没服务端线程），别乱报。
+        if (server ? !serverSeen : !clientSeen) {
+            return;
+        }
         long beat = server ? serverBeat : clientBeat;
         long idle = System.nanoTime() - beat;
         if (idle < STALL_NANOS) {

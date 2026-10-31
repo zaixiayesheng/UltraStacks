@@ -33,6 +33,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
     private static final String FAST_WORKBENCH = "fastbench";
     private static final String IMMERSIVE_ENGINEERING = "immersiveengineering";
     private static final String CRAFTING_TWEAKS = "craftingtweaks";
+    private static final String SUPERB_WARFARE = "superbwarfare";
 
     @Override
     public void onLoad(String mixinPackage) {
@@ -70,8 +71,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
     public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
     }
 
-    /** 这个 mixin 要哪些模组：装任意一个就应用，null 表示不设门槛。
-    /** 这个 mixin 要哪些模组在场。 */
+    /** 这个 mixin 要哪些模组在场：装任意一个就应用，null 表示不设门槛。 */
     private static String[] modIdsFor(String mixinClassName) {
         String simpleName = mixinClassName.substring(mixinClassName.lastIndexOf('.') + 1);
         if (simpleName.startsWith("SophisticatedInventoryInteractions")) {
@@ -103,6 +103,9 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
         }
         if (simpleName.startsWith("FastWorkbench")) {
             return new String[] { FAST_WORKBENCH };
+        }
+        if (simpleName.startsWith("SuperbWarfare")) {
+            return new String[] { SUPERB_WARFARE };
         }
         if (simpleName.startsWith("CraftingTweaks")) {
             return new String[] { CRAFTING_TWEAKS };

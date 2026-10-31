@@ -18,14 +18,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 合成辅助的均分，大堆的时候我们接手。
+ * 合成辅助的均分（balance 和 spread 两个按钮都算），大堆的时候我们接手。
  * 它补余数是一格一个地长，还要问“这堆自己的上限”，格子里几万个就能磨半天。
  * 超过 64 的堆我们自己算一遍，一次分完；小堆照旧交给它。
  * 算完再给服务端递一句话——那边没装合成辅助的话，它自己的包会被丢掉，得我们来补。
  *
- * <p>Takes over CraftingTweaks' balance pass once a stack is bigger than 64. Its remainder loop
- * grows one item at a time against each stack's own limit, which crawls on big grids. Afterwards
- * we also ping the server: if it doesn't have CraftingTweaks, its own packet never lands.
+ * <p>Takes over both of CraftingTweaks' split buttons once a stack is bigger than 64. Their
+ * remainder loop grows one item at a time against each stack's own limit, which crawls on big
+ * grids. Afterwards we also ping the server: if it doesn't ship CraftingTweaks, its own packet
+ * never lands and the result gets overwritten by the next sync.
  */
 @Mixin(targets = "net.blay09.mods.craftingtweaks.api.impl.DefaultGridBalanceHandler", remap = false)
 public abstract class CraftingTweaksBalanceMixin {
@@ -36,14 +37,29 @@ public abstract class CraftingTweaksBalanceMixin {
     @Inject(method = "balanceGrid(Lnet/blay09/mods/craftingtweaks/api/CraftingGrid;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/inventory/AbstractContainerMenu;)V",
             at = @At("HEAD"), cancellable = true, require = 0)
     private void ultrastacks$balanceBigStacks(CraftingGrid grid, Player player, AbstractContainerMenu menu, CallbackInfo ci) {
+        ultrastacks$handle("balance", grid, player, menu, ci);
+    }
+
+    @Inject(method = "spreadGrid(Lnet/blay09/mods/craftingtweaks/api/CraftingGrid;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/inventory/AbstractContainerMenu;)V",
+            at = @At("HEAD"), cancellable = true, require = 0)
+    private void ultrastacks$spreadBigStacks(CraftingGrid grid, Player player, AbstractContainerMenu menu, CallbackInfo ci) {
+        ultrastacks$handle("spread", grid, player, menu, ci);
+    }
+
+    private void ultrastacks$handle(String kind, CraftingGrid grid, Player player, AbstractContainerMenu menu, CallbackInfo ci) {
         try {
+            // 先无条件记一笔：只要按钮真的点到，这条就会出现。
+            DiagLog.line("[diag] ct " + kind + " enter: menu=" + menu.getClass().getSimpleName()
+                    + " side=" + (player.level().isClientSide() ? "client" : "server"));
             Container matrix = grid.getCraftingMatrix(player, menu);
             if (matrix == null) {
+                DiagLog.lineThrottled(kind + "-null", "[diag] ct " + kind + " skip: no matrix");
                 return;
             }
             int start = grid.getGridStartSlot(player, menu);
             int size = grid.getGridSize(player, menu);
             if (size <= 0 || start < 0) {
+                DiagLog.lineThrottled(kind + "-size", "[diag] ct " + kind + " skip: size=" + size + " start=" + start);
                 return;
             }
 
@@ -56,23 +72,26 @@ public abstract class CraftingTweaksBalanceMixin {
                 }
                 int containerSlot = menu.getSlot(menuSlot).getContainerSlot();
                 ItemStack stack = matrix.getItem(containerSlot);
-                if (stack.isEmpty() || stack.getMaxStackSize() <= 1) {
-                    continue;
+                if (!stack.isEmpty() && stack.getMaxStackSize() > 1) {
+                    if (stack.getCount() > VANILLA_STACK_SIZE) {
+                        bigStackSeen = true;
+                    }
+                    gridSlots.add(containerSlot);
+                } else if (stack.isEmpty()) {
+                    // 空格也留一个位置，平铺要用。
+                    gridSlots.add(containerSlot);
                 }
-                if (stack.getCount() > VANILLA_STACK_SIZE) {
-                    bigStackSeen = true;
-                }
-                gridSlots.add(containerSlot);
             }
             if (!bigStackSeen) {
+                DiagLog.lineThrottled(kind + "-small", "[diag] ct " + kind + " skip: no stack over 64");
                 return;
             }
 
             long t0 = System.nanoTime();
-            GridBalance.Result result = GridBalance.balance(matrix, gridSlots);
+            GridBalance.Result result = GridBalance.balance(matrix, gridSlots, "spread".equals(kind));
             menu.broadcastChanges();
             double ms = (System.nanoTime() - t0) / 1_000_000.0;
-            String line = String.format("ct balance: %d slots, %d items, %.2f ms", result.slots(), result.items(), ms);
+            String line = String.format("ct %s: %d slots, %d items, %.2f ms", kind, result.slots(), result.items(), ms);
             UltraStacks.LOGGER.info("[diag] {}", line);
             DiagLog.line("[diag] " + line);
             // 客户端摊完还要告诉服务端一声，否则没装合成辅助的服务器会把结果冲回去。
@@ -82,7 +101,7 @@ public abstract class CraftingTweaksBalanceMixin {
             ci.cancel();
         } catch (Throwable failure) {
             // 出问题就把这次操作还给合成辅助自己，别把玩家的合成格卡住。
-            UltraStacks.LOGGER.warn("[diag] ct balance failed, letting CraftingTweaks handle it", failure);
+            UltraStacks.LOGGER.warn("[diag] ct {} failed, letting CraftingTweaks handle it", kind, failure);
         }
     }
 }

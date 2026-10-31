@@ -28,6 +28,13 @@ public abstract class SlotClickTraceMixin {
 
     private static final int CLICK_TRACE_CAP = 200;
 
+    /** 一秒里点同一个槽超过这个次数，多半是别的模组在循环点击，抓一次调用栈。 */
+    private static final int CLICK_STORM_THRESHOLD = 40;
+
+    private static volatile long stormSecond;
+    private static volatile int stormCount;
+    private static volatile boolean stormReported;
+
     @Inject(method = "clicked(IILnet/minecraft/world/inventory/ClickType;"
             + "Lnet/minecraft/world/entity/player/Player;)V", at = @At("HEAD"), require = 0)
     private void ultrastacks$traceSlotClick(int slotId, int button, ClickType clickType,
@@ -38,6 +45,7 @@ public abstract class SlotClickTraceMixin {
             return;
         }
         Slot slot = slots.get(slotId);
+        ultrastacks$watchClickStorm(slotId, clickType);
         ItemStack carried = self.getCarried();
         ItemStack slotStack = slot.getItem();
         // 只关心双方都有物品的点击（合并/交换场景）。
@@ -68,5 +76,35 @@ public abstract class SlotClickTraceMixin {
                 + " carriedMax=" + carriedMax + " slotMax=" + slotMax;
         UltraStacks.LOGGER.warn(line);
         com.zaixiayesheng.ultrastacks.DiagLog.line(line);
+    }
+
+    /** 点击风暴侦测：同一秒同一槽被点太多次，就把调用栈抄一份，看看是谁在点。 */
+    private static synchronized void ultrastacks$watchClickStorm(int slotId, ClickType clickType) {
+        long now = System.currentTimeMillis() / 1000L;
+        if (now != stormSecond) {
+            stormSecond = now;
+            stormCount = 0;
+            stormReported = false;
+        }
+        if (++stormCount < CLICK_STORM_THRESHOLD || stormReported) {
+            return;
+        }
+        stormReported = true;
+        StringBuilder sb = new StringBuilder("[diag] click storm: slot=" + slotId + " type=" + clickType);
+        StackTraceElement[] frames = Thread.currentThread().getStackTrace();
+        int shown = 0;
+        for (StackTraceElement frame : frames) {
+            String cls = frame.getClassName();
+            if (cls.startsWith("java.") || cls.startsWith("com.zaixiayesheng.")
+                    || cls.startsWith("org.spongepowered.")) {
+                continue;
+            }
+            sb.append(" | ").append(cls).append('.').append(frame.getMethodName()).append(':').append(frame.getLineNumber());
+            if (++shown >= 6) {
+                break;
+            }
+        }
+        UltraStacks.LOGGER.warn(sb.toString());
+        com.zaixiayesheng.ultrastacks.DiagLog.line(sb.toString());
     }
 }

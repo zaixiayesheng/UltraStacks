@@ -21,6 +21,10 @@ public final class DiagLog {
     private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
     private static final AtomicBoolean INIT = new AtomicBoolean(false);
     private static final java.util.Set<String> SEEN = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    private static final int BUDGET_PER_SECOND = 300;
+    private static long windowStart = System.currentTimeMillis();
+    private static int writtenInWindow;
+    private static boolean throttleNoticeSent;
     private static FileWriter writer;
 
     private DiagLog() {
@@ -53,6 +57,20 @@ public final class DiagLog {
         init();
         if (writer == null) {
             return;
+        }
+        // 一秒之内写太多会把主线程卡在磁盘上，超了就先丢掉，只留一句提示。
+        long now = System.currentTimeMillis();
+        if (now - windowStart >= 1000L) {
+            windowStart = now;
+            writtenInWindow = 0;
+            throttleNoticeSent = false;
+        }
+        if (++writtenInWindow > BUDGET_PER_SECOND) {
+            if (throttleNoticeSent) {
+                return;
+            }
+            throttleNoticeSent = true;
+            message = "[diag] diag log throttled: more than " + BUDGET_PER_SECOND + " lines this second";
         }
         try {
             writer.write("[" + LocalTime.now().format(TIME) + "] " + message + System.lineSeparator());

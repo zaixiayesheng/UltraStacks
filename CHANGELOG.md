@@ -1,3 +1,25 @@
+## v20.1-1.0.3-hotfix — Minecraft 1.20.1
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：补掉上一版留下的三处毛病，其中两处只有在联机或特定模组下才露头。
+
+### 修复
+
+- 均分：服务器没装合成辅助时，改由本模组在服务端把结果算实，不会再被下一次同步冲回去。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: Three leftovers from the previous release, two of which only show up online.
+
+### Fixed
+
+- Balance: on servers without CraftingTweaks the pass now runs server-side, so the result survives the next sync.
+
 ## v20.1-1.0.3 — Minecraft 1.20.1 / Forge 47.4
 
 **中文**
@@ -38,29 +60,6 @@
 - Damageable items no longer stack: both the limit calculation and sorting treat them as unstackable.
 - CraftingTweaks' balance button now computes the split in one pass for big stacks, so a single click finishes it instead of probing slot after slot.
 
-## v20.1-1.0.3-hotfix — Minecraft %MC%
-
-**中文**
-
-**模块**：超级堆叠
-
-**摘要**：补掉上一版留下的三处毛病，其中两处只有在联机或特定模组下才露头。
-
-### 修复
-
-- 均分：服务器没装合成辅助时，改由本模组在服务端把结果算实，不会再被下一次同步冲回去。
-- 看门狗：不再对自己不存在的那一端报假卡顿。
-
-**English**
-
-**Modules**: UltraStacks
-
-**Summary**: Three leftovers from the previous release, two of which only show up online.
-
-### Fixed
-
-- Balance: on servers without CraftingTweaks the pass now runs server-side, so the result survives the next sync.
-- Watchdog: stopped reporting phantom stalls for the side that isn't running.
 ## v20.1-1.0.2-hotfix — Minecraft 1.20.1 / Forge 47.4
 
 **中文**

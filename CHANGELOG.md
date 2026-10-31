@@ -4,21 +4,21 @@
 
 **模块**：超级堆叠
 
-**摘要**：补掉上一版留下的一处毛病，只在联机时才露头。
+**摘要**：上一版留下的一个毛病，修好了。
 
 ### 修复
 
-- 均分：服务器没装合成辅助时，改由本模组在服务端把结果算实，不会再被下一次同步冲回去。
+- 均分：服务器没装合成辅助时，按钮照样管用，结果不会被下一次同步冲掉。
 
 **English**
 
 **Modules**: UltraStacks
 
-**Summary**: One leftover from the previous release, which only shows up online.
+**Summary**: One leftover from the last release.
 
 ### Fixed
 
-- Balance: on servers without CraftingTweaks the pass now runs server-side, so the result survives the next sync.
+- Balance: on servers without CraftingTweaks the button now sticks, instead of being overwritten by the next sync.
 
 ## v20.1-1.0.3 — Minecraft 1.20.1 / Forge 47.4
 

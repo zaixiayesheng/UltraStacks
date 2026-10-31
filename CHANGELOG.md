@@ -1,3 +1,35 @@
+
+
+## v21.1-1.0.3-hotfix1 — Minecraft 1.21.1
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：均分和平铺改由本模组自己算，联机时不用再一格一格地模拟点击。
+
+### 修复
+
+- 均分 / 平铺：合成格里出现大堆时，客户端直接把结果算好写回去，不再逐个模拟点击，联机的手感和单机一样。
+- 平铺：只有按平铺时才会把空格算成目标格；均分只摊开本来就放着同类物品的那几格。
+- 余数：一格一格地分，撞到单格上限就留在第一格 —— 宁可一格冒尖，也不会少东西。
+- 精妙存储 / 背包的合成升级用的是同一套算法，那边点均分同样不再发磨。
+- 服务器没装合成辅助时，改由本模组在服务端把结果算实，不会再被下一次同步冲回原样。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: Balance and spread are computed by the mod itself, so online play no longer replays clicks one slot at a time.
+
+### Fixed
+
+- Balance / spread: with big stacks the client writes the finished layout straight back instead of replaying clicks, so online feels like single-player.
+- Spread only pulls the empty slots in when you press spread; balancing just spreads the stacks that are already there.
+- The remainder is handed out slot by slot and stays in the first slot when nothing fits - a slot may overflow before an item goes missing.
+- The crafting upgrade in Sophisticated Storage runs the same routine, so its button is just as smooth.
+- On servers without CraftingTweaks our own packet computes the result server-side, so the next sync cannot undo it.
+
 ## v21.1-1.0.3-hotfix — Minecraft 1.21.1
 
 **中文**
@@ -22,34 +54,6 @@
 - Balance: on servers without CraftingTweaks the button now sticks, instead of being overwritten by the next sync.
 - Superb Warfare: vehicle ammo slots no longer cap at 64, so a whole stack goes in at once.
 
-## v21.1-1.0.3-hotfix1 — Minecraft 1.21.1
-
-**中文**
-
-**模块**：超级堆叠
-
-**摘要**：把均分和平铺换成本模组自己算，联机也不用再一格一格地模拟点击。
-
-### 修复
-
-- 均分 / 平铺：合成格里有大堆时，客户端直接算好写回，不再逐个模拟点击，联机手感跟单机一致。
-- 平铺：空格只在你按的是平铺时才算目标格；均分只动原本就有同类物品的格子。
-- 余数：一格一个地发，撞上限就留在第一格，绝不会少物品。
-- 精妙存储 / 背包的合成升级用的是同一套算法，那边点均分也不会再磨。
-- 服务器没装合成辅助时，由本模组在服务端把结果算实，不会被下一次同步冲回去。
-**English**
-
-**Modules**: UltraStacks
-
-**Summary**: Balance and spread are now computed by this mod, so online play no longer replays clicks one by one.
-
-### Fixed
-
-- Balance / spread: with big stacks the client writes the finished layout instead of replaying clicks.
-- Spread: empty slots only take part when spreading; balancing leaves them untouched.
-- Remainder: handed out slot by slot and kept in the first slot if nothing fits - nothing is ever lost.
-- The crafting upgrade in Sophisticated Storage uses the same routine, so its button is fast too.
-- On servers without CraftingTweaks the pass runs server-side, so the result survives the next sync.
 ## v21.1-1.0.3 — Minecraft 1.21.1 / NeoForge 21.1
 
 **中文**

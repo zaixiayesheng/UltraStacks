@@ -1,3 +1,27 @@
+## v21.1-1.0.3-hotfix — Minecraft 1.21.1
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：补掉上一版留下的三处毛病，其中两处只有在联机或特定模组下才露头。
+
+### 修复
+
+- 均分：服务器没装合成辅助时，改由本模组在服务端把结果算实，不会再被下一次同步冲回去。
+- 卓越前线：载具的弹药格不再死卡 64，一大摞可以一次放进去。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: Three leftovers from the previous release, two of which only show up online.
+
+### Fixed
+
+- Balance: on servers without CraftingTweaks the pass now runs server-side, so the result survives the next sync.
+- Superb Warfare: vehicle ammo slots no longer cap at 64, so a full stack goes in at once.
+
 ## v21.1-1.0.3 — Minecraft 1.21.1 / NeoForge 21.1
 
 **中文**
@@ -41,31 +65,6 @@
 - Drawer virtual slots keep their sentinel value instead of being squashed into a normal number by the capacity calculation.
 - The drawer's virtual slot keeps its sentinel value instead of being clamped to a plain number.
 
-## v21.1-1.0.3-hotfix — Minecraft %MC%
-
-**中文**
-
-**模块**：超级堆叠
-
-**摘要**：补掉上一版留下的三处毛病，其中两处只有在联机或特定模组下才露头。
-
-### 修复
-
-- 均分：服务器没装合成辅助时，改由本模组在服务端把结果算实，不会再被下一次同步冲回去。
-- 卓越前线：载具的弹药格不再死卡 64，一大摞可以一次放进去。
-- 看门狗：不再对自己不存在的那一端报假卡顿。
-
-**English**
-
-**Modules**: UltraStacks
-
-**Summary**: Three leftovers from the previous release, two of which only show up online.
-
-### Fixed
-
-- Balance: on servers without CraftingTweaks the pass now runs server-side, so the result survives the next sync.
-- Superb Warfare: vehicle ammo slots no longer cap at 64, so a full stack goes in at once.
-- Watchdog: stopped reporting phantom stalls for the side that isn't running.
 ## v21.1-1.0.2-hotfix — Minecraft 1.21.1 / NeoForge 21.1
 
 **中文**

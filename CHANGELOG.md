@@ -4,7 +4,7 @@
 
 **模块**：超级堆叠
 
-**摘要**：补掉上一版留下的三处毛病，其中两处只有在联机或特定模组下才露头。
+**摘要**：补掉上一版留下的两处毛病，其中一处只在联机时才露头。
 
 ### 修复
 
@@ -15,7 +15,7 @@
 
 **Modules**: UltraStacks
 
-**Summary**: Three leftovers from the previous release, two of which only show up online.
+**Summary**: Two leftovers from the previous release, one of which only shows up online.
 
 ### Fixed
 

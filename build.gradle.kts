@@ -4,7 +4,7 @@ plugins {
 }
 
 val modId = "ultrastacks"
-val modVersion = "21.1-1.0.2-hotfix"
+val modVersion = "21.1-1.0.3"
 val mcVersion = "1.21.1"
 val neoVersion = "21.1.251"
 val parchmentMappings = "2024.11.17"

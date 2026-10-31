@@ -1,6 +1,7 @@
 package com.zaixiayesheng.ultrastacks.crafting;
 
 import com.zaixiayesheng.ultrastacks.UltraStacks;
+import com.zaixiayesheng.ultrastacks.DiagLog;
 import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
 import java.util.Optional;
 import net.minecraft.core.NonNullList;
@@ -20,23 +21,11 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 
 /**
- * 合成模块：一次 Shift 点击把整批材料一次合完。
- *
- * <p>原版用 {@code while} 循环反复调用 {@code quickMoveStack}，每一轮重新匹配配方、扣一套料、塞一次
- * 产物。材料堆到 65536 时就是一个 tick 里跑 65536 轮配方匹配加扣料，tick 时间被拖到肉眼可见。这里先算
- * 出「材料够合几次」与「背包还放得下几次」的较小值，一次性扣料，再把产物按单堆上限拆块插入，塞不进去
- * 的部分直接掉给玩家，最后补上合成统计与容器变更通知。
- *
- * <p>The crafting module: finishes an entire batch of crafts from a single shift-click.
- *
- * <p>Vanilla keeps calling {@code quickMoveStack} from a {@code while} loop, and every round matches the
- * recipe again, consumes one set of ingredients and pushes out one result. With ingredients stacked to
- * 65536 that is 65536 rounds of recipe matching and consumption inside a single tick, which stretches
- * tick time to something you can see. This implementation first works out the smaller of "how many
- * crafts the ingredients allow" and "how many crafts the inventory can still hold", consumes the
- * ingredients once, splits the output into per-stack-sized chunks when inserting it, hands whatever does
- * not fit straight to the player, and finally reports the crafted stats and notifies the container of the
- * change.
+ * 一次 Shift 点击把整批合完。
+ * 原版一次只合一个，65536 个材料就得在一 tick 里跑 65536 轮，谁也扛不住。
+     *
+ * Finishes the whole batch in one shift-click. Vanilla does one craft per pass, which would mean
+ * 65536 passes inside a single tick for a 65536 stack.
  */
 public final class BulkCrafting {
 
@@ -48,21 +37,9 @@ public final class BulkCrafting {
     }
 
     /**
-     * 尝试把结果槽后面的整批材料合成完。
+     * 把产物槽后面这批一次合完：材料够几次、背包放得下几次，取小的。
      *
-     * <p>只在服务端执行；配方匹配失败、格子为空或算出的次数为 0 时返回 false，让原版逻辑接手这一下点击。
-     * 合成剩余物（例如桶、空瓶）会先按次数补齐后放回原格，放不下的进背包或掉在地上。
-     *
-     * <p>Tries to finish the whole batch behind the result slot.
-     *
-     * <p>This only runs on the server side. It returns false when no recipe matches, when the grid is
-     * empty, or when the computed craft count is zero, so that vanilla handles this click. Crafting
-     * remainders such as buckets and empty bottles are multiplied by the craft count, put back into their
-     * grid slots first, and go to the inventory or the ground when they do not fit.
-     *
-     * @return true 表示这批已处理完（调用方应返回空堆叠，原版循环随之结束），false 表示交给原版处理 /
-     *     true when the batch was handled (the caller returns an empty stack and the vanilla loop
-     *     stops), false when vanilla should handle this click
+     * Crafts as much as both the materials and the inventory allow, whichever is smaller.
      */
     public static boolean tryCraftAll(AbstractCraftingMenu menu, Player player, int inventoryStart, int inventoryEnd) {
         if (!enabled()) {
@@ -103,12 +80,25 @@ public final class BulkCrafting {
             }
         });
 
+        // 有些配方某一格是「催化剂」：合一次拿走一份，收尾又把同一件东西原样还回来（剪刀、工具、模具之类）。
+        // 这种格子不消耗材料、也不该限制合成次数，按老算法它只有 1 个就永远只能合一次；
+        // 同时它也不能被扣数量，否则还回来的时候会凭空多一堆。
+        // Some recipes keep an ingredient: it is taken once per craft and handed straight back by
+        // getRemainingItems (scissors, tools, moulds). Such a slot neither limits the batch nor loses
+        // count — otherwise the recipe would only ever craft once and the returned stack would duplicate.
+        boolean[] selfReturning = new boolean[craftSlots.getContainerSize()];
         int limitedByInput = Integer.MAX_VALUE;
         for (int i = 0; i < craftSlots.getContainerSize(); i++) {
             ItemStack stack = craftSlots.getItem(i);
-            if (!stack.isEmpty()) {
-                limitedByInput = Math.min(limitedByInput, stack.getCount());
+            if (stack.isEmpty()) {
+                continue;
             }
+            ItemStack returned = i < remainingItems.size() ? remainingItems.get(i) : ItemStack.EMPTY;
+            if (!returned.isEmpty() && ItemStack.isSameItemSameComponents(returned, stack)) {
+                selfReturning[i] = true;
+                continue;
+            }
+            limitedByInput = Math.min(limitedByInput, stack.getCount());
         }
         if (limitedByInput == Integer.MAX_VALUE) {
             return false;
@@ -117,19 +107,31 @@ public final class BulkCrafting {
         int perCraft = Math.max(1, result.getCount());
         long freeSpace = countFreeSpace(menu, result, inventoryStart, inventoryEnd);
         int crafts = CraftingMath.capBySpace(limitedByInput, freeSpace, perCraft);
+        // 保险：没按住解锁键就只合配置里的次数，免得手快把几十万材料一把清空。
+        boolean unlocked = UnlockState.isUnlocked(player);
+        int cap = UltraStacksConfig.bulkCraftLimit();
+        long planned = (long) crafts * perCraft;
+        if (UltraStacksConfig.bulkCraftUnlockKey() && !unlocked && planned > cap) {
+            crafts = Math.max(1, cap / perCraft);
+        }
+        DiagLog.line("[diag] bulk craft: " + result.getItem().getDescriptionId() + " input=" + limitedByInput
+                + " freeSpace=" + freeSpace + " perCraft=" + perCraft + " crafts=" + crafts
+                + " items=" + ((long) crafts * perCraft) + " cap=" + cap + " unlocked=" + unlocked);
         if (crafts <= 0) {
             return false;
         }
 
+        long t0 = System.nanoTime();
         for (int i = 0; i < craftSlots.getContainerSize(); i++) {
-            if (!craftSlots.getItem(i).isEmpty()) {
+            if (!selfReturning[i] && !craftSlots.getItem(i).isEmpty()) {
                 craftSlots.removeItem(i, crafts);
             }
         }
+        long t1 = System.nanoTime();
 
         for (int i = 0; i < remainingItems.size() && i < craftSlots.getContainerSize(); i++) {
             ItemStack rem = remainingItems.get(i);
-            if (rem.isEmpty()) {
+            if (rem.isEmpty() || selfReturning[i]) {
                 continue;
             }
             long totalGave = (long) rem.getCount() * crafts;
@@ -157,6 +159,7 @@ public final class BulkCrafting {
             }
         }
 
+        long t2 = System.nanoTime();
         long remainingOutput = (long) crafts * perCraft;
         long produced = remainingOutput;
         while (remainingOutput > 0) {
@@ -171,11 +174,58 @@ public final class BulkCrafting {
             remainingOutput -= chunk;
         }
 
+        long t3 = System.nanoTime();
         int producedInt = (int) Math.min(produced, Integer.MAX_VALUE);
         result.onCraftedBy(player, producedInt);
         player.awardStat(Stats.ITEM_CRAFTED.get(result.getItem()), crafts);
+        long t4 = System.nanoTime();
+        // 先清产物槽再让菜单重算：格子空了就该是空的，没空的话 slotsChanged 会把产物填回来。
+        // 少了这步客户端会留着上一次的图标——看着能拿，点下去服务端已经是空的。
+        // Clear the result slot before the menu recomputes: an empty grid must read as empty, a grid
+        // with leftovers gets its result filled back. Without this the client keeps a stale icon that
+        // looks takeable while the server has nothing.
+        resultSlot.set(ItemStack.EMPTY);
         menu.slotsChanged(craftSlots);
+        long t5 = System.nanoTime();
+        DiagLog.line("[diag] bulk craft done: crafts=" + crafts + " ms consume=" + ms(t0, t1)
+                + " remain=" + ms(t1, t2) + " insert=" + ms(t2, t3) + " book=" + ms(t3, t4)
+                + " sync=" + ms(t4, t5));
         return true;
+    }
+
+    private static String ms(long from, long to) {
+        return String.format(java.util.Locale.ROOT, "%.1f", (to - from) / 1_000_000.0);
+    }
+
+    /**
+     * 合成格里是不是有超过原版一摞（64）的堆。
+     *
+     * <p>Whether the grid holds anything bigger than a vanilla stack. The client uses it to decide
+     * whether a local pass is worth it: with huge stacks the one-craft-per-round loop runs tens of
+     * thousands of times, each firing a crafting event that other mods answer with a recipe scan —
+     * that is exactly where the client freezes.
+     */
+    /**
+     * 同上，但按槽位列表判断 —— 26.1 的 {@code AbstractCraftingMenu} 只暴露 {@code getInputGridSlots()}。
+     *
+     * <p>Same check, driven by the slot list: on 26.1 the menu only exposes {@code getInputGridSlots()}.
+     */
+    public static boolean hasOversizedInputs(Iterable<net.minecraft.world.inventory.Slot> slots) {
+        for (net.minecraft.world.inventory.Slot slot : slots) {
+            if (slot.getItem().getCount() > 64) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean hasOversizedStacks(Container grid) {
+        for (int i = 0; i < grid.getContainerSize(); i++) {
+            if (grid.getItem(i).getCount() > 64) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static long countFreeSpace(AbstractContainerMenu menu, ItemStack result, int start, int end) {

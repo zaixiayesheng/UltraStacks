@@ -11,11 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 诊断用的日志，单独写一个文件。
- *
- * <p>Minecraft 那两个 latest.log / debug.log 是 log4j 兜着的，客户端不退出，文件里基本还是空的。
- * 真出了问题想当场看一眼，什么都没有——总不能让人先退游戏吧。所以就往
- * {@code config/ultrastacks-diag.log} 里直接写，写完就 flush，开着游戏也能读。</p>
- *
+     *
  * <p>Minecraft's own logs sit behind log4j buffering and stay empty until the client exits, which
  * is useless when you need to look right now. This writes to {@code config/ultrastacks-diag.log}
  * and flushes every line.</p>

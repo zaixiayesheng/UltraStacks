@@ -11,27 +11,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 接管工作台（3x3）产物槽的 Shift 点击，把「每轮合成一次」的循环换成一次合完整批。
+ * 工作台的批量合成入口。客户端碰上大堆就撤，别跟着服务端空跑。
  *
- * <p>注入点在 {@code CraftingMenu#quickMoveStack} 的头部：索引 0 是产物槽，玩家 Shift 点击它时先让
- * {@link com.zaixiayesheng.ultrastacks.crafting.BulkCrafting#tryCraftAll} 尝试整批合成，成功就返回空
- * 堆叠——原版那个 {@code while} 循环正是把空堆叠当作「没东西可搬」而结束，因此不会再逐次合成。返回
- * false 时不设置返回值，原版逻辑照常跑。
- *
- * <p>传进去的 {@code 10} 与 {@code 46} 是该菜单里玩家背包格的起止索引，覆盖主背包与快捷栏共 36 格。
- *
- * <p>Takes over shift-clicks on the result slot of the 3x3 crafting table and replaces the
- * "one craft per round" loop with a single whole-batch craft.
- *
- * <p>The injection point is the head of {@code CraftingMenu#quickMoveStack}: index 0 is the result
- * slot, and when the player shift-clicks it,
- * {@link com.zaixiayesheng.ultrastacks.crafting.BulkCrafting#tryCraftAll} is asked to finish the whole
- * batch, in which case an empty stack is returned — that empty stack is exactly what vanilla's
- * {@code while} loop reads as "nothing left to move", so it stops instead of crafting again and again.
- * When it returns false the return value is left alone and vanilla runs as usual.
- *
- * <p>The {@code 10} and {@code 46} passed in are the first and last-plus-one slot indices of the
- * player's inventory in that menu, covering the main inventory and the hotbar, 36 slots in total.
+ * Bulk-craft entry point for the crafting table. Backs off on the client when the grid holds
+ * huge stacks.
  */
 @Mixin(CraftingMenu.class)
 public abstract class CraftingMenuMixin {
@@ -42,6 +25,15 @@ public abstract class CraftingMenuMixin {
             return;
         }
         AbstractCraftingMenu menu = (AbstractCraftingMenu) (Object) this;
+        if (player.level().isClientSide()) {
+            // 客户端别本地跑：整批由服务端做，本地逐次合成只会把合成事件和配方扫描重复上万遍。
+            // Keep the client out of it: the server finishes the batch, while a local pass would repeat
+            // the crafting event and its recipe scan tens of thousands of times.
+            if (BulkCrafting.hasOversizedInputs(menu.getInputGridSlots())) {
+                cir.setReturnValue(ItemStack.EMPTY);
+            }
+            return;
+        }
         if (BulkCrafting.tryCraftAll(menu, player, 10, 46)) {
             cir.setReturnValue(ItemStack.EMPTY);
         }

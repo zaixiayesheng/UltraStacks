@@ -8,28 +8,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 在 {@code getMaxStackSize()} 里直接算出堆叠上限，并保证它永远不小于堆叠自带的数量。
+ * 在 getMaxStackSize() 返回处套配置。药水、附魔书、桶这些按各自的配置抬，其余按比例缩。
  *
- * <p>上限不走「注册时写 {@code MAX_STACK_SIZE} 组件」那条路：物品组件在注册阶段还没绑定完，那时读这个组件
- * 拿不到可靠值；改成在读取方法上返回配置值，既绕开这个时序问题，也顺带覆盖了游戏运行中改配置的情形。
- *
- * <p>上限还必须不小于堆叠自带的数量。原版菜单把空余空间算成 {@code 上限 - 数量}，上限一旦比数量小，这个差
- * 就是负数：{@code grow(负数)} 让槽位变小，{@code shrink(负数)} 让手里的堆叠变大，玩家看到的就是「拆开再
- * 放回去，一半消失了 / 多出一个」。所以先按配置算上限，再抬到不小于 {@code getCount()}。
- *
- * <p>Computes the stack limit directly in {@code getMaxStackSize()} and never reports less than the
- * number of items the stack already carries.
- *
- * <p>The limit is not written as a {@code MAX_STACK_SIZE} component during registration: item components
- * are not fully bound at that point and reading one there does not give a dependable value. Returning the
- * configured limit from the getter sidesteps that ordering problem and also covers changing the config
- * while the game is running.
- *
- * <p>The limit must also never be smaller than the count the stack carries. Vanilla menus compute the free
- * headroom as {@code limit - count}, so once the limit drops below the count that difference goes negative:
- * {@code grow(negative)} shrinks the slot while {@code shrink(negative)} grows the stack in hand, which is
- * exactly the "split it, put both halves back, and half of it vanishes / one extra appears" symptom. The
- * limit is therefore taken from the config first and then raised to at least {@code getCount()}.
+ * Applies the configured limits where getMaxStackSize() returns.
  */
 @Mixin(ItemStack.class)
 public abstract class ItemStackMaxStackMixin {
@@ -37,6 +18,15 @@ public abstract class ItemStackMaxStackMixin {
     @Inject(method = "getMaxStackSize()I", at = @At("RETURN"), cancellable = true)
     private void ultrastacks$neverBelowCount(CallbackInfoReturnable<Integer> cir) {
         ItemStack self = (ItemStack) (Object) this;
+        // 有耐久的物品（工具、武器、护甲）一律按原版 1 走，也不套「不小于自身数量」的兜底。
+        // 那条兜底是给 65536 大堆用的，套在工具上就变成自己给自己作证：一堆 2 把的剑声称上限是 2，
+        // 于是永远拆不开、拿出来是一叠、用起来一起掉耐久。
+        // Damageable items stay at vanilla 1 and skip the "never below own count" floor. That floor
+        // exists for huge stacks; on tools it becomes self-justifying, so a stack of two swords claims
+        // a limit of two, never splits, and wears down together.
+        if (self.isDamageableItem()) {
+            return;
+        }
         int max = UltraStacksConfig.limitFor(self, cir.getReturnValue());
         if (self.getCount() > max) {
             max = self.getCount();

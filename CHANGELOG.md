@@ -38,6 +38,7 @@
 - Self-returning ingredients such as shears and moulds no longer cap the batch at one craft, and they are not duplicated.
 - Damageable items no longer stack: both the limit calculation and sorting treat them as unstackable.
 - CraftingTweaks' balance button now computes the split in one pass for big stacks, so a single click finishes it instead of probing slot after slot.
+- Drawer virtual slots keep their sentinel value instead of being squashed into a normal number by the capacity calculation.
 - The drawer's virtual slot keeps its sentinel value instead of being clamped to a plain number.
 
 ## v21.1-1.0.2-hotfix — Minecraft 1.21.1 / NeoForge 21.1

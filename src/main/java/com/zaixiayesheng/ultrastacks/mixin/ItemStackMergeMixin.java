@@ -9,17 +9,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 让两堆看着一样的东西真能合到一起。
- *
- * <p>麻烦出在 {@code PatchedDataComponentMap.equals}：它除了比补丁，还比 prototype——物品那张默认组件表。
- * 存档读回来、复制、别的模组重设默认表，都会让内容一模一样的两堆拿着不同的 prototype 实例，于是被判成
- * 不同东西，点一下只交换不合。重进世界全部重建、prototype 统一，就又好了。这里在入口接管：补丁一样就判同，
- * 只差 {@code max_stack_size} 也判同，剩下的（附魔、名字、自定义数据）照旧交给原版。</p>
- *
- * <p>{@code PatchedDataComponentMap.equals} compares the prototype — the item's default component map —
- * on top of the patch, so two identical stacks can be judged different just because one came back from
- * a save or was copied. Equal patches are accepted here, and so are patches differing only in
- * {@code max_stack_size}; everything else falls through to vanilla.</p>
+ * 两堆看着一样的东西，应该能合。
+ * 老抽屉模板带了个 max_stack_size=64 的标记，原版一比组件就说不一样，于是永远合不上；
+ * 这里把 MAX_STACK_SIZE 摘掉再比，附魔、耐久这些照旧算数。
+ * 后来又发现光比补丁还不够：补丁都是空的时候，内容一样但对象不是同一个也会判不等，所以干脆按补丁比。
+     *
+ * Two identical-looking stacks should merge. Old drawer templates carried a max_stack_size=64
+ * component, so vanilla kept saying "different". Compare with MAX_STACK_SIZE ignored, and go by the
+ * patch alone — the prototype objects can differ even when their contents match.
  */
 @Mixin(ItemStack.class)
 public abstract class ItemStackMergeMixin {

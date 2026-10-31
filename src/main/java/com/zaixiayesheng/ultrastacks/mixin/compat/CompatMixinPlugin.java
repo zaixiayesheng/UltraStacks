@@ -11,19 +11,9 @@ import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 /**
- * 兼容 mixin 的总开关：目标模组没装就跳过对应的补丁。
+ * 兼容 mixin 的门：装了什么模组，才让对应的 mixin 生效。
  *
- * <p>目标类缺失时 Mixin 只打一条 WARN，真正会崩的是「模组装了、但方法改名或改签名」：注入点找不到又要求
- * 必须成功，就会直接抛异常终止启动。所以这里先按 modId 过滤，包内每个注入点也都写了 {@code require = 0}，
- * 两种情况下最坏结果都只是「兼容静默失效」，游戏照常起来。
- *
- * <p>The overall switch for the compat mixins: a patch is skipped when its target mod is not installed.
- *
- * <p>A missing target class only makes Mixin log a warning, while what actually breaks startup is a mod that
- * is installed but has renamed or redesigned a method: an injector that cannot find its target and is
- * required to apply throws and aborts the launch. The plugin therefore filters by modId first, and every
- * injector in this package also declares {@code require = 0}, so in either case the worst outcome is a patch
- * that quietly does nothing and a game that still starts.
+ * Gates the compat mixins: a mixin only loads when its mod is present.
  */
 public final class CompatMixinPlugin implements IMixinConfigPlugin {
 
@@ -38,6 +28,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
     private static final String CUCUMBER = "cucumber";
     private static final String FAST_WORKBENCH = "fastbench";
     private static final String FUNCTIONAL_STORAGE = "functionalstorage";
+    private static final String CRAFTING_TWEAKS = "craftingtweaks";
 
     @Override
     public void onLoad(String mixinPackage) {
@@ -78,14 +69,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
     /**
      * 这个 mixin 需要哪些 modId 在场，{@code null} 表示不按模组过滤。
      *
-     * <p>ExtendedAE 有两个 modId：{@code extendedae} 与旧的 {@code expatternprovider}，任一在场就应用。判断
-     * 只看类名前缀，所以按同样前缀命名的兼容 mixin 会自动归到对应的模组上。
-     *
      * <p>Which modIds this mixin needs; {@code null} means no mod gate.
-     *
-     * <p>ExtendedAE has two modIds, {@code extendedae} and the older {@code expatternprovider}, and the mixin
-     * applies when either one is present. Only the simple class name prefix is inspected, so a new compat
-     * mixin that follows the naming scheme is classified automatically.
      */
     private static String[] modIdsFor(String mixinClassName) {
         String simpleName = mixinClassName.substring(mixinClassName.lastIndexOf('.') + 1);
@@ -97,6 +81,9 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
         }
         if (simpleName.startsWith("Ae2")) {
             return new String[] { AE2 };
+        }
+        if (simpleName.startsWith("CraftingTweaks")) {
+            return new String[] { CRAFTING_TWEAKS };
         }
         if (simpleName.startsWith("IronFurnaces")) {
             return new String[] { IRON_FURNACES };
@@ -119,13 +106,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
     /**
      * 判断某个 modId 是否已加载。
      *
-     * <p>这里只能读 {@code LoadingModList}：类转换阶段 {@code ModList} 还没建好，用它拿不到已加载模组，取不
-     * 到列表时按「没装」处理。
-     *
      * <p>Whether the given modId is loaded.
-     *
-     * <p>Only {@code LoadingModList} can be read here: {@code ModList} is not built yet while classes are
-     * being transformed and cannot report the loaded mods, and a null list counts as "not installed".
      */
     private static boolean isLoaded(String modId) {
         LoadingModList loadingModList = LoadingModList.get();

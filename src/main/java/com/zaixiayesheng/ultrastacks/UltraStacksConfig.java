@@ -10,17 +10,8 @@ import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 /**
- * 配置入口：堆叠上限、特殊物品上限、各模块开关与兼容开关都在这里。
- *
- * <p>下面的 helper 只做纯换算，不碰世界状态，被 mixin 直接调用；换算规则集中在这一处，
- * 改数值时不必再翻各个 mixin。
- *
- * <p>Config hub: the stack limit, the limits for special items, the module switches and the
- * compat switches all live here.
- *
- * <p>The helpers below are pure conversions called straight from the mixins and never touch world
- * state. Keeping the rules in one place means a number can be changed without editing every
- * mixin.
+ * 配置和换算都在这里：上限、特殊物品、各模块与兼容开关，加上 mixin 直接调的那些纯函数。
+ * Config hub plus the pure helpers the mixins call — change a number here, not in each mixin.
  */
 public final class UltraStacksConfig {
     /**
@@ -99,6 +90,18 @@ public final class UltraStacksConfig {
                     "中文：可选模块 · 合成：批量模式；关闭后恢复原版一次一件。")
             .translation("ultrastacks.configuration.bulkCrafting")
             .define("bulkCrafting", true);
+
+    private static final ModConfigSpec.IntValue BULK_CRAFT_LIMIT = BUILDER
+            .comment("Crafting: how many crafts one shift-click may do before the unlock key is held (default 64).",
+                    "中文：合成：按住解锁键之前，一次 Shift 点击最多合成多少次（默认 64）。")
+            .translation("ultrastacks.configuration.bulkCraftLimit")
+            .defineInRange("bulkCraftLimit", 64, 1, UltraStacks.ABSOLUTE_MAX_STACK_SIZE);
+
+    private static final ModConfigSpec.BooleanValue BULK_CRAFT_UNLOCK_KEY = BUILDER
+            .comment("Crafting: require holding the unlock key (default mouse button 4) to craft the whole batch.",
+                    "中文：合成：必须按住解锁键（默认鼠标侧键 4）才能一次合完整批。")
+            .translation("ultrastacks.configuration.bulkCraftUnlockKey")
+            .define("bulkCraftUnlockKey", true);
 
     public enum CountStyle {
         COMPACT,
@@ -196,6 +199,8 @@ public final class UltraStacksConfig {
     private static volatile boolean craftingModule = true;
     private static volatile boolean displayModule = true;
     private static volatile boolean bulkCrafting = true;
+    private static volatile int bulkCraftLimit = 64;
+    private static volatile boolean bulkCraftUnlockKey = true;
     private static volatile CountStyle countStyle = CountStyle.COMPACT;
     private static volatile int abbreviateAbove = 1000;
     private static volatile boolean tooltipExact = true;
@@ -231,6 +236,16 @@ public final class UltraStacksConfig {
         return bulkCrafting;
     }
 
+    /** 一次 Shift 点击最多合成多少次（未按解锁键时）。 */
+    public static int bulkCraftLimit() {
+        return bulkCraftLimit;
+    }
+
+    /** 是否要求按住解锁键才能一次合完整批。 */
+    public static boolean bulkCraftUnlockKey() {
+        return bulkCraftUnlockKey;
+    }
+
     public static CountStyle countStyle() {
         return countStyle;
     }
@@ -251,14 +266,8 @@ public final class UltraStacksConfig {
     /**
      * 把仍是原版 64 / 99 的槽位上限换成配置值，其它数值原样返回。
      *
-     * <p>精妙储存与背包把每格上限写死成 64 或 99，换成配置值后才能真正装满一摞；
-     * 兼容开关关闭时不做任何改动。
-     *
      * <p>Replaces a slot limit that is still the vanilla 64 or 99 with the configured value and
      * returns every other number untouched.
-     *
-     * <p>Sophisticated Storage and Backpacks hardcode 64 or 99 per slot, so only the replacement
-     * lets a slot actually fill a whole stack. Nothing changes while the compat switch is off.
      */
     public static int raiseSophisticatedLimit(int original) {
         if (!compatSophisticated) {
@@ -274,14 +283,8 @@ public final class UltraStacksConfig {
     /**
      * 把仍是原版 64 / 99 的槽位上限换成配置值，其它数值原样返回。
      *
-     * <p>通用机械的机器槽位默认按 64 报上限，不换掉的话整摞物品进不了机器；
-     * 兼容开关关闭时不做任何改动。
-     *
      * <p>Replaces a slot limit that is still the vanilla 64 or 99 with the configured value and
      * returns every other number untouched.
-     *
-     * <p>Mekanism machine slots report 64 by default, and without the replacement a full stack
-     * cannot enter a machine. Nothing changes while the compat switch is off.
      */
     public static int raiseMekanismLimit(int original) {
         if (!compatMekanism) {
@@ -301,13 +304,8 @@ public final class UltraStacksConfig {
     /**
      * 应用能源把终端与接口的槽位上限写死成 99，这里换成配置值。
      *
-     * <p>只认 64 与 99 这两个默认值，其它数字原样返回；兼容开关关闭时也不做任何改动。
-     *
      * <p>AE2 hardcodes 99 for terminal and interface slot limits, so that number is replaced with
      * the configured value.
-     *
-     * <p>Only the two defaults, 64 and 99, are recognised; any other number comes back unchanged, as
-     * does everything while the compat switch is off.
      */
     public static int ae2SlotLimit(int original) {
         if (!compatAe2) {
@@ -319,14 +317,8 @@ public final class UltraStacksConfig {
     /**
      * 接口每槽一次能搬多少：取原值与应用能源默认值的较大者，默认值是配置上限的十六分之一。
      *
-     * <p>只对 64 和 99 生效——那是应用能源自己的默认值；其它数字视为别人特意设定的结果，不动。
-     * 兼容开关关闭时原样返回。
-     *
      * <p>How much one interface slot moves at a time: the larger of the original allowance and a
      * sixteenth of the configured stack size.
-     *
-     * <p>Only the 64 and 99 defaults are touched; any other number is treated as a deliberate setting
-     * and left alone. With the compat switch off the original value comes back unchanged.
      */
     public static long ae2TransferAmount(long original) {
         if (!compatAe2 || (original != 64L && original != 99L)) {
@@ -338,13 +330,8 @@ public final class UltraStacksConfig {
     /**
      * ME 接口每槽能搬多少：低于「上限 / 16」的抬到那个值，高于它的保持原样，但不超过堆叠上限。
      *
-     * <p>超大接口的容量可能比普通接口还低，这里给两者一个共同的下限；兼容开关关闭时原样返回。
-     *
      * <p>Per-slot ME interface capacity: anything below stack size / 16 is lifted to it, larger
      * values are kept, and nothing exceeds the configured stack size.
-     *
-     * <p>An oversized interface can end up below a normal one, so both get the same floor. With the
-     * compat switch off the original value comes back unchanged.
      */
     public static long ae2InterfaceCapacity(long original) {
         if (!compatAe2) {
@@ -356,8 +343,6 @@ public final class UltraStacksConfig {
 
     /**
      * 精致存储自家的物品处理器也把上限报成 64 或 99，这里换成配置值。
-     *
-     * <p>其它数值原样返回，兼容开关关闭时也一样。
      *
      * <p>Refined Storage's own item handlers report 64 or 99 as well, so those numbers are replaced
      * with the configured value. Every other number comes back unchanged, as it does while the
@@ -390,8 +375,6 @@ public final class UltraStacksConfig {
     /**
      * 更多熔炉把输入、输出的上限写死成 64；这里只替换这一类「64 就是原版上限」的用法。
      *
-     * <p>其它数值原样返回，兼容开关关闭时也一样。
-     *
      * <p>Iron Furnaces hardcodes 64 as the input and output cap; only that vanilla default is
      * replaced with the configured limit. Every other number comes back unchanged, as it does while
      * the compat switch is off.
@@ -407,8 +390,6 @@ public final class UltraStacksConfig {
     /**
      * Cucumber 的槽位处理器把每格上限默认成 64，物品叠得再高，依赖它的机器输入输出格也只收 64 个。
      *
-     * <p>只换掉这个默认值，显式设过上限的槽位保持原样；兼容开关关闭时原样返回。
-     *
      * <p>The Cucumber slot handler defaults every machine slot to 64, so machines built on it would
      * take only 64 items no matter how high the stacks go. Only that default is replaced; slots with
      * an explicitly chosen limit keep it, and the original value comes back while the compat switch
@@ -423,8 +404,6 @@ public final class UltraStacksConfig {
 
     /**
      * 沉浸工程的机器、容器与物品处理器默认每格 64，这里把仍是 64 / 99 的上限抬到配置值。
-     *
-     * <p>其它数值原样返回，兼容开关关闭时也一样。
      *
      * <p>Immersive Engineering machines, containers and item handlers default to 64 per slot; the
      * 64 / 99 values are raised to the configured limit here. Every other number comes back
@@ -444,19 +423,7 @@ public final class UltraStacksConfig {
     /**
      * 把配置文件里的值读进内存中的 volatile 字段。
      *
-     * <p>只理会本模组的规格，别的模组加载配置时直接返回。上限超过 {@link #SAFE_MAX_STACK_SIZE}
-     * 又没开实验性选项时退回安全值并警告；药水与附魔书配置 0 表示自动，按上限的十六分之一算。
-     * 最后跑一次格式迁移：版本低于 2 且两项特殊上限都还停在原版 1 时改成自动并保存，
-     * 免得旧配置里写死的 1 把药水永久限制在不可堆叠。
-     *
      * <p>Copies the values from the config file into the volatile fields.
-     *
-     * <p>Only this mod's spec is handled; loading any other mod's config returns immediately. A limit
-     * above {@link #SAFE_MAX_STACK_SIZE} falls back to the safe value with a warning unless the
-     * experimental switch is on, and 0 for potions or enchanted books means automatic, i.e. one
-     * sixteenth of the limit. The format migration runs last: a version below 2 whose two special
-     * limits still sit at the vanilla 1 is moved to automatic and saved, so an old config cannot pin
-     * potions to non-stacking forever.
      */
     @SubscribeEvent
     public static void onConfigLoad(ModConfigEvent event) {
@@ -469,6 +436,8 @@ public final class UltraStacksConfig {
         craftingModule = CRAFTING_MODULE.get();
         displayModule = DISPLAY_MODULE.get();
         bulkCrafting = BULK_CRAFTING.get();
+        bulkCraftLimit = BULK_CRAFT_LIMIT.get();
+        bulkCraftUnlockKey = BULK_CRAFT_UNLOCK_KEY.get();
         countStyle = COUNT_STYLE.get();
         abbreviateAbove = ABBREVIATE_ABOVE.get();
         tooltipExact = TOOLTIP_EXACT.get();
@@ -516,14 +485,8 @@ public final class UltraStacksConfig {
     /**
      * 把容器默认返回的 99 换成配置值，其它数字原样返回。
      *
-     * <p>原版 {@code Container#getMaxStackSize()} 用 99 表示「默认容量」，所以只认这一个数字；
-     * 真正按物品区分的单格上限由 {@link #raiseSlotLimit} 处理。
-     *
      * <p>Replaces the 99 that containers return by default with the configured value and returns
      * every other number unchanged.
-     *
-     * <p>Vanilla's {@code Container#getMaxStackSize()} uses 99 to mean "default capacity", so only
-     * that number is recognised; the per-item slot limit is handled by {@link #raiseSlotLimit}.
      */
     public static int raiseVanillaDefault(int original) {
         return original == 99 ? maxStackSize : original;
@@ -532,12 +495,8 @@ public final class UltraStacksConfig {
     /**
      * 槽位上限：原版报 64 或 99 都表示「默认容器大小」，调用方真正想要的是抬上去的值。
      *
-     * <p>本来就只放一件的槽位（药水、工具）返回 1，保持原样。
-     *
      * <p>Slot limits: vanilla reporting 64 or 99 means "the default container size", and the caller
      * really wants the raised value.
-     *
-     * <p>Slots that legitimately hold one item (potions, tools) report 1 and stay untouched.
      */
     public static int raiseSlotLimit(int original) {
         return original == 64 || original == 99 ? maxStackSize : original;
@@ -546,13 +505,8 @@ public final class UltraStacksConfig {
     /**
      * {@code ItemStackHandler} 这类自己保管上限的容器报的值：只升不降。
      *
-     * <p>取配置值与原值的较大者，避免把作者特意设过的小上限抹掉。
-     *
      * <p>Values reported by containers that own their limit, such as {@code ItemStackHandler}: raise
      * only, never lower.
-     *
-     * <p>The larger of the configured value and the original wins, so a deliberately small limit is
-     * not wiped out.
      */
     public static int raiseModdedSlotLimit(int original) {
         return Math.max(original, maxStackSize);
@@ -597,17 +551,8 @@ public final class UltraStacksConfig {
     /**
      * 默认组件应用之后，{@code ItemStack#getMaxStackSize()} 最终报给调用方的值。
      *
-     * <p>本来就能堆叠的物品（上限大于 1）和可损坏物品原样返回；只有原版上限为 1 的物品才可能被抬高，
-     * 而且仅限配置里点名的那几类：药水、附魔书、桶。桶还要求不低于「原版 16 个一堆按比例换算」的结果，
-     * 所以配置值偏小时不会把桶压小。
-     *
      * <p>The value {@code ItemStack#getMaxStackSize()} finally reports once the default components have
      * been applied.
-     *
-     * <p>Items that already stack (a limit above 1) and damageable items are returned as they are.
-     * Only items whose vanilla limit is 1 can be raised, and only for the kinds the config names:
-     * potions, enchanted books and buckets. Buckets additionally never go below the scaled
-     * equivalent of the vanilla 16, so a smaller config value cannot shrink them.
      */
     public static int limitFor(ItemStack stack, int current) {
         if (stack.isDamageableItem()) {
@@ -636,20 +581,12 @@ public final class UltraStacksConfig {
     /**
      * 按原版上限算出配置下的上限，是 {@link StackLimits#resolve} 的薄封装。
      *
-     * <p>物品默认组件改写与桶上限换算都走这里，保证全模组只有一套换算规则。
-     *
      * <p>Thin wrapper around {@link StackLimits#resolve}: turns a vanilla limit into the configured
      * one.
-     *
-     * <p>Both the item default component rewrite and the bucket limit calculation go through it, so
-     * the whole mod shares one scaling rule.
      */
 
     /**
      * 去掉「等于原版默认值」的 {@code max_stack_size} 组件。
-     *
-     * <p>旧存档里的抽屉模板会把这个组件固化成 64，带组件的物品和干净物品不是同一个栈，合成表与 JEI 都按组件
-     * 比对，于是配方对不上。这里把它清掉，让物品回到普通形态。
      *
      * <p>Drops a vanilla-default {@code max_stack_size} component so the stack matches recipes again.
      */
@@ -700,7 +637,9 @@ public final class UltraStacksConfig {
      */
     public static int sortCapacity(ItemStack stack) {
         if (stack.isDamageableItem()) {
-            return stack.getMaxStackSize();
+            // 有耐久的物品没有「一堆」这回事，永远按 1 算，别跟着栈里数量走。
+            // Damageable items have no such thing as a stack: always 1, never following the count.
+            return 1;
         }
         int base = stack.getItem().getDefaultMaxStackSize();
         Integer component = stack.get(DataComponents.MAX_STACK_SIZE);

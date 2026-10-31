@@ -1,4 +1,28 @@
-# Changelog / 更新日志
+## 21.1-1.0.3-beta — Minecraft 1.21.1 / NeoForge 21.1
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：合成辅助的「均分」不再卡，Shift 批量合成多了个保险。
+
+### 修复
+
+- 合成格里出现超过 64 的堆叠时，均分改由本模组一次算完，不再按格反复空转。
+- 一次 Shift 点击默认最多合成 64 次（可配置），按住解锁键（默认鼠标侧键 4）才整批合完，仅作用于原版工作台与背包 2×2 合成格。
+- 合成时客户端不再跟着重跑一遍逐次流程，几十万次配方扫描造成的长时间卡顿消失。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: CraftingTweaks' balance button no longer stalls, and bulk crafting now has a safety limit.
+
+### Fixed
+
+- When the crafting grid holds stacks larger than 64, balancing is computed in one pass here instead of looping over the slots.
+- A shift-click now crafts at most 64 times by default (configurable); hold the unlock key (mouse button 4 by default) to finish the whole batch. Vanilla crafting table and the 2×2 grid only.
+- The client no longer replays the one-craft-per-round loop, so the freeze caused by hundreds of thousands of recipe scans is gone.
 
 ## 21.1-1.0.2-beta — Minecraft 1.21.1 / NeoForge 21.1
 

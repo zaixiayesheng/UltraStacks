@@ -4,10 +4,7 @@ import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
 
 /**
  * 把数量转成显示模块要画的文本。
- *
- * <p>{@code COMPACT} 用 k / m / b 缩写，{@code EXACT} 保留每一位数字；小于阈值（{@code abbreviateAbove}，
- * 最多 1000）的数量一律显示完整值，所以正常游玩时看到的就是原版数字。
- *
+     *
  * <p>Turns a raw count into the text the display module draws. {@code COMPACT} abbreviates with
  * k / m / b suffixes, {@code EXACT} keeps every digit, and any count below the threshold
  * ({@code abbreviateAbove}, at most 1000) is printed in full, so ordinary gameplay shows the
@@ -28,8 +25,6 @@ public final class CountFormat {
 
     /**
      * 按配置决定用完整数字还是缩写。
-     *
-     * <p>负数原样输出；显示模块关闭、样式为 {@code EXACT}，或数量小于阈值时返回完整数字。
      *
      * <p>Chooses between full digits and an abbreviation according to the config. Negative counts
      * are printed as they are; full digits are returned when the display module is off, the style

@@ -9,14 +9,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * 通用机械的机器槽位 {@code BasicInventorySlot} 由槽对象自己报上限（{@code getLimit(ItemStack)}），不经过原版 {@code Slot}。
- *
- * <p>只把 64 与 99 换成 {@link UltraStacksConfig#raiseMekanismLimit(int)} 的结果，机器自己指定的更大值保持。
- *
+     *
  * <p>Mekanism's machine slot {@code BasicInventorySlot} reports its limit from the slot object through
  * {@code getLimit(ItemStack)} instead of going through vanilla {@code Slot}.
- *
- * <p>Only 64 and 99 become the result of {@link UltraStacksConfig#raiseMekanismLimit(int)}; a larger
- * value chosen by the machine is kept.
  */
 @Mixin(targets = "mekanism.common.inventory.slot.BasicInventorySlot", remap = false)
 public class MekanismBasicInventorySlotMixin {

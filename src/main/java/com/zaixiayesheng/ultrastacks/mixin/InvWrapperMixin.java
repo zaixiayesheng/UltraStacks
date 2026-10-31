@@ -8,9 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * 原版物品栏经 {@code InvWrapper} 暴露给物品处理器时，每格上限取 {@code Container#getMaxStackSize()}（64），整理模组据此认为一格只能放 64 个。
- *
- * <p>这里只把 64/99 换成配置上限，让整理、漏斗、管道这一类走处理器 API 的路径与槽位上限一致。
- *
+     *
  * <p>When the vanilla inventory is exposed through {@code InvWrapper}, each slot reports
  * {@code Container#getMaxStackSize()} (64), so sorting mods believe a slot only holds 64 items.
  * Only 64 and 99 are raised to the configured limit here, keeping handler-based paths (sorting,

@@ -5,14 +5,9 @@ import org.spongepowered.asm.mixin.Mixin;
 
 /**
  * 给目标类补上一个 {@code getSlotLimit(int)} 实现（方法合并），让它报出按配置抬高后的上限。
- *
- * <p>传 99 是原版的绝对堆叠上限，配置没调高时结果仍是 99。
- *
+     *
  * <p>Adds a {@code getSlotLimit(int)} implementation to the target class through method merging so it
  * reports the raised limit.
- *
- * <p>The 99 passed in is the game's absolute stack limit, so the result stays 99 while the configured
- * limit is unchanged.
  */
 @Mixin(targets = "appeng.util.inv.PlayerInternalInventory", remap = false)
 public abstract class Ae2PlayerInternalInventoryMixin {

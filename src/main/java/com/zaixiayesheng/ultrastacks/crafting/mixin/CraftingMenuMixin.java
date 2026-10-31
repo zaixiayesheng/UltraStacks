@@ -14,15 +14,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 接管工作台（3x3）的整批合成。
+ * 工作台的批量合成入口。客户端碰上大堆就撤，别跟着服务端空跑。
  *
- * <p>玩家 Shift 点击产物槽时整批合完并返回空堆叠：{@code quickMoveStack} 的 slotId 0 就是产物槽，
- * 原版「每轮只合成一次」的循环把空堆叠当成「没有东西可搬」，随即结束。其它槽位的点击交还原版。
- *
- * <p>Takes over bulk crafting for the 3x3 crafting table. When the player shift-clicks the result
- * slot (slot 0 of {@code quickMoveStack}) the whole batch is finished and an empty stack is
- * returned; the vanilla one-craft-per-round loop reads that as "nothing left to move" and stops.
- * Clicks on any other slot go to vanilla untouched.
+ * Bulk-craft entry point for the crafting table. Backs off on the client when the grid holds
+ * huge stacks.
  */
 @Mixin(CraftingMenu.class)
 public abstract class CraftingMenuMixin {
@@ -39,6 +34,15 @@ public abstract class CraftingMenuMixin {
     private void ultrastacks$bulkCraft(Player player, int slotId, CallbackInfoReturnable<ItemStack> cir) {
         CraftingMenu menu = (CraftingMenu) (Object) this;
         if (slotId != 0) {
+            return;
+        }
+        if (player.level().isClientSide()) {
+            // 客户端别本地跑：整批由服务端做，本地逐次合成只会把合成事件和配方扫描重复上万遍。
+            // Keep the client out of it: the server finishes the batch, while a local pass would repeat
+            // the crafting event and its recipe scan tens of thousands of times.
+            if (BulkCrafting.hasOversizedStacks(craftSlots)) {
+                cir.setReturnValue(ItemStack.EMPTY);
+            }
             return;
         }
         if (BulkCrafting.tryCraftAll(menu, craftSlots, resultSlots, player, 10, 46)) {

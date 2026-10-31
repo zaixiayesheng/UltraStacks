@@ -23,5 +23,9 @@
   "ultrastacks.configuration.compatRefinedStorage": "Refined Storage grid and handler slots",
   "ultrastacks.configuration.compatIronFurnaces": "Iron Furnaces input/output caps",
   "ultrastacks.configuration.compatMysticalAgriculture": "Mystical Agriculture machine slots",
-  "ultrastacks.configuration.compatImmersiveEngineering": "Immersive Engineering machine slots"
+  "ultrastacks.configuration.compatImmersiveEngineering": "Immersive Engineering machine slots",
+  "ultrastacks.configuration.bulkCraftLimit": "Bulk craft limit",
+  "ultrastacks.configuration.bulkCraftUnlockKey": "Require unlock key",
+  "key.categories.ultrastacks": "UltraStacks",
+  "key.ultrastacks.unlock": "Unlock whole-batch crafting"
 }

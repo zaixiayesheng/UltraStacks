@@ -11,21 +11,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * 接管物品栏与容器里那串计数文本的绘制。
- *
- * <p>计数不超过 99、显示模块关掉、调用方自己给了 {@code customText}，或者原版传进来的是 {@code null}，都照原样画。超过 99 时把数字换成 {@link CountFormat#format(long)} 的结果——默认 1000 以下仍是完整数字，之上缩写成 k / m / b，阈值由 {@code abbreviateAbove} 控制。
- *
- * <p>缩写后字宽变窄，所以按两边字宽之差把起点右移，保持原版的右对齐。
- *
- * <p>Takes over the drawing of the count text in inventories and containers.
- *
- * <p>A count of at most 99, a disabled display module, a caller-supplied {@code customText} or a
- * {@code null} text from vanilla all fall through to the original drawing. Above 99 the digits are
- * replaced by {@link CountFormat#format(long)}: full digits below 1000 by default and k / m / b
- * abbreviations above that, with the threshold controlled by {@code abbreviateAbove}.
- *
- * <p>An abbreviation is narrower than the text it replaces, so the starting point is shifted right
- * by the difference in string width to keep vanilla's right alignment.
+ * 接管那串计数文本：99 及以下、显示关了、调用方自己带了文本，都照原样画；
+ * 超过就换缩写（1000 以上 k/m/b），左边空出来的字宽补回去，右对齐不变。
+     *
+ * Takes over the count text: fall through at 99 or below, otherwise draw the
+ * abbreviation (k/m/b above 1000) and shift right by the width difference.
  */
 @Mixin(GuiGraphics.class)
 public abstract class GuiGraphicsMixin {

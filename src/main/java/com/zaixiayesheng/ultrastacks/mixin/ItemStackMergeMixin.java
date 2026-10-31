@@ -10,27 +10,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 让两堆看着一样的东西真能合到一块儿。
- *
- * <p>起因是抽屉。老模板把 {@code max_stack_size=64} 焊进了物品里，从抽屉拿出来的栈跟普通栈一碰，
- * 原版一判等就说不相等——因为人家比组件。结果背包、箱子、地上全合并不了，看着一样的两堆就是不动。
- * 现在入口先看一眼：物品一样、把 {@code MAX_STACK_SIZE} 摘掉以后补丁完全一致，那就当同一个东西。
- * 附魔、耐久、自定义数据这些照旧参与比较，不该合的还是合不了。</p>
- *
- * <p>后来又补了一刀。用户说「重启就能合，玩一会儿又不行了」，日志里两堆补丁都是空的、物品也一个样，
- * 判定还是 false。翻原版才看明白：{@code PatchedDataComponentMap.equals} 不光比补丁内容，还比
- * {@code prototype}（物品默认组件表）那个对象。运行时两份内容一模一样的默认表，完全可能就是两个实例
- * （复制、反序列化、别的模组重设默认组件都会换）。那就不认对象了，补丁一致直接判同。</p>
- *
- * <p>Two stacks that look identical should merge. Old drawer templates baked a
- * {@code max_stack_size=64} component into the stack, so vanilla's component-aware comparison said
- * "different" and nothing ever merged. Now: same item, and identical patches once
- * {@code MAX_STACK_SIZE} is forgotten — treated as one. Enchants, durability and custom data still
- * count, so nothing merges by mistake.</p>
- *
- * <p>Second round: two stacks with empty patches and the same item still compared unequal, because
- * {@code PatchedDataComponentMap.equals} also compares the {@code prototype} object. Two
- * content-identical prototypes can be separate instances at runtime, so we go by the patch alone.</p>
+ * 两堆看着一样的东西，应该能合。
+ * 老抽屉模板带了个 max_stack_size=64 的标记，原版一比组件就说不一样，于是永远合不上；
+ * 这里把 MAX_STACK_SIZE 摘掉再比，附魔、耐久这些照旧算数。
+ * 后来又发现光比补丁还不够：补丁都是空的时候，内容一样但对象不是同一个也会判不等，所以干脆按补丁比。
+     *
+ * Two identical-looking stacks should merge. Old drawer templates carried a max_stack_size=64
+ * component, so vanilla kept saying "different". Compare with MAX_STACK_SIZE ignored, and go by the
+ * patch alone — the prototype objects can differ even when their contents match.
  */
 @Mixin(ItemStack.class)
 public abstract class ItemStackMergeMixin {
@@ -150,11 +137,6 @@ public abstract class ItemStackMergeMixin {
 
     /**
      * 让哈希与上面的放宽版 equals 自洽：哈希时忘掉 {@code max_stack_size}。
-     *
-     * <p>原版 {@code hashItemAndComponents} 哈希的是合并后的完整组件表，脏栈（patch=64）与干净栈
-     * （默认 65536）哈希值不同，放进 {@code HashMap}/{@code LinkedHashMap} 后 equals 判等也合并不了
-     * （sophisticatedcore 的 {@code ItemStackKey} 与整理算法的 compaction 就靠它分组）。这里对所有栈
-     * 一律按「忘掉 MAX_STACK_SIZE 的 patch」计算哈希，脏/净哈希一致，桶就对了。</p>
      *
      * <p>Makes hashing consistent with the relaxed equals above: the vanilla
      * {@code hashItemAndComponents} hashes the full merged component table, so a dirty stack

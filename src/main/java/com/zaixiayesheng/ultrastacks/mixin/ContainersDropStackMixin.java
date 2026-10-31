@@ -11,11 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * 容器被破坏时，超过阈值的堆叠整堆掉成一个掉落物，而不是散成一地小堆。
- *
- * <p>原版在 {@code dropItemStack} 里按 {@code random.nextInt(21) + 10} 循环切分，每份 10 到 30 个；
- * 一个 65536 的堆叠会变成三千多个掉落物实体，服务端要逐个生成、客户端要逐个渲染。这里对数量大于 128 的
- * 堆叠直接整摞切下来生成一个实体，初速度沿用原版的三角分布，普通堆叠保持原版散落行为。
- *
+     *
  * <p>Drops a superstack as a single item entity when a container is broken, instead of scattering
  * it into many small piles. Vanilla splits in a loop of {@code random.nextInt(21) + 10} items, ten
  * to thirty per entity, so a 65536 stack becomes more than three thousand entities for the server
@@ -35,8 +31,6 @@ public abstract class ContainersDropStackMixin {
 
     /**
      * 整摞切下来生成一个掉落物，然后取消原版的切分循环。
-     *
-     * <p>{@code split(全部数量)} 会把传入的 {@code stack} 清空，所以原版循环拿到的已经是空堆叠，不会重复掉落。
      *
      * <p>Splits off the whole stack into one item entity and cancels vanilla's splitting loop.
      * {@code split} with the full count empties the incoming stack, so the vanilla loop finds nothing

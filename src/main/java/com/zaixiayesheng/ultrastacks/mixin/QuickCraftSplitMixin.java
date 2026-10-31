@@ -12,11 +12,7 @@ import java.util.Set;
 
 /**
  * 拖拽均分改用整数除法，避免 float 舍入凭空多出物品。
- *
- * <p>原版按 {@code Mth.floor((float) count / (float) slots.size())} 计算每格放多少。float 只有 24 位
- * 尾数，超过 16777216 的计数会被舍入到步长的整数倍：1073741823 先变成 2^30，分成两格时每格得到
- * 536870912，合计比原来多 1 个，等于每次拖拽复制一个物品。整数除法保证各格之和不超过原数量。
- *
+     *
  * <p>Uses integer division for drag-splitting so float rounding cannot create items. Vanilla
  * computes the per-slot amount as {@code Mth.floor((float) count / (float) slots.size())}. A float
  * has only 24 bits of mantissa, so a count above 16777216 is rounded to a multiple of the float's

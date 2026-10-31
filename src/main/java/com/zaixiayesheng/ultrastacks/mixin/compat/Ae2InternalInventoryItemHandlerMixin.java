@@ -8,14 +8,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * AE2 对外暴露的物品处理器视图 {@code InternalInventoryItemHandler}，单格上限同样由自己的 {@code getSlotLimit} 决定。
- *
- * <p>在 {@code RETURN} 处只把 64 与 99 换成 {@link UltraStacksConfig#ae2SlotLimit(int)}，其它数值原样返回。
- *
+     *
  * <p>The item handler view AE2 exposes to other mods, {@code InternalInventoryItemHandler}, also decides
  * its per-slot limit through its own {@code getSlotLimit}.
- *
- * <p>At {@code RETURN} only 64 and 99 become {@link UltraStacksConfig#ae2SlotLimit(int)}; anything
- * else is passed through.
  */
 @Mixin(targets = "appeng.api.inventories.InternalInventoryItemHandler", remap = false)
 public abstract class Ae2InternalInventoryItemHandlerMixin {

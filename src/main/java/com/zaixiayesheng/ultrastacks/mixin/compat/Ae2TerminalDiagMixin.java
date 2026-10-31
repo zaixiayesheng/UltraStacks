@@ -9,11 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * 临时探针：看看 AE 终端往网络塞东西、从网络拿东西时到底报了多少。
- *
- * <p>{@code transferStackToMenu} 的入参就是玩家手里那一堆（含数量），返回值是网络实际收下的数量；
- * 两个值对不上就说明网络侧还有一道夹取。取出量另有一条探针挂在 {@code AEItemKey.getMaxStackSize()}
- * 上——AE2 从网络取东西时取多少完全由那个数决定。</p>
- *
+     *
  * <p>Temporary probe for the AE terminal: what a deposit asks for versus what the network accepts,
  * so a mismatch points at a clamp inside the network. Withdrawals are measured separately on
  * {@code AEItemKey.getMaxStackSize()}, which is the exact amount AE2 pulls out of the network.</p>

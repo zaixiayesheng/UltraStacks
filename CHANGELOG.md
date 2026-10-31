@@ -1,3 +1,43 @@
+## v26.1-1.0.3 — Minecraft 26.1.2 / NeoForge 26.1.2
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：Shift 批量合成多了个保险，合成辅助的均分不再卡，合成与整理里几个老毛病一起修了。
+
+### 新增
+
+- 一次 Shift 合成默认最多 64 个产物（可配置）；按住解锁键，默认鼠标侧键 4，可以整批合完。只作用于原版工作台和背包 2×2 合成格。
+- 对应的配置项是 `bulkCraftLimit` 和 `bulkCraftUnlockKey`，把后者关掉就回到「一次合完」。
+
+### 修复
+
+- 合成格里有超过 64 的堆叠时，客户端不再跟着逐次跑一遍，上游模组每轮扫一次配方的开销随之消失。
+- 合成结束后产物槽会被清空，不再残留一个拿不走的产物图标。
+- 剪刀、模具这类用完原样还回来的材料，不再把整批合成卡成 1 次，也不会被复制。
+- 有耐久的物品不再成叠：上限计算和整理都按原版 1 处理。
+- 合成辅助的「均分」在大堆下由本模组一次算完，点一下立刻分好，不再一个槽一个槽地试。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: bulk crafting got a safety limit, the balance button no longer stalls, and a few old crafting and sorting bugs are fixed.
+
+### Added
+
+- A shift-craft now produces at most 64 items by default (configurable). Hold the unlock key (mouse button 4 by default) to finish the whole batch. Vanilla crafting table and the 2x2 grid only.
+- The options are `bulkCraftLimit` and `bulkCraftUnlockKey`; turn the latter off to always craft everything at once.
+
+### Fixed
+
+- With stacks larger than 64 in the grid, the client no longer replays the one-craft-per-round loop, so the per-round recipe scans in other mods are gone.
+- The result slot is cleared after a bulk craft instead of keeping an item you cannot take.
+- Self-returning ingredients such as shears and moulds no longer cap the batch at one craft, and they are not duplicated.
+- Damageable items no longer stack: both the limit calculation and sorting treat them as unstackable.
+- CraftingTweaks' balance button now computes the split in one pass for big stacks, so a single click finishes it instead of probing slot after slot.
+
 ## v26.1-1.0.2-hotfix — Minecraft 26.1.2 / NeoForge 26.1.2
 
 **中文**

@@ -11,18 +11,11 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 铁砧不能把一整堆当成「一次附魔」或「一次修复」的代价。
- *
- * <p>原版会把左槽整堆复制进产物槽，取走产物时再清空整槽。堆叠上限抬起来之后，一次附魔或一次修复
- * 就变成拿一整堆去换一件东西，所以这类产物在这里压回 1 件，输入也按件扣除。
- *
- * <p>改名保持原版手感：整堆一起改名、一次取走、只扣一次经验——那正是玩家想要的批量操作。
- *
- * <p>Keeps the anvil from treating a whole stack as the price of one enchantment or one repair.
- * Vanilla copies the entire left stack into the result slot and clears that slot when the result is
- * taken; with a raised limit one operation would consume a stack for a single item, so those results
- * are clamped back to one and the input is charged per item. Renaming still works on the whole stack
- * at once and charges its experience once, which is the bulk operation players expect.
+ * 防止铁砧在左槽有多件时复制或吞掉一整堆：产物压到 1 件，取走时左槽扣 1、右槽按代价扣。
+ * 改名不走这条路，整堆改名、只扣一次经验。
+     *
+ * Keeps the anvil from duplicating or eating a stack: clamp the result to one item
+ * and charge one left-slot item per take. Renaming stays vanilla.
  */
 @Mixin(AnvilMenu.class)
 public abstract class AnvilMenuMixin {

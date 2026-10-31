@@ -1,11 +1,13 @@
 package com.zaixiayesheng.ultrastacks.crafting;
 
 import com.zaixiayesheng.ultrastacks.UltraStacks;
+import com.zaixiayesheng.ultrastacks.DiagLog;
 import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.stats.Stats;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -17,17 +19,11 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.event.ForgeEventFactory;
 
 /**
- * 合成模块：一次 Shift 点击把整批材料合完。
- *
- * <p>原版每合一次就走一轮 {@code quickMoveStack}：重新匹配配方、扣一次料、塞一次产物。材料堆到
- * 32k 时等于一 tick 跑 32k 轮。这里先算「材料够合几次」与「背包放得下几次」的较小值，一次扣料，
- * 再把产物按堆叠上限分块塞回背包，塞不下的部分直接丢给玩家。
- *
- * <p>Finishes the whole batch in one shift-click. Vanilla runs one {@code quickMoveStack} round per
- * craft, re-matching the recipe and then consuming and inserting once each time, which for a 32k
- * input means 32k rounds in a single tick. This takes the smaller of "how many crafts the input
- * affords" and "how many the inventory can hold", consumes the materials once, then inserts the
- * output in chunks of at most one stack and hands whatever does not fit to the player as a drop.
+ * 一次 Shift 点击把整批合完。
+ * 原版一次只合一个，65536 个材料就得在一 tick 里跑 65536 轮，谁也扛不住。
+     *
+ * Finishes the whole batch in one shift-click. Vanilla does one craft per pass, which would mean
+ * 65536 passes inside a single tick for a 65536 stack.
  */
 public final class BulkCrafting {
 
@@ -39,22 +35,9 @@ public final class BulkCrafting {
     }
 
     /**
-     * 尝试把产物槽背后那一批一次性合完。
+     * 把产物槽后面这批一次合完：材料够几次、背包放得下几次，取小的。
      *
-     * <p>调用方是 {@code quickMoveStack} 的 HEAD 注入点（工作台与背包各一个 mixin）。返回 true 时调用方
-     * 应把结果设成空堆叠，原版循环随之结束。
-     *
-     * <p>Tries to finish the whole batch behind the result slot. The callers are the {@code HEAD}
-     * injections into {@code quickMoveStack} (one each for the crafting table and the inventory grid);
-     * on {@code true} they must return an empty stack so the vanilla loop stops.
-     *
-     * @param menu 本次合成所在的菜单。The menu being crafted in.
-     * @param craftSlots 合成格。The crafting grid.
-     * @param resultSlots 产物槽。The result slot container.
-     * @param player 发起这次合成的玩家。The player who started the craft.
-     * @param inventoryStart 背包区间起点（含）。First inventory slot, inclusive.
-     * @param inventoryEnd 背包区间终点（不含）。Last inventory slot, exclusive.
-     * @return 整批已处理为 true；应交回原版处理为 false。True when the batch was handled, false when vanilla should handle this click.
+     * Crafts as much as both the materials and the inventory allow, whichever is smaller.
      */
     public static boolean tryCraftAll(AbstractContainerMenu menu, CraftingContainer craftSlots,
                                       ResultContainer resultSlots, Player player, int inventoryStart, int inventoryEnd) {
@@ -82,12 +65,25 @@ public final class BulkCrafting {
             }
         }
 
+        // 有些配方某一格是「催化剂」：合一次拿走一份，收尾又把同一件东西原样还回来（剪刀、工具、模具之类）。
+        // 这种格子不消耗材料、也不该限制合成次数，按老算法它只有 1 个就永远只能合一次；
+        // 同时它也不能被扣数量，否则还回来的时候会凭空多一堆。
+        // Some recipes keep an ingredient: it is taken once per craft and handed straight back by
+        // getRemainingItems (scissors, tools, moulds). Such a slot neither limits the batch nor loses
+        // count — otherwise the recipe would only ever craft once and the returned stack would duplicate.
+        boolean[] selfReturning = new boolean[craftSlots.getContainerSize()];
         int limitedByInput = Integer.MAX_VALUE;
         for (int i = 0; i < craftSlots.getContainerSize(); i++) {
             ItemStack stack = craftSlots.getItem(i);
-            if (!stack.isEmpty()) {
-                limitedByInput = Math.min(limitedByInput, stack.getCount());
+            if (stack.isEmpty()) {
+                continue;
             }
+            ItemStack returned = i < remainingItems.size() ? remainingItems.get(i) : ItemStack.EMPTY;
+            if (!returned.isEmpty() && ItemStack.isSameItemSameTags(returned, stack)) {
+                selfReturning[i] = true;
+                continue;
+            }
+            limitedByInput = Math.min(limitedByInput, stack.getCount());
         }
         if (limitedByInput == Integer.MAX_VALUE) {
             return false;
@@ -96,19 +92,31 @@ public final class BulkCrafting {
         int perCraft = Math.max(1, result.getCount());
         long freeSpace = countFreeSpace(menu, result, inventoryStart, inventoryEnd);
         int crafts = CraftingMath.capBySpace(limitedByInput, freeSpace, perCraft);
+        // 保险：没按住解锁键就只合配置里的次数，免得手快把几十万材料一把清空。
+        boolean unlocked = UnlockState.isUnlocked(player);
+        int cap = UltraStacksConfig.bulkCraftLimit();
+        long planned = (long) crafts * perCraft;
+        if (UltraStacksConfig.bulkCraftUnlockKey() && !unlocked && planned > cap) {
+            crafts = Math.max(1, cap / perCraft);
+        }
+        DiagLog.line("[diag] bulk craft: " + result.getDescriptionId() + " input=" + limitedByInput
+                + " freeSpace=" + freeSpace + " perCraft=" + perCraft + " crafts=" + crafts
+                + " items=" + ((long) crafts * perCraft) + " cap=" + cap + " unlocked=" + unlocked);
         if (crafts <= 0) {
             return false;
         }
 
+        long t0 = System.nanoTime();
         for (int i = 0; i < craftSlots.getContainerSize(); i++) {
-            if (!craftSlots.getItem(i).isEmpty()) {
+            if (!selfReturning[i] && !craftSlots.getItem(i).isEmpty()) {
                 craftSlots.removeItem(i, crafts);
             }
         }
+        long t1 = System.nanoTime();
 
         for (int i = 0; i < remainingItems.size() && i < craftSlots.getContainerSize(); i++) {
             ItemStack rem = remainingItems.get(i);
-            if (rem.isEmpty()) {
+            if (rem.isEmpty() || selfReturning[i]) {
                 continue;
             }
             long totalGave = (long) rem.getCount() * crafts;
@@ -136,6 +144,7 @@ public final class BulkCrafting {
             }
         }
 
+        long t2 = System.nanoTime();
         long remainingOutput = (long) crafts * perCraft;
         long produced = remainingOutput;
         while (remainingOutput > 0) {
@@ -150,12 +159,38 @@ public final class BulkCrafting {
             remainingOutput -= chunk;
         }
 
+        long t3 = System.nanoTime();
         int producedInt = (int) Math.min(produced, Integer.MAX_VALUE);
         result.onCraftedBy(player.level(), player, producedInt);
         player.awardStat(Stats.ITEM_CRAFTED.get(result.getItem()), crafts);
         ForgeEventFactory.firePlayerCraftingEvent(player, result, craftSlots);
+        long t4 = System.nanoTime();
+        // 先清产物槽再让菜单重算：格子空了就该是空的，没空的话 slotsChanged 会把产物填回来。
+        // 少了这步客户端会留着上一次的图标——看着能拿，点下去服务端已经是空的。
+        // Clear the result slot before the menu recomputes: an empty grid must read as empty, a grid
+        // with leftovers gets its result filled back. Without this the client keeps a stale icon that
+        // looks takeable while the server has nothing.
+        resultSlots.setItem(0, ItemStack.EMPTY);
         menu.slotsChanged(craftSlots);
+        long t5 = System.nanoTime();
+        DiagLog.line("[diag] bulk craft done: crafts=" + crafts + " ms consume=" + ms(t0, t1)
+                + " remain=" + ms(t1, t2) + " insert=" + ms(t2, t3) + " book=" + ms(t3, t4)
+                + " sync=" + ms(t4, t5));
         return true;
+    }
+
+    private static String ms(long from, long to) {
+        return String.format(java.util.Locale.ROOT, "%.1f", (to - from) / 1_000_000.0);
+    }
+
+    /** 合成格里有超过 64 的堆就 true。 */
+    public static boolean hasOversizedStacks(Container grid) {
+        for (int i = 0; i < grid.getContainerSize(); i++) {
+            if (grid.getItem(i).getCount() > 64) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static long countFreeSpace(AbstractContainerMenu menu, ItemStack result, int start, int end) {

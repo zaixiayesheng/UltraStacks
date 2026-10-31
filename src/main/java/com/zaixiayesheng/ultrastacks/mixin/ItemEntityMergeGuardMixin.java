@@ -12,10 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * 地上掉落物按配置上限合并。
- *
- * <p>原版 {@code areMergable} 把两个数量当 int 相加，上限抬高后两个大堆叠相加会溢出成负数、被判成
- * 「放得下」；{@code merge} 又每次只搬 64 个。这里先用 long 相加再判断，合并量换成配置的堆叠上限。
- *
+     *
  * <p>Merging dropped items up to the configured limit. Vanilla {@code areMergable} adds the two counts
  * as int, which overflows to a negative number on large stacks and reports "fits"; {@code merge} then
  * moves 64 at a time. The guard adds the counts as a long first, and the merge amount becomes the

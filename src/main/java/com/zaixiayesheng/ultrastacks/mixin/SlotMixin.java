@@ -9,25 +9,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 槽位上限：把原版容器的 64 与某些槽位自己写死的 99 换成配置的堆叠上限。
- *
- * <p>两条注入各管一条路径。无参 {@code getMaxStackSize()} 是槽位报给菜单的值；带 {@link ItemStack} 参数的
- * 重载是 Forge 的插入路径（{@code safeInsert}）与点击处理真正调用的那个。有的槽位（酿造台的燃料槽、
- * 药水槽）自己重写了无参版本并直接返回 64 或 1，所以两条都要拦。
- *
- * <p>无参版本还要保证返回值不小于槽内已有数量：菜单用「上限减已有数量」算剩余空间，配置调小之后
- * 这个减法会是负数，格子里的东西会凭空变少。带参数的重载只在物品相同时才按数量抬，否则槽里放着一堆
- * 铁锭，16 个一组的鸡蛋也能塞进同样多。
- *
- * <p>Slot limits: the container default of 64 and the 99 some slots hardcode become the configured stack
- * size. The two injections cover the two paths. The no-argument {@code getMaxStackSize()} is what a slot
- * reports to the menu; the overload taking an {@link ItemStack} is what Forge's insert path
- * ({@code safeInsert}) and the click handling actually call. Some slots, such as the fuel and potion
- * slots of a brewing stand, override the no-argument version and return 64 or 1 outright, which is why
- * both are needed. The no-argument version also keeps the result at least at the count already inside,
- * because the menu computes headroom as "limit minus count" and a lowered config would otherwise make
- * that negative and quietly shrink the slot. The overload only raises by the current count when the item
- * matches, or a grid holding an ingot stack would accept as many 16-stack eggs.
+ * 槽位上限兜底：99 换成配置值；同一种物品时不低于槽里已有的数量，
+ * 不然 safeInsert 会按「上限减数量」算出的负数去拆，越拆越乱。
+     *
+ * Slot limit: swap the 99, and for the same item never go below the current
+ * count — otherwise safeInsert splits by a negative number.
  */
 @Mixin(Slot.class)
 public abstract class SlotMixin {

@@ -8,10 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * 应用能源自己的库存实现。
- *
- * <p>终端里的合成格、接口的配置格都落在这个库存上，它对每格报的上限是 64，所以在这里换成配置的
- * 堆叠上限。类不在映射里，用 {@code targets} 指名并 {@code remap = false}。
- *
+     *
  * <p>AE2's own inventory backs the crafting grid of a terminal and the configuration slots of an
  * interface, and reports 64 as the limit of each slot, so it becomes the configured stack size. The
  * class is outside the mappings, which is why it is named through {@code targets} with

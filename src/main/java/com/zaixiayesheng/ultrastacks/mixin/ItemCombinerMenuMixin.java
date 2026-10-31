@@ -12,22 +12,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Shift 点击铁砧产物时，一次结算付得起的一整批。
- *
- * <p>原版每 Shift 一次只搬一件，搬完还要重算一遍结果；大堆叠上这让玩家点到手软。这里在
- * {@code quickMoveStack} 入口处一次性处理：件数取左槽数量、附加材料够付的件数、经验够付的件数与产物
- * 堆叠上限的最小值，写进背包后统一扣材料、清产物、扣经验。背包放不下就交回原版逐件处理，不吞物品。
- *
- * <p>改名（没有附加材料、也不消耗修复耐久）仍交给原版：整堆改名只扣一次经验，本来就要这个效果。
- *
- * <p>Shift-clicking an anvil result settles a whole affordable batch at once. Vanilla moves a single item
- * per shift-click and recomputes the result afterwards, which is painful on a large stack. Here
- * {@code quickMoveStack} handles it up front: the batch is the smallest of the left slot count, what the
- * additive supply can pay for, what the experience can pay for and the output stack limit; the items are
- * added to the inventory and then the inputs, the result slot and the levels are settled together. When
- * the inventory cannot hold the batch, vanilla takes over item by item rather than losing anything.
- * Renaming, meaning no additive and no repair cost, is still left to vanilla, which charges its
- * experience once for the whole stack as intended.
+ * 铁砧产物被 Shift 点击时，一次把付得起的整批结算掉。
+ * 上限取左槽数量、右槽能提供的次数、付得起的经验和产物自己的上限；纯改名交还原版。
+     *
+ * Shift-clicking an anvil result settles the affordable batch in one go, capped by
+ * the left slot, the additive slot, experience and the result's own limit. Renames go to vanilla.
  */
 @Mixin(ItemCombinerMenu.class)
 public abstract class ItemCombinerMenuMixin {

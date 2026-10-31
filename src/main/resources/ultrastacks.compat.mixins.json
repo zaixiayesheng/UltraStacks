@@ -23,6 +23,7 @@
     "RefinedStorageCursorHandlerMixin",
     "IronFurnacesFurnaceMixin",
     "CraftingTweaksBalanceMixin",
+    "CraftingTweaksClientBalanceMixin",
     "SuperbWarfareVehicleMixin",
     "CucumberSlotLimitMixin",
     "FunctionalStorageDrawerMixin",
@@ -31,7 +32,8 @@
     "ImmersiveEngineeringHandlerMixin",
     "ImmersiveEngineeringContainerMixin",
     "SophisticatedInventoryInteractionsSortMixin",
-    "SophisticatedStorageMenuMergeMixin"
+    "SophisticatedStorageMenuMergeMixin",
+    "SophisticatedCraftingBalanceMixin"
   ],
   "injectors": {
     "defaultRequire": 1

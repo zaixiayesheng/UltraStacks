@@ -21,6 +21,8 @@
     "RefinedStoragePortableGridExtractMixin",
     "IronFurnacesFurnaceMixin",
     "CraftingTweaksBalanceMixin",
+    "SophisticatedCraftingBalanceMixin",
+    "CraftingTweaksClientBalanceMixin",
     "CucumberSlotLimitMixin",
     "FastWorkbenchShiftCraftMixin",
     "FunctionalStorageDrawerMixin",

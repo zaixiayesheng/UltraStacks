@@ -14,15 +14,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 精妙存储、精妙背包的菜单自己有一套合并逻辑。
- *
- * <p>这俩不用原版的点击流程，点击、快速转移、整理全是自己写的，合并时问的是
- * {@code slot.getMaxStackSize(stack)}，也就是它自家 handler 的上限。原版那边修好了，这条链
- * 照样卡在 64——两条路根本不挨着，之前的诊断也照不到这里。</p>
- *
+     *
  * <p>Sophisticated Storage / Backpacks run their own interaction chain and settle merges against
  * {@code slot.getMaxStackSize(stack)}. Fixing vanilla does nothing here; the two paths never meet.</p>
- *
- * <p>So this raises that chain's slot limit too.</p>
  */
 @Mixin(targets = "net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase", remap = false)
 public abstract class SophisticatedStorageMenuMergeMixin {

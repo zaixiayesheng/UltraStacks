@@ -13,25 +13,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 诊断用：在 {@code AbstractContainerMenu.clicked} 入口把每次「合并/交换」点击的现场记下来。
- *
- * <p>当时是真卡住了。玩家说两堆泥土一点只是换来换去、压根不合，可挂在
- * {@code isSameItemSameComponents} 上的记录一条都没有——说明那一下点击压根没走到原版判等。
- * 那就把探针往前挪，挪到点击入口本身：槽位 id、点击类型、手里和槽里各自的数量与组件、
- * {@code mayPlace} 的结果、还有判等的结果。这两种情况都好办：有记录，顺着往下看是哪一环拒的；
- * 没记录，那就是点击被别的模组整个接走了。</p>
- *
- * <p>只记双方都有东西的点击（合并、交换才会发生），而且去重加限量——之前被后台扫描的 x1 对 x1
- * 把额度刷光过一次，长记性了。日志同时写 LOGGER 和 DiagLog，不退游戏也能读。</p>
- *
- * <p>Records what actually happened at the click entry point. Back then the trace on
- * {@code isSameItemSameComponents} stayed completely silent while the player kept failing to merge,
- * which meant the click never reached vanilla's comparison at all. So the probe moved here: slot id,
- * click type, both stacks, the {@code mayPlace} verdict and the equality verdict. A record means we
- * can follow it down to the refusing check; no record means something else swallowed the click.</p>
- *
- * <p>Only clicks with items on both sides are recorded, deduplicated and capped — background x1-vs-x1
- * comparisons ate the whole budget once already. Written to both LOGGER and DiagLog.</p>
+ * 点击入口的记录。当初玩家说合不上，可挂在比较上的记录一条都没有，说明点击压根没走到那儿，
+ * 探针就挪到了这里：槽位、点击类型、两堆的数量和补丁、能不能放、判不判同。
+ * 有记录就能顺着找是谁拒绝的；没有，那就是被别的模组接走了。
+     *
+ * What really happens at the click entry point. The comparison probe stayed silent while merges kept
+ * failing, so the probe moved here: slot, click type, both stacks, mayPlace and the equality verdict.
  */
 @Mixin(AbstractContainerMenu.class)
 public abstract class SlotClickTraceMixin {

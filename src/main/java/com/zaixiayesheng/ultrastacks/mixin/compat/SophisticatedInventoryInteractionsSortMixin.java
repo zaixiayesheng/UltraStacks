@@ -9,32 +9,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * 精妙交互的整理功能（{@code sortRegion} / {@code insertIntoSlots} / {@code moveStackToTargets}）切堆时
- * 有两个上限来源，都被改成按本模组配置走：
- *
- * <ol>
- *   <li>槽位侧 {@code Slot.getMaxStackSize(物品)}：玩家物品栏背后的 {@code Container} 默认只报 99，65536
- *   的合法栈会被按 1 或 99 切开——改成「至少按配置上限」；</li>
- *   <li>物品侧 {@code ItemStack.getMaxStackSize()}：排序用的 key 栈是数量为 1 的拷贝，而配置助手只有在
- *   {@code 数量 > 上限} 时才抬上限（防止把现存小堆的体积虚报），于是这里永远报 64，大堆被按 64 切。物品栏
- *   只有 36 格装不下，整理直接失败回滚；容器格子多，就拆成一堆 64——改成「按物品原版默认值换算配置上限」，
- *   不再看数量。</li>
- * </ol>
- *
- * <p>Both stack-splitting limits used by Sophisticated Inventory Interactions
- * ({@code sortRegion} / {@code insertIntoSlots} / {@code moveStackToTargets}) are redirected to follow this
- * mod's configuration:
- *
- * <ol>
- *   <li>the slot side {@code Slot.getMaxStackSize(stack)}: the {@code Container} behind the player inventory
- *   still reports 99, so a legal 65536 stack would be chopped into 1- or 99-sized pieces — it now returns at
- *   least the configured limit;</li>
- *   <li>the item side {@code ItemStack.getMaxStackSize()}: the sorting key stack is a count-1 copy, and the
- *   config helper only raises the limit when {@code count > limit} (so existing small stacks are not
- *   over-reported), so this call always reported 64 here and big stacks were chopped into 64s. The player's
- *   36 slots cannot hold them, so the sort failed and rolled back; containers with more slots just got
- *   stacks split into 64s. It now scales the item's vanilla default without looking at the count.</li>
- * </ol>
+ * 精妙交互整理时的两处上限。
+ * 槽位那边：玩家背包背后的容器还报 99，65536 的栈会被切成小块，所以至少放到配置值。
+ * 物品那边：排序用的 key 是数量 1 的拷贝，配置助手只在“数量 > 上限”时才抬，于是这里老报 64，
+ * 大堆被切成 64 一堆——背包 36 格装不下就整体回滚，格子多的容器就被拆散。现在按物品默认值算。
+     *
+ * The two limits Sophisticated Inventory Interactions uses while sorting: the slot side (the player
+ * container still reports 99 and chops a 65536 stack) and the item side (the count-1 key stack always
+ * reported 64, splitting big stacks).
  */
 @Mixin(targets = "net.p3pp3rf1y.sophisticatedinventoryinteractions.common.actions.ContainerActionExecutor", remap = false)
 public abstract class SophisticatedInventoryInteractionsSortMixin {

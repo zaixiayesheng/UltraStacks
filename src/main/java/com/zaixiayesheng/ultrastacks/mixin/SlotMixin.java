@@ -8,24 +8,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 /**
- * 槽位上限的两层兜底。
- *
- * <p>第一层：原版 {@code Slot#getMaxStackSize()} 直接转给容器的上限，而容器默认是 99，这里把 99 换成
- * 配置值，并且返回值不小于槽内已有的数量。
- *
- * <p>第二层：{@code getMaxStackSize(ItemStack)} 原版取「槽位上限」与「物品上限」的较小值。上限若小于
- * 槽内已有数量，{@code Slot#safeInsert} 里的 {@code 上限 - 数量} 会变成负数，随后拿它去 split / shrink
- * 就会一边变少一边变多。所以当槽里是同一种物品时，返回值至少是当前数量；不同物品不受影响——槽里堆着
- * 一千个铁锭，不该让十六个一组的鸡蛋也报出同样的上限。
- *
- * <p>Two layers of slot-limit protection. First, vanilla {@code Slot#getMaxStackSize()} forwards to the
- * container limit, which defaults to 99; 99 is replaced with the configured value and the result is
- * never below the stack already in the slot. Second, {@code getMaxStackSize(ItemStack)} takes the
- * smaller of the slot limit and the item limit in vanilla. If the limit is below the count already
- * in the slot, {@code Slot#safeInsert} computes {@code limit - count} as a negative number and then
- * splits or shrinks by it, losing on one side while gaining on the other. For the same item the
- * result is therefore at least the current count; other items are unaffected, because a slot holding
- * a thousand iron ingots must not report that limit for a stack of sixteen eggs.
+ * 槽位上限兜底：99 换成配置值；同一种物品时不低于槽里已有的数量，
+ * 不然 safeInsert 会按「上限减数量」算出的负数去拆，越拆越乱。
+     *
+ * Slot limit: swap the 99, and for the same item never go below the current
+ * count — otherwise safeInsert splits by a negative number.
  */
 @Mixin(Slot.class)
 public abstract class SlotMixin {

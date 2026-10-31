@@ -8,17 +8,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 在 {@link ItemStack#getMaxStackSize()} 返回处套用配置。
+ * 在 getMaxStackSize() 返回处套配置。药水、附魔书、桶这些按各自的配置抬，其余按比例缩。
  *
- * <p>两件事：一是让原版上限为 1 的物品（药水、附魔书、桶）能按各自配置单独抬到高值；二是返回值永远
- * 不小于自身数量——上限被调低之后，菜单代码里的 {@code 上限 - 数量} 会变成负数，{@code split} /
- * {@code shrink} 就会反向操作。
- *
- * <p>Applies the configuration where {@link ItemStack#getMaxStackSize()} returns. Two things happen:
- * items whose vanilla limit is one (potions, enchanted books, buckets) can be raised individually
- * through their own settings, and the result is never smaller than the stack's own count, because a
- * lowered limit would make {@code limit - count} negative in menu code and drive {@code split} or
- * {@code shrink} with a negative amount.
+ * Applies the configured limits where getMaxStackSize() returns.
  */
 @Mixin(ItemStack.class)
 public abstract class ItemStackMaxStackMixin {
@@ -26,6 +18,11 @@ public abstract class ItemStackMaxStackMixin {
     @Inject(method = "getMaxStackSize()I", at = @At("RETURN"), cancellable = true)
     private void ultrastacks$applyLimit(CallbackInfoReturnable<Integer> cir) {
         ItemStack self = (ItemStack) (Object) this;
+        // 有耐久的按原版 1，连“不小于自身数量”也不套：那兜底套在工具上就是自我证明，一堆剑永远拆不开。
+        // Damageable items stay at 1 and skip the count floor — on tools it self-justifies.
+        if (self.isDamageableItem()) {
+            return;
+        }
         int original = cir.getReturnValue();
         int limit = Math.max(UltraStacksConfig.limitFor(self, original), self.getCount());
         if (limit != original) {

@@ -2,6 +2,10 @@ package com.zaixiayesheng.ultrastacks;
 
 import com.mojang.logging.LogUtils;
 import com.zaixiayesheng.ultrastacks.client.ClientSetup;
+import com.zaixiayesheng.ultrastacks.client.UnlockKey;
+import com.zaixiayesheng.ultrastacks.core.TickWatchdog;
+import com.zaixiayesheng.ultrastacks.crafting.UnlockState;
+import com.zaixiayesheng.ultrastacks.net.Network;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -13,14 +17,9 @@ import org.slf4j.Logger;
 
 /**
  * 模组入口：把物品的堆叠上限抬到配置值（默认 65536），并让容器、槽位、存档与网络包接受这个数量。
- *
- * <p>构造器只做三件事：注册 COMMON 配置、挂上配置加载回调、挂上改写物品默认组件的监听器。
- *
+     *
  * <p>Mod entry point: it raises item stack limits to the configured value (65536 by default) and
  * makes containers, slots, saved data and network payloads accept that number.
- *
- * <p>The constructor does exactly three things: register the COMMON config, subscribe the
- * config-load callback and subscribe the listener that rewrites item default components.
  */
 @Mod(UltraStacks.MOD_ID)
 public final class UltraStacks {
@@ -30,18 +29,7 @@ public final class UltraStacks {
     /**
      * 存档与网络能承载的硬上限，与配置无关。
      *
-     * <p>取 {@link Integer#MAX_VALUE} 的一半（1073741823）：两个上限相加仍在 int 范围内，
-     * 菜单与合并逻辑里常见的 {@code a + b} 不会溢出。
-     *
-     * <p>{@code ItemStack} 的编解码器在类初始化时就已建好，早于配置文件加载，所以这里只能是编译期常量。
-     *
      * <p>Hard ceiling that saved data and network payloads can carry, independent of the config.
-     *
-     * <p>It is half of {@link Integer#MAX_VALUE} (1073741823), so adding two limits still fits an
-     * int and the {@code a + b} arithmetic common in menu and merge code cannot overflow.
-     *
-     * <p>{@code ItemStack}'s codecs are built during class initialisation, before the config file is
-     * read, so this has to be a compile-time constant.
      */
     public static final int ABSOLUTE_MAX_STACK_SIZE = Integer.MAX_VALUE / 2;
 
@@ -49,10 +37,22 @@ public final class UltraStacks {
         modContainer.registerConfig(ModConfig.Type.COMMON, UltraStacksConfig.SPEC);
         modEventBus.addListener(UltraStacksConfig::onConfigLoad);
         modEventBus.addListener(ModBusEvents::onModifyDefaultComponents);
+        modEventBus.addListener(Network::register);
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) -> TickWatchdog.serverTick());
+        TickWatchdog.start();
         NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
+        NeoForge.EVENT_BUS.addListener(UltraStacks::onPlayerLoggedOut);
         if (FMLEnvironment.dist.isClient()) {
             ClientSetup.registerConfigScreen(modContainer);
+            modEventBus.addListener(UnlockKey::register);
+            NeoForge.EVENT_BUS.addListener(UnlockKey::onClientTick);
+            NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.client.event.ClientTickEvent.Post event) -> TickWatchdog.clientTick());
         }
+    }
+
+    /** 玩家退出就把他从「按住解锁键」名单里划掉。 */
+    private static void onPlayerLoggedOut(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent event) {
+        UnlockState.clear(event.getEntity().getUUID());
     }
 
     /** 注册 {@code /ultrastacks dump}：现场抓取物品栏完整 NBT 的诊断命令。 */

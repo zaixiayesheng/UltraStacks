@@ -10,16 +10,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * 精妙储存与背包的槽位上限由 {@code InventoryHandler} 报出，两个入口都要抬：{@code getSlotLimit} 报固定上限，{@code getStackLimit} 还要看具体物品。
- *
- * <p>两个都只对 64 与 99 生效，换成 {@link UltraStacksConfig#raiseSophisticatedLimit(int)} 的结果；不抬的话整摞放进去仍会按旧上限被拆开或拒绝。
- *
+     *
  * <p>Sophisticated Storage and Backpacks report slot limits from {@code InventoryHandler}, and both
  * entry points have to be raised: {@code getSlotLimit} reports the fixed limit while
  * {@code getStackLimit} also considers the item.
- *
- * <p>Both only change 64 and 99, to the result of
- * {@link UltraStacksConfig#raiseSophisticatedLimit(int)}; without the patch a whole stack is still
- * split or refused on the way in because of the old limit.
  */
 @Mixin(targets = "net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler", remap = false)
 public abstract class SophisticatedInventoryHandlerMixin {
@@ -40,9 +34,6 @@ public abstract class SophisticatedInventoryHandlerMixin {
      * 存量的脏栈（patch=64、数量=1）在这里仍报 64，存储整理（InventorySorter.placeStack 的
      * getStackLimit 委托链）会把合并后的整组按 64 切。改成 {@link UltraStacksConfig#sortCapacity}，
      * 不再看数量。
-     *
-     * <p>只重定向三元表达式里的第二个调用点（{@code canStackItem} 为 false 时直接返回物品自身上限的
-     * 那个分支保持原样），ordinal = 1。
      *
      * <p>{@code getBaseStackLimit(ItemStack)} uses {@code stack.getMaxStackSize()} as the item-side
      * limit; legacy dirty stacks (patch=64, count=1) still report 64 there, so the storage sorter

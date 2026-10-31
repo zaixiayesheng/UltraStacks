@@ -2,11 +2,7 @@ package com.zaixiayesheng.ultrastacks.crafting;
 
 /**
  * 批量合成的纯算术，不依赖 Minecraft 类型。
- *
- * <p>批量合成实际用到的只有两个：{@link #capBySpace} 按产物空位截断合成次数，{@link #nextChunk}
- * 把超过单堆上限的产物拆成多次插入。取整、溢出这些会凭空多出或少掉物品的换算都集中在这里；
- * 其余方法是同一套算术的纯函数形式，目前没有调用点。
- *
+     *
  * <p>Pure arithmetic for bulk crafting, free of Minecraft types. Only two of the methods are used
  * by bulk crafting: {@link #capBySpace} caps the craft count by the free output space and
  * {@link #nextChunk} splits an oversized output into insertion chunks. Rounding and overflow, the
@@ -45,13 +41,8 @@ public final class CraftingMath {
     /**
      * 按产物空位截断合成次数：一次合成产出 {@code perCraft} 个，空位放得下几次就只能合几次。
      *
-     * <p>{@code freeSpace} 是 {@code long}，堆得极高时光强转会溢出，所以结果先夹到 {@code int} 范围内。
-     *
      * <p>Caps the craft count by the free output space: one craft yields {@code perCraft} items, so the
      * number of crafts is limited to what the free space still holds.
-     *
-     * <p>{@code freeSpace} is a {@code long}, and a plain cast would overflow at very high limits, so
-     * the result is clamped to the {@code int} range first.
      */
     public static int capBySpace(int crafts, long freeSpace, int perCraft) {
         if (perCraft <= 0 || freeSpace <= 0) {
@@ -74,9 +65,6 @@ public final class CraftingMath {
 
     /**
      * 单次插入的数量：不超过一摞，也不超过剩余量。
-     *
-     * <p>一个 {@code ItemStack} 永远装不下超过自身上限的数量，产物超过一摞时只能分批插入，
-     * 否则多出的部分会被静默丢掉。
      *
      * <p>Size of one insertion: at most one stack and at most what is left. A single
      * {@code ItemStack} can never hold more than its own limit, so an output larger than one stack

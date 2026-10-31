@@ -23,7 +23,7 @@ import net.minecraft.world.item.ItemStack;
  * {@code config/ultrastacks-dump.txt}。用于「两堆东西不能合并」的现场取证：
  * 玩家复现失败的瞬间执行一次，每个槽位的物品 id、数量、堆叠上限、组件补丁以及
  * 完整 NBT（count > 1 的堆叠）全部落盘，之后直接读文件分析，不需要玩家复制聊天框。
- *
+     *
  * <p>{@code /ultrastacks dump} writes the executor's whole inventory (including offhand and
  * armor) to {@code config/ultrastacks-dump.txt}. Item id, count, max stack size, component
  * patch and — for stacks with count &gt; 1 — the full NBT of every occupied slot are captured,

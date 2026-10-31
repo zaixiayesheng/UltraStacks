@@ -18,19 +18,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 附魔台：按「付得起几件」附魔，而不是整摞只收一次钱。
- *
- * <p>原版把一次 rolls 应用到整个输入堆叠，却只扣一次经验和青金石：64 本书点一下全变附魔书，
- * 代价仍是最低档的 1 级。这里先算出经验与青金石付得起的件数 {@code batch}（创造模式不限），
- * 取一次 rolls 后套用到整批，剩余物品留在槽里。一次点击只结算一次，花费随件数增长，而不是随点击次数。
- *
- * <p>Enchants as many items as the player can pay for instead of enchanting the whole stack for a
- * single payment. Vanilla applies one roll to the entire input stack and charges one batch of
- * experience and lapis: a stack of 64 books becomes 64 enchanted books for the cheapest tier.
- * This hook first computes {@code batch}, the number of items the player's levels and lapis cover
- * (unlimited in creative), takes one roll, applies it to that batch, and leaves the rest in the
- * slot. A click is settled once, so the cost scales with the number of items rather than with the
- * number of clicks.
+ * 附魔台：按「付得起几件」来附，而不是整摞只收一次钱。
+ * 一次点击只结算一次，剩下的留在槽里。
+     *
+ * Enchanting table: enchant as many as the payment covers instead of charging
+ * once for a whole stack. One click settles once, leftovers stay put.
  */
 @Mixin(EnchantmentMenu.class)
 public abstract class EnchantmentMenuMixin {
@@ -40,14 +32,6 @@ public abstract class EnchantmentMenuMixin {
 
     /**
      * 取代原版的附魔按钮逻辑：校验、算批量、整批附魔、扣费。
-     *
-     * <p>顺序是：按钮 id 0..2（对应 1 到 3 级档位）→ 输入槽非空 → 生存模式下经验至少
-     * {@code max(档位, 花费)} 且青金石至少 {@code 档位} → 批量受输入数量、经验、青金石三者限制 →
-     * 取一次 rolls → 整批套用。整批正好覆盖输入时直接替换槽内物品，否则先确认背包放得下，再放入并缩减输入槽。
-     * 生存模式按 {@code 档位 × 批量} 扣青金石，经验交给 {@code onEnchantmentPerformed}。
-     *
-     * <p>注意这条路径整段替换了原版流程，原版的附魔音效与 NeoForge 的
-     * {@code CommonHooks.onPlayerEnchantItem} 不会执行。
      *
      * <p>Replaces the vanilla enchanting button logic: validate, compute the batch, enchant it, and
      * charge for it. The order is: button id 0..2 (tiers 1 to 3), non-empty input slot, and in
@@ -130,8 +114,6 @@ public abstract class EnchantmentMenuMixin {
 
     /**
      * 背包还能装下多少个这种物品：空格按物品自身的上限计，同类堆叠按剩余空间计。
-     *
-     * <p>只用来确认这批附魔产物能整体进背包——装不下就放弃这次点击，而不是让物品卡在槽里。
      *
      * <p>How many more of this item the inventory can take: empty slots count the item's own limit and
      * matching stacks count their remaining room. It only checks that the enchanted batch fits into

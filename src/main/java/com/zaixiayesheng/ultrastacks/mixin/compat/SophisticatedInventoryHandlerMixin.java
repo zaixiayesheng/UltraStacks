@@ -25,12 +25,24 @@ public abstract class SophisticatedInventoryHandlerMixin {
     @Inject(method = "getBaseCapacity(Lnet/neoforged/neoforge/transfer/item/ItemResource;)I",
             at = @At("RETURN"), cancellable = true, require = 0)
     private void ultrastacks$raiseCapacity(ItemResource resource, CallbackInfoReturnable<Integer> cir) {
+        // 资源是具体物品时看一眼它有没有耐久，有就还是 1 个一格。
+        // When the resource is a concrete item, keep damageable ones at one per slot.
+        if (resource instanceof ItemResource itemResource && itemResource.toStack(1).isDamageableItem()) {
+            cir.setReturnValue(1);
+            return;
+        }
         cir.setReturnValue(UltraStacksConfig.raiseSophisticatedLimit(cir.getReturnValueI()));
     }
 
     @Inject(method = "getBaseStackLimit(Lnet/minecraft/world/item/ItemStack;)I", at = @At("RETURN"),
             cancellable = true, require = 0)
     private void ultrastacks$raiseBaseStackLimit(ItemStack stack, CallbackInfoReturnable<Integer> cir) {
+        // 这个方法把物品上限按「槽位上限 / 64」放大，抬过上限之后一把工具会被算成上千个。
+        // This method scales the item limit by slotLimit/64, which turns a one-per-slot tool into hundreds.
+        if (stack.isDamageableItem()) {
+            cir.setReturnValue(1);
+            return;
+        }
         cir.setReturnValue(UltraStacksConfig.raiseSophisticatedLimit(cir.getReturnValueI()));
     }
 }

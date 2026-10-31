@@ -18,5 +18,6 @@ public final class Network {
     public static void register(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");
         registrar.playToServer(UnlockPayload.TYPE, UnlockPayload.STREAM_CODEC, UnlockPayload::handle);
+        registrar.playToServer(BalancePayload.TYPE, BalancePayload.STREAM_CODEC, BalancePayload::handle);
     }
 }

@@ -1,6 +1,6 @@
 # Changelog / 更新日志
 
-## v20.1-1.0.4-beta — Minecraft 1.20.1 / Forge 47.4
+## v20.1-1.0.4 — Minecraft 1.20.1 / Forge 47.4
 
 **中文**
 

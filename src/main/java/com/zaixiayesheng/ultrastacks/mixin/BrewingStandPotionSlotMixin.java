@@ -18,7 +18,7 @@ public abstract class BrewingStandPotionSlotMixin {
     @Inject(method = "getMaxStackSize()I", at = @At("RETURN"), cancellable = true)
     private void ultrastacks$potionSlotLimit(CallbackInfoReturnable<Integer> cir) {
         Slot self = (Slot) (Object) this;
-        int limit = Math.max(UltraStacksConfig.potionStackLimit(), self.getItem().getCount());
+        int limit = UltraStacksConfig.honestLimit(UltraStacksConfig.potionStackLimit(), self.getItem().getCount());
         if (limit > cir.getReturnValueI()) {
             cir.setReturnValue(limit);
         }

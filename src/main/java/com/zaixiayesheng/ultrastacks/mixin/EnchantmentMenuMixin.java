@@ -1,7 +1,11 @@
 package com.zaixiayesheng.ultrastacks.mixin;
 
 import java.util.List;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -10,6 +14,7 @@ import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.EnchantmentMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
+import net.neoforged.neoforge.common.CommonHooks;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -93,9 +98,22 @@ public abstract class EnchantmentMenuMixin {
             }
         }
         player.onEnchantmentPerformed(enchanted, per * batch);
+        // 原版结算后还会走这几件事：模组的附魔后处理钩子、进度判定、附魔台的「使用」音效。
+        // 少走它们的话，其他模组挂在 onPlayerEnchantItem 上的逻辑不执行、进度不涨、也没有声音。
+        // Vanilla also runs these after settling: the mod hook, the advancement trigger and the
+        // table sound. Skipping them leaves other mods' enchant hooks, progress and audio dead.
+        CommonHooks.onPlayerEnchantItem(player, enchanted, rolls);
+        if (player instanceof ServerPlayer serverPlayer) {
+            CriteriaTriggers.ENCHANTED_ITEM.trigger(serverPlayer, enchanted, per * batch);
+        }
         this.enchantmentSeed.set(player.getEnchantmentSeed());
+        this.enchantSlots.setChanged();
         self.slotsChanged(this.enchantSlots);
         player.awardStat(Stats.ENCHANT_ITEM);
+        // 26.1.2 把 Level.random 收成 protected，改走 getRandom()；两者是同一个 RandomSource。
+        // 26.1.2 makes Level.random protected, so go through getRandom() — same RandomSource.
+        player.level().playSound(null, player.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE,
+                SoundSource.BLOCKS, 1.0F, player.level().getRandom().nextFloat() * 0.1F + 0.9F);
         cir.setReturnValue(true);
     }
 

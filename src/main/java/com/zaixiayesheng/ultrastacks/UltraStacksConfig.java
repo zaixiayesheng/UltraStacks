@@ -92,6 +92,13 @@ public final class UltraStacksConfig {
             .translation("ultrastacks.configuration.bulkCraftUnlockKey")
             .define("bulkCraftUnlockKey", true);
 
+    static final ModConfigSpec.BooleanValue IGNORE_TOO_EXPENSIVE = BUILDER
+            .comment("Anvil: let the result be taken even when the total cost reaches 40 (\"Too Expensive\").",
+                    "The experience charge is unchanged - only the blocking is removed.",
+                    "中文：铁砧 —— 总费用达到 40 时产物不再被吞掉（原版「过于昂贵」），经验照实扣，只解除拦截。")
+            .translation("ultrastacks.configuration.ignoreTooExpensive")
+            .define("ignoreTooExpensive", true);
+
     public enum CountStyle {
         COMPACT,
         EXACT
@@ -166,6 +173,9 @@ public final class UltraStacksConfig {
     private static volatile boolean bulkCrafting = true;
     private static volatile int bulkCraftLimit = 64;
     private static volatile boolean bulkCraftUnlockKey = true;
+
+    /** 铁砧「过于昂贵」是否放行。 / Whether the anvil lets a "Too Expensive" result be taken. */
+    private static volatile boolean ignoreTooExpensive = true;
     private static volatile CountStyle countStyle = CountStyle.COMPACT;
     private static volatile int abbreviateAbove = 1000;
     private static volatile boolean tooltipExact = true;
@@ -176,6 +186,32 @@ public final class UltraStacksConfig {
     private static volatile boolean compatMysticalAgriculture = true;
 
     private UltraStacksConfig() {
+    }
+
+    /**
+     * 配置里的硬上限。
+     *
+     * <p>The hard cap from the config.
+     */
+    public static int limitCap() {
+        return maxStackSize();
+    }
+
+    /**
+     * 上报上限时不许超过配置值，也不许把「比上限还多的那堆」当成合法上限。
+     *
+     * <p>超限堆已经不合法（旧版本留下的、或别的模组写进来的）：这里返回 cap，让合并路径按正常余量算，
+     * 而不是用自身数量自我证明、越滚越大。
+     *
+     * <p>An already-overflowing stack is not a licence to raise the cap: report the configured cap so
+     * merging paths compute a real remainder instead of growing without bound.
+     */
+    public static int honestLimit(int limit, int count) {
+        int cap = limitCap();
+        if (count > cap) {
+            return cap;
+        }
+        return Math.min(cap, Math.max(limit, count));
     }
 
     public static int maxStackSize() {
@@ -208,6 +244,16 @@ public final class UltraStacksConfig {
         return bulkCraftUnlockKey;
     }
 
+    /**
+     * 铁砧是否放行「过于昂贵」的产物。
+     *
+     * <p>Whether the anvil lets a result be taken once the cost reaches 40. The charge itself is
+     * untouched; only the block is removed.
+     */
+    public static boolean ignoreTooExpensive() {
+        return ignoreTooExpensive;
+    }
+
     public static CountStyle countStyle() {
         return countStyle;
     }
@@ -237,7 +283,7 @@ public final class UltraStacksConfig {
         if (!compatSophisticated) {
             return original;
         }
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
     /**
@@ -269,7 +315,7 @@ public final class UltraStacksConfig {
         if (!compatAe2) {
             return original;
         }
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
     /**
@@ -282,7 +328,11 @@ public final class UltraStacksConfig {
         if (!compatAe2 || (original != 64L && original != 99L)) {
             return original;
         }
-        return Math.max(original, Math.max(1L, maxStackSize / 16L));
+        // 接口/供应器每槽能屯多少，就该等于我们允许的堆叠上限：之前写成「上限 / 16」，
+        // 于是 65536 的配置下每槽只吃 4096，塞 65536 进去有 61440 被直接丢掉。
+        // An interface slot should hold as much as the configured stack limit. The old "limit / 16"
+        // capped it at 4096 and silently voided the remainder of a 65,536 stack.
+        return Math.max(original, Math.max(1L, maxStackSize));
     }
 
     /**
@@ -309,7 +359,7 @@ public final class UltraStacksConfig {
         if (!compatRefinedStorage) {
             return original;
         }
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
     /**
@@ -345,7 +395,7 @@ public final class UltraStacksConfig {
         if (!compatIronFurnaces) {
             return original;
         }
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
 
@@ -359,7 +409,7 @@ public final class UltraStacksConfig {
         if (!compatMysticalAgriculture) {
             return original;
         }
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
     /**
@@ -369,7 +419,7 @@ public final class UltraStacksConfig {
      * big stacks are rejected. Only 64 / 99 get raised; other values stay as the mod set them.
      */
     public static int vehicleSlotLimit(int original) {
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
     public static boolean tooltipExact() {
@@ -389,6 +439,7 @@ public final class UltraStacksConfig {
         bulkCrafting = BULK_CRAFTING.get();
         bulkCraftLimit = BULK_CRAFT_LIMIT.get();
         bulkCraftUnlockKey = BULK_CRAFT_UNLOCK_KEY.get();
+        ignoreTooExpensive = IGNORE_TOO_EXPENSIVE.get();
         countStyle = COUNT_STYLE.get();
         abbreviateAbove = ABBREVIATE_ABOVE.get();
         tooltipExact = TOOLTIP_EXACT.get();
@@ -444,7 +495,7 @@ public final class UltraStacksConfig {
      * configured stack limit.
      */
     public static int raiseSlotLimit(int original) {
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
     /**
@@ -552,7 +603,7 @@ public final class UltraStacksConfig {
         } else if (isEnchantedBook(stack)) {
             configured = enchantedBookStackLimit;
         } else if (stack.getItem() instanceof net.minecraft.world.item.BucketItem) {
-            configured = Math.max(bucketStackLimit, scaledMax(16));
+            configured = bucketStackLimit;
         } else {
             return vanillaMax;
         }

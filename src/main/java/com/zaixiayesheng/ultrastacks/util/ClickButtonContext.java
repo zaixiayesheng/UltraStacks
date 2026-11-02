@@ -1,4 +1,4 @@
-package com.zaixiayesheng.ultrastacks.mixin;
+package com.zaixiayesheng.ultrastacks.util;
 
 /**
  * 记录当前这次 {@code doClick} 是按的哪个键，供同一次调用里的重定向读取。

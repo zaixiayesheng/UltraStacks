@@ -30,6 +30,9 @@ public abstract class FastWorkbenchShiftCraftMixin {
             // 客户端只负责发点击包，真正的合成在服务端；逐次循环留在客户端，就是几万次配方扫描。
             // The client only sends the click and the server does the crafting. Leaving the per-round
             // loop on the client means tens of thousands of recipe scans.
+            if (!BulkCrafting.enabled()) {
+                return;
+            }
             if (BulkCrafting.hasOversizedStacks(inventory)) {
                 cir.setReturnValue(ItemStack.EMPTY);
             }

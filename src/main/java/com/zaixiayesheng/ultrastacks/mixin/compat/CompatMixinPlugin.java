@@ -30,6 +30,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
     private static final String FUNCTIONAL_STORAGE = "functionalstorage";
     private static final String CRAFTING_TWEAKS = "craftingtweaks";
     private static final String SUPERB_WARFARE = "superbwarfare";
+    private static final String APOTHEOSIS = "apotheosis";
 
     @Override
     public void onLoad(String mixinPackage) {
@@ -74,6 +75,9 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
      */
     private static String[] modIdsFor(String mixinClassName) {
         String simpleName = mixinClassName.substring(mixinClassName.lastIndexOf('.') + 1);
+        if (simpleName.startsWith("SophProvider")) {
+            return new String[] { SOPHISTICATED };
+        }
         if (simpleName.startsWith("Sophisticated")) {
             return new String[] { SOPHISTICATED };
         }
@@ -85,6 +89,9 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
         }
         if (simpleName.startsWith("SuperbWarfare")) {
             return new String[] { SUPERB_WARFARE };
+        }
+        if (simpleName.startsWith("Apotheosis")) {
+            return new String[] { APOTHEOSIS };
         }
         if (simpleName.startsWith("CraftingTweaks")) {
             return new String[] { CRAFTING_TWEAKS };

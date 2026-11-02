@@ -27,10 +27,7 @@ public abstract class ItemStackMaxStackMixin {
         if (self.isDamageableItem()) {
             return;
         }
-        int max = UltraStacksConfig.limitFor(self, cir.getReturnValue());
-        if (self.getCount() > max) {
-            max = self.getCount();
-        }
+        int max = UltraStacksConfig.honestLimit(UltraStacksConfig.limitFor(self, cir.getReturnValue()), self.getCount());
         if (max != cir.getReturnValue()) {
             cir.setReturnValue(max);
         }

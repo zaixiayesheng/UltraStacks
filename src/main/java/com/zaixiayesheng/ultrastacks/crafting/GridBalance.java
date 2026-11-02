@@ -3,6 +3,8 @@ package com.zaixiayesheng.ultrastacks.crafting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -143,11 +145,22 @@ public final class GridBalance {
         return ItemStack.isSameItemSameComponents(a, b);
     }
 
-    /** 这几格里最大的实际容量，不能比现有的堆还小，否则一摊就缩水。 */
+    /**
+     * 这几格里最大的实际容量，不能比现有的堆还小，否则一摊就缩水。
+     *
+     * <p>空格报的是 {@code ItemStack.EMPTY} 的 64，这里按配置上限算，否则平铺到空格会被 64 卡住。
+     *
+     * <p>The largest real capacity among these cells; it must never be below an existing stack or the
+     * spread would shrink it. An empty cell reports {@code ItemStack.EMPTY}'s 64, so it is counted at
+     * the configured cap instead — otherwise spreading into empty cells would stop at 64.
+     */
     private static int capOf(Container matrix, List<Integer> targets, ItemStack template) {
         int cap = Math.max(1, template.getMaxStackSize());
         for (int index : targets) {
-            cap = Math.max(cap, matrix.getItem(index).getMaxStackSize());
+            ItemStack existing = matrix.getItem(index);
+            cap = Math.max(cap, existing.isEmpty()
+                    ? UltraStacksConfig.limitCap()
+                    : existing.getMaxStackSize());
         }
         return cap;
     }

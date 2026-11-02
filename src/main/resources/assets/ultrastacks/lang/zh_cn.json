@@ -27,5 +27,7 @@
   "ultrastacks.configuration.bulkCraftLimit": "单次合成上限",
   "ultrastacks.configuration.bulkCraftUnlockKey": "需要按住解锁键",
   "key.categories.ultrastacks": "超级堆叠",
-  "key.ultrastacks.unlock": "解锁整批合成"
+  "key.ultrastacks.unlock": "解锁整批合成",
+  "ultrastacks.configuration.ignoreTooExpensive": "铁砧：费用超过「过于昂贵」也能取走产物",
+  "ultrastacks.tooltip.batch": "合成数量：%s / %s"
 }

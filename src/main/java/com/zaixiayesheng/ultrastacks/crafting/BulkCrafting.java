@@ -93,13 +93,12 @@ public final class BulkCrafting {
         int perCraft = Math.max(1, result.getCount());
         long freeSpace = countFreeSpace(menu, result, inventoryStart, inventoryEnd);
         int crafts = CraftingMath.capBySpace(limitedByInput, freeSpace, perCraft);
-        // 没按住解锁键就把产物夹到配置值；按“产物个数”算，不是按次数（铁块拆锭一次出 9 个）。
-        // Cap by produced items, not craft count — one craft can yield nine (iron block to ingots).
+        // 上限数的是“配方次数”，和精妙、铁砧完全一致：铁块拆锭 64 次就是 576 个锭。
+        // The cap counts recipe runs, exactly like Sophisticated and the anvil: 64 runs of block-to-ingots is 576.
         boolean unlocked = UnlockState.isUnlocked(player);
         int cap = UltraStacksConfig.bulkCraftLimit();
-        long planned = (long) crafts * perCraft;
-        if (UltraStacksConfig.bulkCraftUnlockKey() && !unlocked && planned > cap) {
-            crafts = Math.max(1, cap / perCraft);
+        if (UltraStacksConfig.bulkCraftUnlockKey() && !unlocked && crafts > cap) {
+            crafts = Math.max(1, cap);
         }
         DiagLog.line("[diag] bulk craft: " + result.getDescriptionId() + " input=" + limitedByInput
                 + " freeSpace=" + freeSpace + " perCraft=" + perCraft + " crafts=" + crafts

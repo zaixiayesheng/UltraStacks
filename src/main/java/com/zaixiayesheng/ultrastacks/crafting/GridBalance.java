@@ -2,6 +2,7 @@ package com.zaixiayesheng.ultrastacks.crafting;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -109,9 +110,13 @@ public final class GridBalance {
             }
 
             // 每格能放多少，取这几格里最大的实际上限——不能比现有的堆还小，否则一摊就缩水。
+            // 空格报的是 ItemStack.EMPTY 的 64，这里按配置上限算，否则平铺到空格会被 64 卡住。
             int cap = 1;
             for (int index : targets) {
-                cap = Math.max(cap, matrix.getItem(index).getMaxStackSize());
+                ItemStack existing = matrix.getItem(index);
+                cap = Math.max(cap, existing.isEmpty()
+                        ? UltraStacksConfig.limitCap()
+                        : existing.getMaxStackSize());
             }
             long n = targets.size();
             long per = Math.max(0L, Math.min((long) cap, sum / n));

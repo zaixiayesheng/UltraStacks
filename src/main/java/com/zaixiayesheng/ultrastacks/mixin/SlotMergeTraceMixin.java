@@ -49,34 +49,4 @@ public abstract class SlotMergeTraceMixin {
         }
         return same;
     }
-
-    /**
-     * 注意：{@code Slot.safeInsert} 是<b>实例方法</b>，Mixin 要求重定向它的处理器也必须是
-     * <b>实例方法</b>（第一个参数接住接收者 {@code Slot}）。写成 {@code static} 会静默匹配失败，
-     * 这正是上一版「改了却完全没生效」的原因。
-     *
-     * <p>Note: {@code Slot.safeInsert} is an instance method, so its redirect handler must be an
-     * instance method too (the first parameter receives the {@code Slot} receiver). Declaring it
-     * {@code static} silently fails to apply — which is why the previous build changed nothing.</p>
-     */
-    @Redirect(
-            method = "doClick(IILnet/minecraft/world/inventory/ClickType;Lnet/minecraft/world/entity/player/Player;)V",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/inventory/Slot;safeInsert(Lnet/minecraft/world/item/ItemStack;I)Lnet/minecraft/world/item/ItemStack;"),
-            require = 0)
-    private ItemStack ultrastacks$mergeWholeStack(Slot slot, ItemStack stack, int amount,
-                                                  @Local(argsOnly = true, index = 1) int button) {
-        // 右键（button 1）一律交还原版：那里 amount 就是 1，把「放一个」变成「放一整摞」。
-        if (button != 0 || !slot.hasItem()) {
-            return slot.safeInsert(stack, amount);
-        }
-        if (amount != Integer.MAX_VALUE && (stack.getCount() > 1 || slot.getItem().getCount() > 1)) {
-            String line = "[diag] merge raise: " + stack.getDescriptionId() + " carried x"
-                    + stack.getCount() + " into slot x" + slot.getItem().getCount()
-                    + " vanillaAmount=" + amount + " -> MAX";
-            UltraStacks.LOGGER.warn(line);
-            com.zaixiayesheng.ultrastacks.DiagLog.line(line);
-        }
-        return slot.safeInsert(stack, Integer.MAX_VALUE);
-    }
 }

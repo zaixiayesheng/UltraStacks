@@ -126,6 +126,13 @@ public final class UltraStacksConfig {
             .translation("ultrastacks.configuration.tooltipExact")
             .define("tooltipExact", true);
 
+    private static final ModConfigSpec.BooleanValue IGNORE_TOO_EXPENSIVE = BUILDER
+            .comment("Anvil: let the result be taken even when the total cost reaches 40 (\"Too Expensive\").",
+                    "The experience charge is unchanged - only the blocking is removed.",
+                    "中文：铁砧 —— 总费用达到 40 时产物不再被吞掉（原版「过于昂贵」），经验照实扣，只解除拦截。")
+            .translation("ultrastacks.configuration.ignoreTooExpensive")
+            .define("ignoreTooExpensive", true);
+
     private static final ModConfigSpec.BooleanValue COMPAT_SOPHISTICATED = BUILDER
             .comment("Compat patch - raise the slot limit of Sophisticated Storage and Backpacks to the configured stack size.",
                     "中文：兼容补丁 - 把精妙储存与背包的槽位上抬到配置值。")
@@ -204,6 +211,7 @@ public final class UltraStacksConfig {
     private static volatile CountStyle countStyle = CountStyle.COMPACT;
     private static volatile int abbreviateAbove = 1000;
     private static volatile boolean tooltipExact = true;
+    private static volatile boolean ignoreTooExpensive = true;
     private static volatile boolean compatSophisticated = true;
     private static volatile boolean compatMekanicalCreate = true;
     private static volatile boolean compatMekanism = true;
@@ -214,6 +222,32 @@ public final class UltraStacksConfig {
     private static volatile boolean compatImmersiveEngineering = true;
 
     private UltraStacksConfig() {
+    }
+
+    /**
+     * 配置里的硬上限。
+     *
+     * <p>The hard cap from the config.
+     */
+    public static int limitCap() {
+        return maxStackSize();
+    }
+
+    /**
+     * 上报上限时不许超过配置值，也不许把「比上限还多的那堆」当成合法上限。
+     *
+     * <p>超限堆已经不合法（旧版本留下的、或别的模组写进来的）：这里返回 cap，让合并路径按正常余量算，
+     * 而不是用自身数量自我证明、越滚越大。
+     *
+     * <p>An already-overflowing stack is not a licence to raise the cap: report the configured cap so
+     * merging paths compute a real remainder instead of growing without bound.
+     */
+    public static int honestLimit(int limit, int count) {
+        int cap = limitCap();
+        if (count > cap) {
+            return cap;
+        }
+        return Math.min(cap, Math.max(limit, count));
     }
 
     public static int maxStackSize() {
@@ -273,7 +307,7 @@ public final class UltraStacksConfig {
         if (!compatSophisticated) {
             return original;
         }
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
     public static boolean compatMekanism() {
@@ -290,7 +324,7 @@ public final class UltraStacksConfig {
         if (!compatMekanism) {
             return original;
         }
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
     public static boolean compatAe2() {
@@ -311,7 +345,7 @@ public final class UltraStacksConfig {
         if (!compatAe2) {
             return original;
         }
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
     /**
@@ -352,7 +386,7 @@ public final class UltraStacksConfig {
         if (!compatRefinedStorage) {
             return original;
         }
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
     /**
@@ -383,7 +417,7 @@ public final class UltraStacksConfig {
         if (!compatIronFurnaces) {
             return original;
         }
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
 
@@ -399,7 +433,7 @@ public final class UltraStacksConfig {
         if (!compatMysticalAgriculture) {
             return original;
         }
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
     /**
@@ -413,7 +447,7 @@ public final class UltraStacksConfig {
         if (!compatImmersiveEngineering) {
             return original;
         }
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
     /**
@@ -424,11 +458,15 @@ public final class UltraStacksConfig {
      * stay as the mod set them.
      */
     public static int vehicleSlotLimit(int original) {
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
     public static boolean tooltipExact() {
         return tooltipExact;
+    }
+
+    public static boolean ignoreTooExpensive() {
+        return ignoreTooExpensive;
     }
 
     /**
@@ -443,6 +481,7 @@ public final class UltraStacksConfig {
         }
 
         int requested = Math.min(MAX_STACK_SIZE.get(), UltraStacks.ABSOLUTE_MAX_STACK_SIZE);
+        ITEM_KIND.clear();
         scaleSmallItems = SCALE_SMALL_ITEMS.get();
         craftingModule = CRAFTING_MODULE.get();
         displayModule = DISPLAY_MODULE.get();
@@ -452,6 +491,7 @@ public final class UltraStacksConfig {
         countStyle = COUNT_STYLE.get();
         abbreviateAbove = ABBREVIATE_ABOVE.get();
         tooltipExact = TOOLTIP_EXACT.get();
+        ignoreTooExpensive = IGNORE_TOO_EXPENSIVE.get();
         compatSophisticated = COMPAT_SOPHISTICATED.get();
         compatMekanicalCreate = COMPAT_MEKANICAL_CREATE.get();
         compatMekanism = COMPAT_MEKANISM.get();
@@ -510,7 +550,7 @@ public final class UltraStacksConfig {
      * really wants the raised value.
      */
     public static int raiseSlotLimit(int original) {
-        return original == 64 || original == 99 ? maxStackSize : original;
+        return original == 64 || original == 99 || original == 512 ? maxStackSize : original;
     }
 
     /**
@@ -565,6 +605,27 @@ public final class UltraStacksConfig {
      * <p>The value {@code ItemStack#getMaxStackSize()} finally reports once the default components have
      * been applied.
      */
+    /** 物品类别缓存：0=普通，1=药水，2=附魔书，3=桶。渲染时每格都会问一次上限，这里只算第一次。 */
+    /** Item category cache: 0 plain, 1 potion, 2 enchanted book, 3 bucket. Asked once per frame per cell. */
+    private static final java.util.Map<net.minecraft.world.item.Item, Integer> ITEM_KIND =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    private static int itemKind(ItemStack stack) {
+        return ITEM_KIND.computeIfAbsent(stack.getItem(), item -> {
+            if (isPotion(stack)) {
+                return 1;
+            }
+            if (isEnchantedBook(stack)) {
+                return 2;
+            }
+            if (item instanceof net.minecraft.world.item.BucketItem
+                    || item instanceof net.minecraft.world.item.MilkBucketItem) {
+                return 3;
+            }
+            return 0;
+        });
+    }
+
     public static int limitFor(ItemStack stack, int current) {
         if (stack.isDamageableItem()) {
             return current;
@@ -576,15 +637,13 @@ public final class UltraStacksConfig {
             return current;
         }
         int configured;
-        if (isPotion(stack)) {
-            configured = potionStackLimit;
-        } else if (isEnchantedBook(stack)) {
-            configured = enchantedBookStackLimit;
-        } else if (stack.getItem() instanceof net.minecraft.world.item.BucketItem
-                || stack.getItem() instanceof net.minecraft.world.item.MilkBucketItem) {
-            configured = Math.max(bucketStackLimit, scaledMax(16));
-        } else {
-            return current;
+        switch (itemKind(stack)) {
+            case 1 -> configured = potionStackLimit;
+            case 2 -> configured = enchantedBookStackLimit;
+            case 3 -> configured = bucketStackLimit;
+            default -> {
+                return current;
+            }
         }
         return Math.max(current, configured);
     }

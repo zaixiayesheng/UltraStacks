@@ -4,7 +4,7 @@ plugins {
 }
 
 val modId = "ultrastacks"
-val modVersion = "21.1-1.0.3-hotfix1"
+val modVersion = "21.1-1.0.4"
 val mcVersion = "1.21.1"
 val neoVersion = "21.1.251"
 val parchmentMappings = "2024.11.17"
@@ -89,4 +89,10 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+// 开发自测类只在开发期生效，别进发布包。
+// Dev-only self tests (dev/AnvilSelfTest) stay out of the published jar.
+tasks.jar {
+    exclude("com/zaixiayesheng/ultrastacks/dev/**")
 }

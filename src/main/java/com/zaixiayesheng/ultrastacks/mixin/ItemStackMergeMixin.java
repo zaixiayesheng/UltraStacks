@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /**
  * 两堆看着一样的东西，应该能合。
  * 老抽屉模板带了个 max_stack_size=64 的标记，原版一比组件就说不一样，于是永远合不上；
- * 这里把 MAX_STACK_SIZE 摘掉再比，附魔、耐久这些照旧算数。
+ * 这里把 MAX_STACK_SIZE 与 REPAIR_COST 摘掉再比，附魔、耐久这些照旧算数。
  * 后来又发现光比补丁还不够：补丁都是空的时候，内容一样但对象不是同一个也会判不等，所以干脆按补丁比。
      *
  * Two identical-looking stacks should merge. Old drawer templates carried a max_stack_size=64
@@ -58,15 +58,11 @@ public abstract class ItemStackMergeMixin {
             // compares the prototype (the item default component map). At runtime two stacks can hold
             // different prototype instances even though their effective components are the same, which
             // makes vanilla treat them as different. Trust the patch instead.
-            boolean sameMap = a.getComponents().equals(b.getComponents());
-            if (!sameMap) {
-            } else {
-            }
             cir.setReturnValue(true);
             return;
         }
-        DataComponentPatch strippedA = pa.forget(type -> type == DataComponents.MAX_STACK_SIZE);
-        DataComponentPatch strippedB = pb.forget(type -> type == DataComponents.MAX_STACK_SIZE);
+        DataComponentPatch strippedA = pa.forget(type -> type == DataComponents.MAX_STACK_SIZE || type == DataComponents.REPAIR_COST);
+        DataComponentPatch strippedB = pb.forget(type -> type == DataComponents.MAX_STACK_SIZE || type == DataComponents.REPAIR_COST);
         if (strippedA.equals(strippedB)) {
             // 唯一差别就是 max_stack_size 组件：视为相同物品。
             // The only difference is the max_stack_size component: treat them as the same item.
@@ -153,7 +149,7 @@ public abstract class ItemStackMergeMixin {
             return;
         }
         DataComponentPatch stripped = stack.getComponentsPatch()
-                .forget(type -> type == DataComponents.MAX_STACK_SIZE);
+                .forget(type -> type == DataComponents.MAX_STACK_SIZE || type == DataComponents.REPAIR_COST);
         int i = 31 + stack.getItem().hashCode();
         cir.setReturnValue(31 * i + stripped.hashCode());
     }

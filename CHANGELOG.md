@@ -1,6 +1,6 @@
 # Changelog / 更新日志
 
-## v26.1-1.0.4-beta — Minecraft 26.1.2 / NeoForge 26.1.2
+## v26.1-1.0.4 — Minecraft 26.1.2 / NeoForge 26.1.2
 
 **中文**
 

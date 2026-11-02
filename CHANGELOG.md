@@ -1,3 +1,75 @@
+# Changelog / 更新日志
+
+## v20.1-1.0.4-beta — Minecraft 1.20.1 / Forge 47.4
+
+**中文**
+
+**模块**：超级堆叠
+
+**摘要**：铁砧支持 Shift 批量合成，并在格子上直接显示批量数量。
+
+### 新增
+
+- 铁砧改成按件结算：一次只从左右两格各取 1 个，剩下的材料留在槽里。
+- 铁砧支持 Shift 批量：一次最多 64 件，按住解锁键（默认鼠标侧键 4）连做到底。
+- 新增「忽略过于昂贵」开关（默认开启）：所需等级达到 40 时原版会显示「过于昂贵」，打开开关后可以照常取走。
+- 产物格显示这一批能做出多少（原版铁砧、工作台、AE 与精妙界面）：Shift 为 64 次，解锁键为做满。
+- 提示框里显示「合计：X / 堆叠上限」，一眼看清这一批的总量与单格上限。
+- 精妙铁砧页的「附魔花费」跟着这一批走：不按显示单次，按住 Shift 显示 64 次的总等级，按住解锁键显示材料能做满的全部。
+- 精妙合成开启自动补货时，合计会把背包存储里能继续补货的库存一起算进去，不再只看合成格现有的材料。
+- 往 ME 接口的配置格手动放物品，会叠到每格上限，放不下的留在手上。
+
+### 优化
+
+- ME 接口和机器缓冲的每格容量跟随本模组上限，不再是写死的 64。
+- 神秘农业的注魔台、附魔台这类机器，槽位上限跟随配置，不再卡在写死的 64 / 512。
+- 在精妙背包、箱子、桶里用合成辅助「清空网格」时，材料优先放回背包和快捷栏。
+- 数量缩写按格子宽度自动调整：1,234 带逗号，10,100 起缩成 `10.1k`（65,536 → `65.5k`），过宽自动缩小。
+
+### 修复
+
+- 提示框里的数量行改到模组名下面，之前会显示到别的位置。
+- 旧存档里超过上限的堆叠，不会再被拆出更多物品，也不会被截断；往满槽插入会被挡回。
+
+### 已知限制
+
+- 精妙背包「铁砧」升级页暂不支持 Shift 批量，仍是一次一件；原版铁砧的批量正常。
+- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
+
+**English**
+
+**Modules**: UltraStacks
+
+**Summary**: the anvil takes shift batches and shows the batch count on the slot.
+
+### Added
+
+- The anvil settles per item: one take pulls 1 item from each input, and the rest stays in the slots.
+- The anvil supports shift batching: up to 64 takes at once, and holding the unlock key (mouse button 4) keeps going.
+- New "ignore too expensive" toggle (on by default): vanilla stops at 40 levels with "Too Expensive"; with the toggle on the result can be taken as usual.
+- The result slot shows what this batch would make on the vanilla anvil and crafting table, in AE and in Sophisticated screens: 64 takes with shift, everything with the unlock key.
+- The tooltip adds "Total: X / stack limit" so the batch total and the per-slot cap are visible at once.
+- In the Sophisticated anvil tab the level readout follows the batch: the single job normally, 64 times the cost with shift, and the whole material-limited batch while the unlock key is held.
+- With auto-refill on, the Sophisticated crafting total also counts the stock in the backpack storage that can keep refilling the grid, instead of only the materials currently in the grid.
+- Items put into an ME interface config slot stack up to the per-slot cap; overflow stays in your hand.
+
+### Improved
+
+- ME interfaces and machine buffers now hold the configured cap per slot instead of a hard-coded 64.
+- Mystical Agriculture machines such as the Infuser and Enchanter follow the configured cap instead of a hard-coded 64 / 512.
+- In a Sophisticated backpack, chest or barrel, CraftingTweaks' "clear grid" returns the materials to your inventory and hotbar first.
+- Counts adjust to the slot width: 1,234 keeps a comma, 10,100 becomes `10.1k`, 65,536 reads `65.5k`; wide text scales down.
+
+### Fixed
+
+- The count line in the tooltip now sits below the mod name instead of somewhere else.
+- Oversized stacks in older saves no longer split into more items than they hold and are never truncated; inserting into a full slot is refused.
+
+### Known limitations
+
+- Shift batching is not available in Sophisticated Backpacks' Anvil upgrade tab on this version; the tab stays one item at a time. Batching on the vanilla anvil works.
+- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
+
 ## 20.1-1.0.3-beta — Minecraft 1.20.1 / Forge 47.4
 
 **中文**
@@ -12,6 +84,10 @@
 - 一次 Shift 点击默认最多合成 64 次（可配置），按住解锁键（默认鼠标侧键 4）才整批合完，仅作用于原版工作台与背包 2×2 合成格。
 - 合成时客户端不再跟着重跑一遍逐次流程，几十万次配方扫描造成的长时间卡顿消失。
 
+### 已知限制
+
+- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
+
 **English**
 
 **Modules**: UltraStacks
@@ -24,6 +100,10 @@
 - A shift-click now crafts at most 64 times by default (configurable); hold the unlock key (mouse button 4 by default) to finish the whole batch. Vanilla crafting table and the 2×2 grid only.
 - The client no longer replays the one-craft-per-round loop, so the freeze caused by hundreds of thousands of recipe scans is gone.
 
+### Known limitations
+
+- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
+
 ## 20.1-1.0.2-beta — Minecraft 1.20.1 / Forge 47.4
 
 **中文**
@@ -35,6 +115,10 @@
 ### 修复
 - 一次点击按槽内剩余空间一次并满，不再只并进槽里原有的数量。
 
+### 已知限制
+
+- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
+
 **English**
 
 **Modules**: UltraStacks
@@ -43,6 +127,10 @@
 
 ### Fixed
 - A click fills the whole remaining space instead of only the count already in the slot.
+
+### Known limitations
+
+- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
 
 ## 20.1-1.0.2-alpha — Minecraft 1.20.1 / Forge 47.4
 
@@ -109,6 +197,10 @@
 ### 修复
 - 回调参数类型与 FastWorkbench 的目标方法不一致，打开背包仍会崩溃；现在按目标签名声明。
 
+### 已知限制
+
+- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
+
 **English**
 
 **Modules**: UltraStacks
@@ -117,6 +209,10 @@
 
 ### Fixed
 - The callback signature did not match FastWorkbench's target method; it now matches exactly.
+
+### Known limitations
+
+- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
 
 ## v20.1-1.0.1-hotfix1 — Minecraft 1.20.1 / Forge 47.4
 
@@ -129,6 +225,10 @@
 ### 修复
 - 上一版 hotfix 在装了 FastWorkbench 的客户端打开背包会直接崩溃，现已修好。
 
+### 已知限制
+
+- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
+
 **English**
 
 **Modules**: UltraStacks
@@ -137,6 +237,10 @@
 
 ### Fixed
 - The previous hotfix crashed clients with FastWorkbench installed as soon as the inventory was opened.
+
+### Known limitations
+
+- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
 
 ## v20.1-1.0.1-hotfix — Minecraft 1.20.1 / Forge 47.4
 
@@ -148,8 +252,17 @@
 - 抽屉一次会把整抽屉塞进背包，现在一次只取一组。
 - 装了 FastWorkbench 时，Shift 合成一个大堆叠要一轮一轮地合，现在一次合完整批。
 
+### Known limitations
 
-# Changelog / 更新日志
+- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
+
+### 已知限制
+
+- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
+
+### Known limitations
+
+- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
 
 ## 20.1-1.0.1 — Minecraft 1.20.1 / Forge 47.4
 
@@ -199,6 +312,18 @@
 ### 修复
 - 精妙存储与精妙背包的物品上限（`getBaseStackLimit`）没有跟上配置，排序与合并仍按旧值结算。
 
+### Known limitations
+
+- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
+
+### 已知限制
+
+- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
+
+### Known limitations
+
+- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
+
 ## 20.1-1.0.1-alpha — Minecraft 1.20.1 / Forge 47.4
 
 **中文**
@@ -239,14 +364,14 @@
 
 ### 新增
 **兼容**：
-- 精妙核心
-- 通用机械
-- 通用动力
-- 应用能源 2
-- 精致存储
-- 更多熔炉
-- 神秘农业（含扩展与自动化）
-- 沉浸工程（含沉浸原油等附属）
+- 精妙核心。
+- 通用机械。
+- 通用动力。
+- 应用能源 2。
+- 精致存储。
+- 更多熔炉。
+- 神秘农业（含扩展与自动化）。
+- 沉浸工程（含沉浸原油等附属）。
 
 **兼容补丁**：按模组是否安装自动启用，没装的不加载。
 
@@ -317,14 +442,14 @@
 
 ### 新增
 **兼容**：
-- 精妙核心
-- 通用机械
-- 通用动力
-- 应用能源 2
-- 精致存储
-- 更多熔炉
-- 神秘农业（含神秘农业扩展）
-- 沉浸工程（含沉浸原油等附属）
+- 精妙核心。
+- 通用机械。
+- 通用动力。
+- 应用能源 2。
+- 精致存储。
+- 更多熔炉。
+- 神秘农业（含神秘农业扩展）。
+- 沉浸工程（含沉浸原油等附属）。
 
 **兼容补丁**：按模组是否安装自动启用，没装的模组不会加载。
 

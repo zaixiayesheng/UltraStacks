@@ -44,6 +44,13 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        // 清空按钮的接手点住在精妙的「合成辅助」接入类里：只有精妙和合成辅助同时在场，那个类才
+        // 能被加载，缺一个就会找不到目标。这条不能走「任意一个 modId 在场」的通用分支。
+        // The clear-button hook lives in Sophisticated's CraftingTweaks integration class: that class
+        // only exists when both mods are present, so both have to be required here.
+        if (mixinClassName.endsWith(".SophProviderClearMixin")) {
+            return isLoaded(SOPHISTICATED) && isLoaded(CRAFTING_TWEAKS);
+        }
         String[] modIds = modIdsFor(mixinClassName);
         if (modIds == null || Arrays.stream(modIds).anyMatch(CompatMixinPlugin::isLoaded)) {
             return true;

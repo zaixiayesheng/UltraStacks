@@ -37,7 +37,18 @@ public final class UnlockKey {
     private UnlockKey() {
     }
 
+    /** 当前是否按住解锁键。 / Whether the unlock key is held right now. */
+    public static boolean isHeld() {
+        InputConstants.Key key = UNLOCK.getKey();
+        if (key.getType() == InputConstants.Type.MOUSE) {
+            long window = Minecraft.getInstance().getWindow().getWindow();
+            return org.lwjgl.glfw.GLFW.glfwGetMouseButton(window, key.getValue()) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
+        }
+        return UNLOCK.isDown();
+    }
+
     @Mod.EventBusSubscriber(modid = UltraStacks.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+
     public static final class Registration {
         private Registration() {
         }
@@ -59,7 +70,7 @@ public final class UnlockKey {
             lastSent = false;
             return;
         }
-        boolean down = UNLOCK.isDown();
+        boolean down = isHeld();
         if (down != lastSent) {
             lastSent = down;
             Network.CHANNEL.sendToServer(new UnlockMessage(down));

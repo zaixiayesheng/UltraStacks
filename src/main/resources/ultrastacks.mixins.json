@@ -22,13 +22,15 @@
     "ItemStackHandlerMixin",
     "ItemStackMaxStackMixin",
     "ItemStackMixin",
-    "ItemCombinerMenuMixin",
+    "AnvilBatchCraftMixin",
+    "ItemCombinerMenuAccessor",
     "PlayerInventoryMixin",
     "QuickCraftSplitMixin",
     "RandomizableContainerBlockEntityMixin",
     "SimpleContainerMixin",
     "SlotMergeMixin",
     "SlotMixin",
+    "SlotGuardMixin",
     "BrewingStandPotionSlotMixin"
   ],
   "injectors": {

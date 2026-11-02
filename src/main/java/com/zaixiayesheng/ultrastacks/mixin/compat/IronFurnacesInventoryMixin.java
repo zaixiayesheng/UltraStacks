@@ -22,7 +22,9 @@ public abstract class IronFurnacesInventoryMixin {
     @Redirect(method = "m_6836_(ILnet/minecraft/world/item/ItemStack;)V",
             at = @At(value = "INVOKE", target = "Lironfurnaces/tileentity/TileEntityInventory;m_6893_()I"),
             remap = false, require = 0)
-    private int ultrastacks$raiseSetItemCap() {
+    private int ultrastacks$raiseSetItemCap(ironfurnaces.tileentity.TileEntityInventory self) {
+        // @Redirect 的处理器要把目标实例当第一个参数接住，否则 1.20.1 的注入校验会拒绝。
+        // The redirect handler must receive the target instance as its first argument.
         return UltraStacksConfig.ironFurnaceLimit(64);
     }
 }

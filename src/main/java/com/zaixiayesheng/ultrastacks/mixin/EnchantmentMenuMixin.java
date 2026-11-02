@@ -1,6 +1,10 @@
 package com.zaixiayesheng.ultrastacks.mixin;
 
 import java.util.List;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -100,9 +104,17 @@ public abstract class EnchantmentMenuMixin {
             }
         }
         player.onEnchantmentPerformed(enchanted, per * batch);
+        // 原版结算后还会判定进度、标记槽位变化、播附魔台音效；少了它们进度不涨、没有声音。
+        // Vanilla also triggers the advancement, marks the slots dirty and plays the table sound.
+        if (player instanceof ServerPlayer serverPlayer) {
+            CriteriaTriggers.ENCHANTED_ITEM.trigger(serverPlayer, enchanted, per * batch);
+        }
         this.enchantmentSeed.set(player.getEnchantmentSeed());
+        this.enchantSlots.setChanged();
         self.slotsChanged(this.enchantSlots);
         player.awardStat(Stats.ENCHANT_ITEM);
+        player.level().playSound(null, player.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE,
+                SoundSource.BLOCKS, 1.0F, player.level().random.nextFloat() * 0.1F + 0.9F);
         cir.setReturnValue(true);
     }
 

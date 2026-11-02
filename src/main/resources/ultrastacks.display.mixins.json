@@ -4,7 +4,17 @@
   "package": "com.zaixiayesheng.ultrastacks.display.mixin",
   "compatibilityLevel": "JAVA_25",
   "client": [
-    "GuiGraphicsExtractorMixin"
+    "AbstractContainerScreenAccessor",
+    "AnvilNameKeepMixin",
+    "AnvilScreenMixin",
+    "CreativeInventoryTooltipMixin",
+    "GuiGraphicsExtractorMixin",
+    "ScreenResultPreviewMixin",
+    "SlotRenderContextMixin",
+    "SophisticatedResultPreviewMixin",
+    "SophisticatedTooltipFallbackMixin",
+    "SophisticatedTooltipMixin",
+    "TooltipAppendMixin"
   ],
   "injectors": {
     "defaultRequire": 1

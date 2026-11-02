@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import com.zaixiayesheng.ultrastacks.client.ClientSetup;
 import com.zaixiayesheng.ultrastacks.client.UnlockKey;
 import com.zaixiayesheng.ultrastacks.crafting.UnlockState;
+import com.zaixiayesheng.ultrastacks.display.DisplayEvents;
 import com.zaixiayesheng.ultrastacks.net.Network;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -40,6 +41,10 @@ public final class UltraStacks {
             ClientSetup.registerConfigScreen(modContainer);
             modEventBus.addListener(UnlockKey::register);
             NeoForge.EVENT_BUS.addListener(UnlockKey::onClientTick);
+            // 提示框里的批次/总数行走通用事件，覆盖那些不走 AbstractContainerScreen 提示流程的界面。
+            // The batch/total tooltip lines also ride the general event so screens that never reach
+            // AbstractContainerScreen's tooltip path still get them.
+            NeoForge.EVENT_BUS.addListener(DisplayEvents::onItemTooltip);
         }
     }
 

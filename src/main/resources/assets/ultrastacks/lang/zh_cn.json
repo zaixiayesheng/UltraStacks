@@ -11,6 +11,7 @@
   "ultrastacks.configuration.abbreviateAbove": "缩写阈值",
   "ultrastacks.configuration.tooltipExact": "提示框准确数量",
   "ultrastacks.tooltip.count": "数量：%s / %s",
+  "ultrastacks.tooltip.batch": "合成数量：%s / %s",
   "ultrastacks.configuration.potionStackLimit": "药水每堆数量",
   "ultrastacks.configuration.enchantedBookStackLimit": "附魔书每堆数量",
   "ultrastacks.configuration.brewingYield": "每个原料可酿出的药水瓶数",
@@ -22,6 +23,7 @@
   "ultrastacks.configuration.compatIronFurnaces": "更多熔炉的输入/输出上限",
   "ultrastacks.configuration.compatMysticalAgriculture": "神秘农业机器的槽位上限",
   "ultrastacks.configuration.bulkCraftLimit": "单次合成上限",
+  "ultrastacks.configuration.ignoreTooExpensive": "铁砧：总费用达到 40 时仍可取走产物（过于昂贵）",
   "ultrastacks.configuration.bulkCraftUnlockKey": "需要按住解锁键",
   "key.ultrastacks.unlock": "解锁整批合成"
 }

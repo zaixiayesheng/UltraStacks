@@ -36,6 +36,16 @@ public final class UnlockKey {
     private UnlockKey() {
     }
 
+    /** 当前是否按住解锁键。 / Whether the unlock key is held right now. */
+    public static boolean isHeld() {
+        InputConstants.Key key = UNLOCK.getKey();
+        if (key.getType() == InputConstants.Type.MOUSE) {
+            long window = Minecraft.getInstance().getWindow().handle();
+            return org.lwjgl.glfw.GLFW.glfwGetMouseButton(window, key.getValue()) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
+        }
+        return UNLOCK.isDown();
+    }
+
     /** 注册按键，客户端总线调用。 */
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(UNLOCK);
@@ -54,7 +64,7 @@ public final class UnlockKey {
             lastSent = false;
             return;
         }
-        boolean down = UNLOCK.isDown();
+        boolean down = isHeld();
         if (down != lastSent) {
             lastSent = down;
             ClientPacketDistributor.sendToServer(new UnlockPayload(down));

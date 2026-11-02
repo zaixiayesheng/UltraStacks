@@ -34,6 +34,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
     private static final String IMMERSIVE_ENGINEERING = "immersiveengineering";
     private static final String CRAFTING_TWEAKS = "craftingtweaks";
     private static final String SUPERB_WARFARE = "superbwarfare";
+    private static final String APOTHEOSIS = "apotheosis";
 
     @Override
     public void onLoad(String mixinPackage) {
@@ -103,6 +104,9 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
         }
         if (simpleName.startsWith("FastWorkbench")) {
             return new String[] { FAST_WORKBENCH };
+        }
+        if (simpleName.startsWith("Apotheosis")) {
+            return new String[] { APOTHEOSIS };
         }
         if (simpleName.startsWith("SuperbWarfare")) {
             return new String[] { SUPERB_WARFARE };

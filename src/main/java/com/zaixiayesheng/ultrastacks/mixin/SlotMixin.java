@@ -16,11 +16,12 @@ import org.spongepowered.asm.mixin.injection.At;
  */
 @Mixin(Slot.class)
 public abstract class SlotMixin {
+
     @ModifyReturnValue(method = "getMaxStackSize()I", at = @At("RETURN"))
     private int ultrastacks$raiseVanillaLimit(int original) {
         int raised = UltraStacksConfig.raiseVanillaDefault(original);
         ItemStack current = ((Slot) (Object) this).getItem();
-        return current.isEmpty() ? raised : Math.max(raised, current.getCount());
+        return current.isEmpty() ? raised : UltraStacksConfig.honestLimit(raised, current.getCount());
     }
 
     @ModifyReturnValue(method = "getMaxStackSize(Lnet/minecraft/world/item/ItemStack;)I", at = @At("RETURN"))
@@ -32,6 +33,6 @@ public abstract class SlotMixin {
         if (current.isEmpty() || !ItemStack.isSameItemSameComponents(current, stack)) {
             return raised;
         }
-        return Math.max(raised, current.getCount());
+        return UltraStacksConfig.honestLimit(raised, current.getCount());
     }
 }

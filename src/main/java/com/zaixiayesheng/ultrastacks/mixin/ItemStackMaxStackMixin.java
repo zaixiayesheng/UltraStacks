@@ -24,7 +24,7 @@ public abstract class ItemStackMaxStackMixin {
             return;
         }
         int original = cir.getReturnValue();
-        int limit = Math.max(UltraStacksConfig.limitFor(self, original), self.getCount());
+        int limit = UltraStacksConfig.honestLimit(UltraStacksConfig.limitFor(self, original), self.getCount());
         if (limit != original) {
             cir.setReturnValue(limit);
         }

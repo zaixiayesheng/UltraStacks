@@ -30,6 +30,9 @@ public abstract class FastWorkbenchShiftCraftMixin {
             // 客户端只发包，合成在服务端。这里不拦掉逐次循环，每轮都会触发合成事件让别的模组扫一遍配方。
             // The client only sends the click; leave the loop running and every round fires
             // a crafting event that other mods answer with a full recipe scan.
+            if (!BulkCrafting.enabled()) {
+                return;
+            }
             if (BulkCrafting.hasOversizedStacks(inventory)) {
                 cir.setReturnValue(ItemStack.EMPTY);
             }

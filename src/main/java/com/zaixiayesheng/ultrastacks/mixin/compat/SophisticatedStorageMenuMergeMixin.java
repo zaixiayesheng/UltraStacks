@@ -37,6 +37,11 @@ public abstract class SophisticatedStorageMenuMergeMixin {
     )
     private int ultrastacks$raiseSophMergeLimit(Slot slot, ItemStack stack) {
         int original = slot.getMaxStackSize(stack);
+        // 可损坏物品永远一格一件：工具被合并成 count=2 会共享同一份组件，拆开即复制/耐久错乱。
+        // Damageable items stay one-per-slot; merging tools would share one component set.
+        if (stack.isDamageableItem()) {
+            return original;
+        }
         int raised = Math.max(original, UltraStacksConfig.maxStackSize());
         if (raised != original && MERGE_LIMIT_LOGGED.size() < MERGE_LIMIT_LOG_CAP
                 && MERGE_LIMIT_LOGGED.add(stack.getItem() + "@" + slot.getClass().getSimpleName())) {

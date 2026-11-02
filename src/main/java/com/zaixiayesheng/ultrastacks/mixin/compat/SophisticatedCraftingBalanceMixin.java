@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * <p>Sophisticated's crafting upgrade ships its own balance handler, a copy of the vanilla one.
  * Same per-slot probing loop, same slowdown once stacks go past 64.</p>
  */
-@Mixin(targets = "net.p3pp3rf1y.sophisticatedcore/compat/craftingtweaks/CraftingUpgradeTweakProvider$StorageCraftingGridBalanceHandler", remap = false)
+@Mixin(targets = "net.p3pp3rf1y.sophisticatedcore.compat.craftingtweaks.CraftingUpgradeTweakProvider$StorageCraftingGridBalanceHandler", remap = false)
 public abstract class SophisticatedCraftingBalanceMixin {
 
     private static final int VANILLA_STACK_SIZE = 64;

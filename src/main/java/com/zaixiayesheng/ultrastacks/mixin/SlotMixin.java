@@ -20,10 +20,19 @@ public abstract class SlotMixin {
 
     @Inject(method = "getMaxStackSize()I", at = @At("RETURN"), cancellable = true)
     private void ultrastacks$raiseVanillaLimit(CallbackInfoReturnable<Integer> cir) {
+        // 零格容器只是占位（神化宝石匣拿 new SimpleContainer(0) 当槽位占位，真正的库存在上限为 1 的
+        // 宝石表里）。抬它没有意义，反而让界面以为一格能塞几万个，所以原样返回。
+        // 1.20.1 没有 MixinExtras，也没法往 Container 接口的默认方法里注入，这条保护就落在真正读上限的
+        // 槽位上。
+        if (((Slot) (Object) this).container.getContainerSize() == 0) {
+            return;
+        }
         // 原版容器的默认上限是 64，部分槽位自己写死 99，所以两个值一起映射。
         int raised = UltraStacksConfig.raiseLegacyDefault(cir.getReturnValue());
         ItemStack current = ((Slot) (Object) this).getItem();
-        cir.setReturnValue(current.isEmpty() ? raised : Math.max(raised, current.getCount()));
+        cir.setReturnValue(current.isEmpty()
+                ? raised
+                : UltraStacksConfig.honestLimit(raised, current.getCount()));
     }
 
     /**
@@ -36,10 +45,13 @@ public abstract class SlotMixin {
      */
     @Inject(method = "getMaxStackSize(Lnet/minecraft/world/item/ItemStack;)I", at = @At("RETURN"), cancellable = true)
     private void ultrastacks$neverBelowContents(ItemStack stack, CallbackInfoReturnable<Integer> cir) {
+        if (((Slot) (Object) this).container.getContainerSize() == 0) {
+            return;
+        }
         int raised = UltraStacksConfig.raiseLegacyDefault(cir.getReturnValue());
         ItemStack current = ((Slot) (Object) this).getItem();
         if (!current.isEmpty() && ItemStack.isSameItemSameTags(current, stack)) {
-            raised = Math.max(raised, current.getCount());
+            raised = UltraStacksConfig.honestLimit(raised, current.getCount());
         }
         cir.setReturnValue(raised);
     }

@@ -39,6 +39,7 @@ public abstract class ItemStackMaxStackMixin {
         }
         int raised = UltraStacksConfig.limitFor(self, cir.getReturnValue());
         int count = self.getCount();
-        cir.setReturnValue(Math.max(raised, count));
+        // 不低于自身数量，但也不许把「已经超限的那堆」当成合法上限：以配置值为准。
+        cir.setReturnValue(UltraStacksConfig.honestLimit(raised, count));
     }
 }

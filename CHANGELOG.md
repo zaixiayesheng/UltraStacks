@@ -1,6 +1,6 @@
 # Changelog / 更新日志
 
-## 21.1-1.0.4-beta — Minecraft 1.21.1 / NeoForge 21.1
+## 21.1-1.0.4 — Minecraft 1.21.1 / NeoForge 21.1
 
 **中文**
 

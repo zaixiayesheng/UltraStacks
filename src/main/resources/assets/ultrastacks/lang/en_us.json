@@ -9,6 +9,7 @@
   "ultrastacks.configuration.abbreviateAbove": "Abbreviate Above",
   "ultrastacks.configuration.tooltipExact": "Tooltip Exact Count",
   "ultrastacks.tooltip.count": "Count: %s / %s",
+  "ultrastacks.tooltip.batch": "Crafted: %s / %s",
   "ultrastacks.configuration.potionStackLimit": "Potion stack size",
   "ultrastacks.configuration.enchantedBookStackLimit": "Enchanted book stack size",
   "ultrastacks.configuration.brewingYield": "Bottles per reagent when brewing",
@@ -27,6 +28,7 @@
   "ultrastacks.configuration.category.modules": "Optional modules",
   "ultrastacks.configuration.category.compat": "Compat patches",
   "ultrastacks.configuration.bulkCraftLimit": "Bulk craft limit",
+  "ultrastacks.configuration.ignoreTooExpensive": "Anvil: allow taking the result once the cost reaches 40 (Too Expensive)",
   "ultrastacks.configuration.bulkCraftUnlockKey": "Require unlock key",
   "key.categories.ultrastacks": "UltraStacks",
   "key.ultrastacks.unlock": "Unlock whole-batch crafting"

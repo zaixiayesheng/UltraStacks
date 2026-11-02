@@ -39,6 +39,9 @@ public abstract class InventoryMenuMixin {
             // 客户端别本地跑：整批由服务端做，本地逐次合成只会把合成事件和配方扫描重复上万遍。
             // Keep the client out of it: the server finishes the batch, while a local pass would repeat
             // the crafting event and its recipe scan tens of thousands of times.
+            if (!BulkCrafting.enabled()) {
+                return;
+            }
             if (BulkCrafting.hasOversizedStacks(craftSlots)) {
                 cir.setReturnValue(ItemStack.EMPTY);
             }

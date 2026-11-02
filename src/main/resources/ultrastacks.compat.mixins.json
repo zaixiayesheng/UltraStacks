@@ -14,11 +14,8 @@
     "Ae2CarriedItemInventoryMixin",
     "Ae2AppEngInternalInventoryMixin",
     "Ae2ItemKeyMixin",
-    "Ae2GenericStackInvMixin",
-    "Ae2OversizeInterfaceMixin",
     "Ae2InternalInventoryItemHandlerMixin",
     "Ae2SlotMixin",
-    "Ae2TerminalDiagMixin",
     "RefinedStorageSlotLimitMixin",
     "RefinedStorageCursorHandlerMixin",
     "IronFurnacesFurnaceMixin",
@@ -33,9 +30,22 @@
     "ImmersiveEngineeringContainerMixin",
     "SophisticatedInventoryInteractionsSortMixin",
     "SophisticatedStorageMenuMergeMixin",
-    "SophisticatedCraftingBalanceMixin"
+    "SophisticatedCraftingBalanceMixin",
+    "SophisticatedSlotPreviewMixin",
+    "Ae2SlotLimitMixin",
+    "SophisticatedCraftLimitMixin",
+    "SophisticatedClearGridMixin",
+    "SophProviderClearMixin",
+    "Ae2SlotCapacitiesMixin",
+    "Ae2FakeSlotMergeMixin",
+    "ApotheosisGemCaseSlotMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+    "Ae2FormatCacheMixin",
+    "SophisticatedAnvilCostMixin",
+    "Ae2ResultPreviewMixin"
+  ]
 }

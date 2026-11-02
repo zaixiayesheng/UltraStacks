@@ -1,6 +1,7 @@
 package com.zaixiayesheng.ultrastacks.mixin;
 
 import net.minecraft.world.Containers;
+import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -41,13 +42,20 @@ public abstract class ContainersDropStackMixin {
         if (stack.getCount() <= SUPERSTACK_SPLIT_THRESHOLD) {
             return;
         }
-        ItemStack dropped = stack.split(stack.getCount());
-        ItemEntity entity = new ItemEntity(level, x, y, z, dropped);
-        entity.setDeltaMovement(
-                level.random.triangle(0.0, 0.11485000171139836),
-                level.random.triangle(0.2, 0.11485000171139836),
-                level.random.triangle(0.0, 0.11485000171139836));
-        level.addFreshEntity(entity);
+        // 一个实体最多装 limitCap 个：再往上就不是「一堆」而是非法栈，捡起来会被夹、被拆、被复制。
+        // One entity carries at most limitCap: beyond that it is an illegal stack that gets clamped,
+        // split or duplicated the moment something picks it up.
+        int cap = Math.max(1, UltraStacksConfig.limitCap());
+        while (!stack.isEmpty()) {
+            int take = Math.min(cap, stack.getCount());
+            ItemStack dropped = stack.split(take);
+            ItemEntity entity = new ItemEntity(level, x, y, z, dropped);
+            entity.setDeltaMovement(
+                    level.random.triangle(0.0, 0.11485000171139836),
+                    level.random.triangle(0.2, 0.11485000171139836),
+                    level.random.triangle(0.0, 0.11485000171139836));
+            level.addFreshEntity(entity);
+        }
         ci.cancel();
     }
 }

@@ -23,6 +23,14 @@ public final class ModBusEvents {
                     || item.components().has(DataComponents.MAX_DAMAGE)) {
                 return;
             }
+            // 桶类单独由 bucketStackLimit 决定：把它们的默认值烘成 16 的倍数，会让配置里的 16/32
+            // 全部失效（limitFor 对「非原版默认值」直接原样返回）。
+            // Buckets are driven by bucketStackLimit alone; baking a scaled default here would make
+            // every configured bucket value unreachable.
+            if (item instanceof net.minecraft.world.item.BucketItem
+                    || item instanceof net.minecraft.world.item.MilkBucketItem) {
+                return;
+            }
 
             // 必须读组件里的原始值：Item#getDefaultMaxStackSize() 已被 ItemDefaultMaxStackMixin 抬高，
             // 从那里读得到的就是新上限，scaledMax() 与原值相等，组件反而永远不会被改写。

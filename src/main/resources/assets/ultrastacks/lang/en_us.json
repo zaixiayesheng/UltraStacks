@@ -27,5 +27,7 @@
   "ultrastacks.configuration.bulkCraftLimit": "Bulk craft limit",
   "ultrastacks.configuration.bulkCraftUnlockKey": "Require unlock key",
   "key.categories.ultrastacks": "UltraStacks",
-  "key.ultrastacks.unlock": "Unlock whole-batch crafting"
+  "key.ultrastacks.unlock": "Unlock whole-batch crafting",
+  "ultrastacks.configuration.ignoreTooExpensive": "Anvil: take the result even past \"Too Expensive\"",
+  "ultrastacks.tooltip.batch": "Crafted: %s / %s"
 }

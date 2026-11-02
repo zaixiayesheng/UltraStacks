@@ -4,7 +4,6 @@
   "package": "com.zaixiayesheng.ultrastacks.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "AnvilMenuMixin",
     "BrewingStandBlockEntityMixin",
     "ComponentItemHandlerMixin",
     "ContainerMixin",
@@ -16,11 +15,15 @@
     "ItemStackHandlerMixin",
     "ItemStackMaxStackMixin",
     "ItemStackMergeMixin",
-    "ItemCombinerMenuMixin",
     "SlotMixin",
     "SlotMergeTraceMixin",
     "SlotClickTraceMixin",
-    "BrewingStandPotionSlotMixin"
+    "BrewingStandPotionSlotMixin",
+    "SlotGuardMixin",
+    "ItemStackLimitGuardMixin",
+    "AnvilBatchCraftMixin",
+    "ItemCombinerMenuAccessor",
+    "AnvilMenuMixin"
   ],
   "injectors": {
     "defaultRequire": 1

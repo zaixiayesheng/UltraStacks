@@ -18,11 +18,17 @@ import org.spongepowered.asm.mixin.injection.At;
 public interface ContainerMixin {
     @ModifyReturnValue(method = "getMaxStackSize()I", at = @At("RETURN"))
     private int ultrastacks$raiseVanillaLimit(int original) {
+        Container self = (Container) this;
+        // 零格容器只是占位（神化宝石匣拿 new SimpleContainer(0) 当槽位占位，真正的库存在上限为 1 的
+        // 宝石表里）。抬它没有意义，反而让界面以为一格能塞几万个，所以原样返回。
+        if (self.getContainerSize() == 0) {
+            return original;
+        }
         return UltraStacksConfig.raiseVanillaDefault(original);
     }
 
     @ModifyReturnValue(method = "getMaxStackSize(Lnet/minecraft/world/item/ItemStack;)I", at = @At("RETURN"))
     private int ultrastacks$neverBelowStackCount(int original, ItemStack stack) {
-        return stack.isEmpty() ? original : Math.max(original, stack.getCount());
+        return stack.isEmpty() ? original : UltraStacksConfig.honestLimit(original, stack.getCount());
     }
 }

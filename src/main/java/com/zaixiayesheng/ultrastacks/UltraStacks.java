@@ -34,6 +34,15 @@ public final class UltraStacks {
     public static final int ABSOLUTE_MAX_STACK_SIZE = Integer.MAX_VALUE / 2;
 
     public UltraStacks(IEventBus modEventBus, ModContainer modContainer) {
+        // 提示框补「合计」行走事件，这样精妙那类自己拼列表的界面也能覆盖。
+        // The batch line is appended through the tooltip event so screens that build their own list
+        // are covered as well.
+        if (net.neoforged.fml.loading.FMLEnvironment.dist.isClient()) {
+            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(
+                    (net.neoforged.neoforge.event.entity.player.ItemTooltipEvent event) ->
+                            com.zaixiayesheng.ultrastacks.display.DisplayEvents.onItemTooltip(event));
+        }
+
         modContainer.registerConfig(ModConfig.Type.COMMON, UltraStacksConfig.SPEC);
         modEventBus.addListener(UltraStacksConfig::onConfigLoad);
         modEventBus.addListener(ModBusEvents::onModifyDefaultComponents);

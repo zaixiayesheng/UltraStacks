@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(targets = "com.refinedmods.refinedstorage.neoforge.grid.strategy.CursorItemHandler", remap = false)
 public abstract class RefinedStorageCursorHandlerMixin {
 
-    @ModifyReturnValue(method = "getSlotLimit(I)I", at = @At("RETURN"))
+    @ModifyReturnValue(method = "getSlotLimit(I)I", at = @At("RETURN"), require = 0)
     private int ultrastacks$raiseCursorLimit(int original) {
         return UltraStacksConfig.refinedStorageSlotLimit(original);
     }

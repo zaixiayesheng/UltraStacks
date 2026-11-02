@@ -65,7 +65,7 @@ public final class UnlockKey {
     }
 
     /** 这个键现在按着没有。 */
-    private static boolean isHeld() {
+    public static boolean isHeld() {
         InputConstants.Key key = UNLOCK.getKey();
         if (key.getType() == InputConstants.Type.MOUSE) {
             long window = Minecraft.getInstance().getWindow().getWindow();

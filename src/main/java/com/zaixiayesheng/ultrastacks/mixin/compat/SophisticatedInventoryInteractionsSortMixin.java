@@ -29,7 +29,11 @@ public abstract class SophisticatedInventoryInteractionsSortMixin {
                     target = "Lnet/minecraft/world/inventory/Slot;getMaxStackSize(Lnet/minecraft/world/item/ItemStack;)I"),
             require = 0)
     private int ultrastacks$raiseSortSlotLimit(Slot slot, ItemStack stack) {
-        return Math.max(slot.getMaxStackSize(stack), UltraStacksConfig.maxStackSize());
+        int original = slot.getMaxStackSize(stack);
+        if (stack.isDamageableItem()) {
+            return original;
+        }
+        return Math.max(original, UltraStacksConfig.maxStackSize());
     }
 
     /**
@@ -42,7 +46,11 @@ public abstract class SophisticatedInventoryInteractionsSortMixin {
                     target = "Lnet/minecraft/world/inventory/Slot;getMaxStackSize(Lnet/minecraft/world/item/ItemStack;)I"),
             require = 0)
     private int ultrastacks$raiseSortSlotLimit2(Slot slot, ItemStack stack) {
-        return Math.max(slot.getMaxStackSize(stack), UltraStacksConfig.maxStackSize());
+        int original = slot.getMaxStackSize(stack);
+        if (stack.isDamageableItem()) {
+            return original;
+        }
+        return Math.max(original, UltraStacksConfig.maxStackSize());
     }
 
     /**
@@ -54,7 +62,11 @@ public abstract class SophisticatedInventoryInteractionsSortMixin {
                     target = "Lnet/minecraft/world/inventory/Slot;getMaxStackSize(Lnet/minecraft/world/item/ItemStack;)I"),
             require = 0)
     private int ultrastacks$raiseSortSlotLimit3(Slot slot, ItemStack stack) {
-        return Math.max(slot.getMaxStackSize(stack), UltraStacksConfig.maxStackSize());
+        int original = slot.getMaxStackSize(stack);
+        if (stack.isDamageableItem()) {
+            return original;
+        }
+        return Math.max(original, UltraStacksConfig.maxStackSize());
     }
 
     // ---- 物品侧：数量为 1 的 key 栈永远报原版默认值，改成按配置换算 ----

@@ -72,7 +72,7 @@
 - Shift batching is not available in Sophisticated Backpacks' Anvil upgrade tab on this version; the tab stays one item at a time. Batching on the vanilla anvil works.
 - Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
 
-## 26.1-1.0.3-beta — Minecraft 26.1.2 / NeoForge 26.1.2
+## v26.1-1.0.3-hotfix1 — Minecraft 26.1.2
 
 **中文**
 
@@ -88,10 +88,6 @@
 - 精妙存储 / 背包的合成升级用的是同一套算法，那边点均分同样不再发磨。
 - 服务器没装合成辅助时，改由本模组在服务端把结果算实，不会再被下一次同步冲回原样。
 
-### 已知限制
-
-- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
-
 **English**
 
 **Modules**: UltraStacks
@@ -106,11 +102,7 @@
 - The crafting upgrade in Sophisticated Storage runs the same routine, so its button is just as smooth.
 - On servers without CraftingTweaks our own packet computes the result server-side, so the next sync cannot undo it.
 
-### Known limitations
-
-- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
-
-## 26.1-1.0.2-beta — Minecraft 26.1.2 / NeoForge 26.1.2
+## v26.1-1.0.3-hotfix — Minecraft 26.1.2
 
 **中文**
 
@@ -122,10 +114,6 @@
 
 - 均分：服务器没装合成辅助时，按钮照样管用，结果不会被下一次同步冲掉。
 
-### 已知限制
-
-- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
-
 **English**
 
 **Modules**: UltraStacks
@@ -134,11 +122,9 @@
 
 ### Fixed
 
-### Known limitations
+- Balance: on servers without CraftingTweaks the button now sticks, instead of being overwritten by the next sync.
 
-- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
-
-## 26.1-1.0.2-alpha — Minecraft 26.1.2 / NeoForge 26.1
+## v26.1-1.0.3 — Minecraft 26.1.2 / NeoForge 26.1.2
 
 **中文**
 
@@ -237,10 +223,6 @@
 ### 修复
 - 回调参数类型与 FastWorkbench 的目标方法不一致，打开背包仍会崩溃；现在按目标签名声明。
 
-### 已知限制
-
-- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
-
 **English**
 
 **Modules**: UltraStacks
@@ -249,10 +231,6 @@
 
 ### Fixed
 - The callback signature did not match FastWorkbench's target method; it now matches exactly.
-
-### Known limitations
-
-- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
 
 ## v26.1-1.0.1-hotfix1 — Minecraft 26.1.2 / NeoForge 26.1.2
 
@@ -265,10 +243,6 @@
 ### 修复
 - 上一版 hotfix 在装了 FastWorkbench 的客户端打开背包会直接崩溃，现已修好。
 
-### 已知限制
-
-- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
-
 **English**
 
 **Modules**: UltraStacks
@@ -277,10 +251,6 @@
 
 ### Fixed
 - The previous hotfix crashed clients with FastWorkbench installed as soon as the inventory was opened.
-
-### Known limitations
-
-- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
 
 ## v26.1-1.0.1-hotfix — Minecraft 26.1.2 / NeoForge 26.1.2
 
@@ -293,17 +263,8 @@
 - 从抽屉取出的物品带着「上限 64」的旧组件，导致 JEI 与配方匹配失败；取用时会把这种组件清掉。
 - 装了 FastWorkbench 时，Shift 合成一个大堆叠要一轮一轮地合，现在一次合完整批。
 
-### Known limitations
 
-- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
-
-### 已知限制
-
-- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
-
-### Known limitations
-
-- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
+# Changelog / 更新日志
 
 ## 26.1-1.0.1 — Minecraft 26.1.2 / NeoForge 26.1.2
 
@@ -339,62 +300,6 @@
 ### Known limitations
 - Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
 
-## 26.1-1.0.1-beta — Minecraft 26.1.2 / NeoForge 26.1.2
-
-**中文**
-
-**模块**：超级堆叠
-
-**摘要**：加入游戏内配置界面，修掉精妙核心的上限联动。
-
-### 新增
-- 游戏内配置界面：直接复用 NeoForge 自带的设置页，模组列表里点「配置」即可修改，不用手动编辑 TOML。
-
-### 修复
-- 精妙存储与精妙背包的物品上限（`getBaseStackLimit`）没有跟上配置，排序与合并仍按旧值结算。
-
-### Known limitations
-
-- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
-
-### 已知限制
-
-- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
-
-### Known limitations
-
-- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
-
-## 26.1-1.0.1-alpha — Minecraft 26.1.2 / NeoForge 26.1
-
-**中文**
-
-**模块**：超级堆叠 · 可选模块（合成、显示）
-
-**摘要**：加入合成与显示两个可选模块，超级堆叠行为不变。
-
-### 新增
-- 合成（可选模块，`crafting`）：原版工作台（3×3）与背包合成格（2×2）在 Shift 点击时一次合完整批，不再逐个循环；批量上限取材料与背包空间的较小值，余下的材料留在原处；`bulkCrafting` 关闭后恢复原版一次一件。
-- 显示（可选模块，`display`）：大数量可缩写（`12k`、`3.4m`）或显示完整数字（`countStyle`、`abbreviateAbove`）；物品提示框可显示准确数量与堆叠上限（`tooltipExact`）；`display` 关闭后按原版绘制。
-- 可选模块的开关与参数：`crafting`、`display` 两个总开关，`bulkCrafting`、`countStyle`、`abbreviateAbove`、`tooltipExact` 四项参数。
-
-### 已知限制
-- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
-
-**English**
-
-**Modules**: UltraStacks · optional modules (crafting, display)
-
-**Summary**: adds the crafting and display optional modules; the UltraStacks behaviour is unchanged.
-
-### Added
-- Crafting (optional module, `crafting`): shift-clicking the result of the 3x3 table or the 2x2 grid finishes the whole batch in one pass instead of the vanilla one-craft-per-round loop, capped by both materials and free space; leftovers stay in place. `bulkCrafting` off restores one craft per click.
-- Display (optional module, `display`): large counts render abbreviated (`12k`, `3.4m`) or as the exact number (`countStyle`, `abbreviateAbove`); the item tooltip can show the exact count and the stack limit (`tooltipExact`). `display` off draws counts the vanilla way.
-- Optional module switches and parameters: `crafting`, `display` master switches; `bulkCrafting`, `countStyle`, `abbreviateAbove`, `tooltipExact` parameters.
-
-### Known limitations
-- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
-
 ## 26.1-1.0.0 — Minecraft 26.1.2 / NeoForge 26.1.2
 
 **中文**
@@ -405,11 +310,11 @@
 
 ### 新增
 **兼容**：
-- 精妙核心。
-- 应用能源 2。
-- 精致存储。
-- 更多熔炉。
-- 神秘农业（含扩展与自动化）。
+- 精妙核心
+- 应用能源 2
+- 精致存储
+- 更多熔炉
+- 神秘农业（含扩展与自动化）
 
 **兼容补丁**：按模组是否安装自动启用，没装的不加载。
 
@@ -466,81 +371,3 @@
 
 ### Known limitations
 - Stacks above 1073741823 load back as a single item; nothing crashes.
-
-## 26.1-1.0.0-beta — Minecraft 26.1.2 / NeoForge 26.1.2
-
-**中文**
-
-**模块**：超级堆叠
-
-**摘要**：兼容更多模组。
-
-### 新增
-**兼容**：
-- 精妙核心。
-- 应用能源 2。
-- 精致存储。
-- 更多熔炉。
-- 神秘农业（含扩展与自动化）。
-
-**兼容补丁**：按模组是否安装自动启用，没装的模组不会加载。
-
-### 已知限制
-- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
-
-**English**
-
-**Modules**: UltraStacks
-
-**Summary**: compatibility with more mods.
-
-### Added
-**Compatibility**:
-- Sophisticated Core
-- Applied Energistics 2
-- Refined Storage
-- Iron Furnaces
-- Mystical Agriculture (with addons)
-
-**Compat patches**: enabled only when the matching mod is installed.
-
-### Known limitations
-- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
-
-## 26.1-1.0.0-alpha — Minecraft 26.1.2 / NeoForge 26.1
-
-**中文**
-
-**模块**：超级堆叠
-
-**摘要**：超级堆叠的第一个 alpha，只处理原版容器与槽位。
-
-### 新增
-- `ultrastacks-common.toml`：`maxStackSize`（默认 65536）、`scaleSmallItems`、`experimentalStackSizes`（解锁 65536 以上，最高 1073741823）。
-- 注册阶段写入物品默认上限，跳过带耐久的物品。
-- 容器与槽位上限跟随配置，且永远不小于槽里已有的数量。
-- 存档数量上限、拖拽整数分摊、地面掉落合并与整堆掉落一并处理。
-
-### 已知限制
-- 超过 1073741823 的数量会被物品编解码拒绝，读档时按 1 个加载，不会崩溃。
-
-**English**
-
-**Modules**: UltraStacks
-
-**Summary**: first alpha of UltraStacks, covering vanilla containers and slots only.
-
-### Added
-- `ultrastacks-common.toml`: `maxStackSize` (default 65536), `scaleSmallItems`, `experimentalStackSizes` (unlocks values above 65536, up to 1073741823).
-- Item limit applied at registration time; damageable items are skipped.
-- Container and slot limits follow the configured value and never drop below the stack already inside.
-- Saved counts, integer drag-splitting, entity merging and single-entity drops are handled as well.
-
-### Known limitations
-- Counts above 1073741823 are rejected by the item codec; such stacks load with count 1 instead of crashing.
-
-### Build
-```
-./gradlew build
-```
-JDK 25; produces `build/libs/UltraStacks-26.1.2-26.1-1.0.0-alpha.jar`.

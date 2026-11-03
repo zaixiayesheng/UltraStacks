@@ -28,7 +28,7 @@ public abstract class Ae2CraftCapMixin {
     @Inject(method = "doClick(Lappeng/helpers/InventoryAction;Lnet/minecraft/world/entity/player/Player;)V",
         at = @At("HEAD"), cancellable = true, require = 0)
     private void ultrastacks$capClick(InventoryAction action, Player player, CallbackInfo ci) {
-        if (BatchCounter.atLimit(player.getUUID())) {
+        if (BatchCounter.atLimit(player.getUUID(), com.zaixiayesheng.ultrastacks.crafting.UnlockState.isUnlocked(player))) {
             DiagLog.lineThrottled("ae2.cap.stop", "[diag] ae2 cap: click refused at limit");
             ci.cancel();
         }

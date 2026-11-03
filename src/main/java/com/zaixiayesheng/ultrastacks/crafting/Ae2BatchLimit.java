@@ -1,5 +1,6 @@
 package com.zaixiayesheng.ultrastacks.crafting;
 
+import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -16,7 +17,8 @@ public final class Ae2BatchLimit {
     }
 
     public static void countRun(Player player) {
-        OVER.set(!BatchCounter.allow(player.getUUID()));
+        OVER.set(!BatchCounter.allow(player.getUUID(), UltraStacksConfig.bulkCraftUnlockKey()
+            && UnlockState.isUnlocked(player)));
     }
 
     public static boolean exhausted() {

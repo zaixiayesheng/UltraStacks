@@ -1,5 +1,10 @@
 # Changelog / 更新日志
 
+## v21.1-1.0.4-hotfix
+
+- 修复：专用服务端在精妙合成页按 Shift 会崩服 —— 服务端路径误用了客户端按键类。
+- Fixed: shift-crafting in the Sophisticated crafting tab crashed dedicated servers — the server path touched a client-only key class.
+
 ## 21.1-1.0.4 — Minecraft 1.21.1 / NeoForge 21.1
 
 **中文**

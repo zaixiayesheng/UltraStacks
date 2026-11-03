@@ -38,4 +38,30 @@ public final class UnlockState {
         UNLOCKED.remove(playerId);
     }
 
+    /**
+     * 当前线程正在服务哪个玩家。{@code getRepeatedQuickMoveLimit} 这类回调拿不到玩家参数，
+     * 由外层带玩家的入口进/出，服务端据此判断“这个人按没按住解锁键”。
+     *
+     * <p>Which player the current thread is serving. Callbacks such as
+     * {@code getRepeatedQuickMoveLimit} get no player argument, so the outer call that does have one
+     * brackets the region and the server reads the flag from there.
+     */
+    private static final ThreadLocal<Player> CURRENT = new ThreadLocal<>();
+
+    /** 进入一个带玩家的调用。 / Enter a call that knows the player. */
+    public static void enter(Player player) {
+        CURRENT.set(player);
+    }
+
+    /** 离开。 / Leave it. */
+    public static void exit() {
+        CURRENT.remove();
+    }
+
+    /** 当前线程的玩家按着解锁键就 true；服务端安全（不碰客户端类）。 */
+    public static boolean currentUnlocked() {
+        Player player = CURRENT.get();
+        return player != null && isUnlocked(player);
+    }
+
 }

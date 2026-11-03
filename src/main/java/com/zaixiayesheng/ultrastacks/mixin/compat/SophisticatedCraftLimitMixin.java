@@ -1,7 +1,6 @@
 package com.zaixiayesheng.ultrastacks.mixin.compat;
 
 import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
-import com.zaixiayesheng.ultrastacks.client.UnlockKey;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,7 +23,7 @@ public abstract class SophisticatedCraftLimitMixin {
         if (!UltraStacksConfig.craftingModule() || !UltraStacksConfig.bulkCrafting()) {
             return;
         }
-        if (UltraStacksConfig.bulkCraftUnlockKey() && UnlockKey.isHeld()) {
+        if (UltraStacksConfig.bulkCraftUnlockKey() && com.zaixiayesheng.ultrastacks.crafting.UnlockState.currentUnlocked()) {
             // 解锁键：不设上限，精妙自己怎么做就怎么做到底。
             // Unlocked: no cap at all, let Sophisticated run its own loop to the end.
             cir.setReturnValue(Integer.MAX_VALUE);

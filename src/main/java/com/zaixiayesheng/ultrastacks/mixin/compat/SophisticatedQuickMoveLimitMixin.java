@@ -27,6 +27,7 @@ public abstract class SophisticatedQuickMoveLimitMixin {
     @Inject(method = "m_7648_(Lnet/minecraft/world/entity/player/Player;I)Lnet/minecraft/world/item/ItemStack;",
         at = @At("HEAD"), cancellable = true, require = 0)
     private void ultrastacks$capRuns(Player player, int index, CallbackInfoReturnable<ItemStack> cir) {
+        com.zaixiayesheng.ultrastacks.crafting.UnlockState.enter(player);
         // 精妙在进入自己的循环前会先合成一次，那一次不经过这里；所以这条路径多放一次，
         // 使「循环外的 1 次 + 循环里的 N 次」正好等于配置的上限。
         // Sophisticated crafts once before entering its own loop, which never reaches this hook, so this
@@ -51,6 +52,7 @@ public abstract class SophisticatedQuickMoveLimitMixin {
     @Inject(method = "m_7648_(Lnet/minecraft/world/entity/player/Player;I)Lnet/minecraft/world/item/ItemStack;",
         at = @At("RETURN"), require = 0)
     private void ultrastacks$recordRun(Player player, int index, CallbackInfoReturnable<ItemStack> cir) {
+        com.zaixiayesheng.ultrastacks.crafting.UnlockState.exit();
         ItemStack moved = cir.getReturnValue();
         if (moved != null && !moved.isEmpty()) {
             BatchCounter.record(player.getUUID());

@@ -33,6 +33,7 @@ public abstract class SophisticatedQuickMoveLimitMixin {
     @Inject(method = "quickMoveStack(Lnet/minecraft/world/entity/player/Player;I)Lnet/minecraft/world/item/ItemStack;",
         at = @At("HEAD"), cancellable = true, require = 0)
     private void ultrastacks$capRuns(Player player, int index, CallbackInfoReturnable<ItemStack> cir) {
+        com.zaixiayesheng.ultrastacks.crafting.UnlockState.enter(player);
         AbstractContainerMenu self = (AbstractContainerMenu) (Object) this;
         Slot clicked = index >= 0 && index < self.slots.size() ? self.slots.get(index) : null;
         boolean anvilResult = clicked != null && clicked.getContainerSlot() == 2
@@ -89,6 +90,7 @@ public abstract class SophisticatedQuickMoveLimitMixin {
     @Inject(method = "quickMoveStack(Lnet/minecraft/world/entity/player/Player;I)Lnet/minecraft/world/item/ItemStack;",
         at = @At("RETURN"), require = 0)
     private void ultrastacks$recordRun(Player player, int index, CallbackInfoReturnable<ItemStack> cir) {
+        com.zaixiayesheng.ultrastacks.crafting.UnlockState.exit();
         ItemStack moved = cir.getReturnValue();
         if (moved != null && !moved.isEmpty()) {
             BatchCounter.record(player.getUUID());

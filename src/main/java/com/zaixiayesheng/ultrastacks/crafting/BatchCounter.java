@@ -1,7 +1,6 @@
 package com.zaixiayesheng.ultrastacks.crafting;
 
 import com.zaixiayesheng.ultrastacks.UltraStacksConfig;
-import com.zaixiayesheng.ultrastacks.client.UnlockKey;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,11 +21,11 @@ public final class BatchCounter {
     }
 
     /** 只读：当前这一串操作是否已经到上限。 / Read-only: whether the current burst already reached the cap. */
-    public static boolean atLimit(UUID player) {
+    public static boolean atLimit(UUID player, boolean unlocked) {
         if (!UltraStacksConfig.craftingModule() || !UltraStacksConfig.bulkCrafting()) {
             return false;
         }
-        if (UltraStacksConfig.bulkCraftUnlockKey() && UnlockKey.isHeld()) {
+        if (unlocked) {
             return false;
         }
         long[] state = STATE.get(player);
@@ -60,11 +59,11 @@ public final class BatchCounter {
     }
 
     /** 记一份，返回这一份是否还在上限之内。 / Count one run and report whether it is still allowed. */
-    public static boolean allow(UUID player) {
+    public static boolean allow(UUID player, boolean unlocked) {
         if (!UltraStacksConfig.craftingModule() || !UltraStacksConfig.bulkCrafting()) {
             return true;
         }
-        if (UltraStacksConfig.bulkCraftUnlockKey() && UnlockKey.isHeld()) {
+        if (unlocked) {
             return true;
         }
         long now = System.nanoTime();
